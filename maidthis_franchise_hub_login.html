@@ -1,0 +1,225 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Open+Sans:wght@400;600&display=swap');
+
+  .mt-login-wrap {
+    min-height: 600px;
+    background: #E6F1F4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    font-family: 'Open Sans', sans-serif;
+  }
+
+  .mt-card {
+    background: #fff;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 440px;
+    padding: 2.5rem 2.5rem 2rem;
+    border: 0.5px solid #A7DBE7;
+  }
+
+  .mt-logo-area {
+    text-align: center;
+    margin-bottom: 1.75rem;
+  }
+
+  .mt-logo-icon {
+    width: 56px;
+    height: 56px;
+    background: #5AB3C9;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .mt-logo-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .mt-brand-name {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: #2C3E50;
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+
+  .mt-brand-name span {
+    color: #0C85C2;
+  }
+
+  .mt-subtitle {
+    font-size: 13px;
+    color: #5AB3C9;
+    margin: 4px 0 0;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .mt-divider {
+    border: none;
+    border-top: 0.5px solid #A7DBE7;
+    margin: 0 0 1.5rem;
+  }
+
+  .mt-welcome {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    color: #2C3E50;
+    margin: 0 0 0.25rem;
+  }
+
+  .mt-welcome-sub {
+    font-size: 13.5px;
+    color: #888;
+    margin: 0 0 1.5rem;
+  }
+
+  .mt-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #2C3E50;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .mt-input {
+    width: 100%;
+    height: 44px;
+    border: 1.5px solid #A7DBE7;
+    border-radius: 10px;
+    padding: 0 14px;
+    font-size: 14.5px;
+    font-family: 'Open Sans', sans-serif;
+    color: #2C3E50;
+    background: #fff;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.15s;
+    margin-bottom: 1rem;
+  }
+
+  .mt-input:focus {
+    border-color: #0C85C2;
+  }
+
+  .mt-forgot {
+    font-size: 12.5px;
+    color: #0C85C2;
+    text-decoration: none;
+    float: right;
+    margin-top: -0.75rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .mt-btn {
+    width: 100%;
+    height: 48px;
+    background: #0C85C2;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.15s;
+  }
+
+  .mt-btn:hover {
+    background: #5AB3C9;
+  }
+
+  .mt-divider2 {
+    border: none;
+    border-top: 0.5px solid #E6F1F4;
+    margin: 1.5rem 0 1rem;
+  }
+
+  .mt-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mt-badge {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #7CCA5B;
+    background: #eafbdf;
+    border-radius: 20px;
+    padding: 4px 10px;
+    letter-spacing: 0.3px;
+  }
+
+  .mt-support {
+    font-size: 12px;
+    color: #aaa;
+  }
+
+  .mt-support a {
+    color: #0C85C2;
+    text-decoration: none;
+  }
+
+  .mt-accent-bar {
+    height: 4px;
+    background: linear-gradient(90deg, #5AB3C9 0%, #0C85C2 50%, #FFB600 100%);
+    border-radius: 0 0 20px 20px;
+    margin: 1.25rem -2.5rem -2rem;
+  }
+</style>
+
+<div class="mt-login-wrap">
+  <div class="mt-card">
+    <div class="mt-logo-area">
+      <div class="mt-logo-icon">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 4L4 13h3v11h7v-7h4v7h7V13h3L16 4z" fill="white"/>
+          <circle cx="22" cy="7" r="2.5" fill="#FFB600"/>
+          <path d="M20 5.5l1 1" stroke="#FFB600" stroke-width="1" stroke-linecap="round"/>
+          <path d="M24 5.5l-1 1" stroke="#FFB600" stroke-width="1" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="mt-brand-name">Maid<span>This</span></p>
+      <p class="mt-subtitle">Franchise Hub</p>
+    </div>
+
+    <hr class="mt-divider">
+
+    <p class="mt-welcome">Welcome back 👋</p>
+    <p class="mt-welcome-sub">Sign in to your franchisee dashboard</p>
+
+    <label class="mt-label">Email address</label>
+    <input class="mt-input" type="email" placeholder="you@maidthis.com">
+
+    <label class="mt-label">Password</label>
+    <input class="mt-input" type="password" placeholder="••••••••••">
+    <a href="#" class="mt-forgot">Forgot password?</a>
+
+    <button class="mt-btn">Sign In</button>
+
+    <hr class="mt-divider2">
+
+    <div class="mt-footer">
+      <span class="mt-badge">Franchisee Portal</span>
+      <span class="mt-support">Need help? <a href="#">Contact support</a></span>
+    </div>
+
+    <div class="mt-accent-bar"></div>
+  </div>
+</div>

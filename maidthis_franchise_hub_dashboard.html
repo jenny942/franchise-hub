@@ -1,0 +1,306 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Open+Sans:wght@400;600&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  .db{font-family:'Open Sans',sans-serif;background:#E6F1F4;min-height:800px;display:flex;}
+  .sidebar{width:220px;min-width:220px;background:#2C3E50;display:flex;flex-direction:column;padding:0;}
+  .sb-logo{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.08);}
+  .sb-logo img{width:140px;height:auto;}
+  .sb-label{font-size:10px;font-weight:700;color:#5AB3C9;letter-spacing:1.5px;text-transform:uppercase;padding:20px 16px 8px;}
+  .sb-item{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13.5px;color:rgba(255,255,255,0.65);cursor:pointer;border-radius:0;transition:background 0.15s;}
+  .sb-item:hover{background:rgba(255,255,255,0.06);color:#fff;}
+  .sb-item.active{background:rgba(90,179,201,0.18);color:#5AB3C9;font-weight:600;}
+  .sb-icon{width:16px;height:16px;opacity:0.7;flex-shrink:0;}
+  .sb-item.active .sb-icon{opacity:1;}
+  .sb-bottom{margin-top:auto;padding:16px;border-top:1px solid rgba(255,255,255,0.08);}
+  .sb-avatar{display:flex;align-items:center;gap:10px;}
+  .sb-av-circle{width:34px;height:34px;border-radius:50%;background:#5AB3C9;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#2C3E50;flex-shrink:0;}
+  .sb-av-name{font-size:13px;color:#fff;font-weight:600;}
+  .sb-av-loc{font-size:11px;color:rgba(255,255,255,0.45);}
+  .main{flex:1;padding:24px;overflow:auto;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+  .greeting{font-family:'Montserrat',sans-serif;font-weight:800;font-size:22px;color:#2C3E50;}
+  .greeting span{color:#0C85C2;}
+  .greeting-sub{font-size:13px;color:#888;margin-top:3px;}
+  .topbar-right{display:flex;align-items:center;gap:12px;}
+  .notif-btn{width:36px;height:36px;border-radius:10px;background:#fff;border:1px solid #A7DBE7;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;}
+  .notif-dot{width:8px;height:8px;background:#FFB600;border-radius:50%;position:absolute;top:7px;right:7px;}
+  .period-select{height:36px;border:1px solid #A7DBE7;border-radius:10px;background:#fff;padding:0 12px;font-size:13px;color:#2C3E50;font-family:'Open Sans',sans-serif;cursor:pointer;outline:none;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px;}
+  .kpi-card{background:#fff;border-radius:14px;padding:16px 18px;border:0.5px solid #A7DBE7;}
+  .kpi-label{font-size:11.5px;font-weight:600;color:#888;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px;}
+  .kpi-val{font-family:'Montserrat',sans-serif;font-weight:800;font-size:26px;color:#2C3E50;}
+  .kpi-val.green{color:#3B8C2A;}
+  .kpi-change{font-size:12px;margin-top:5px;display:flex;align-items:center;gap:4px;}
+  .up{color:#7CCA5B;}.down{color:#e05252;}
+  .mid-grid{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:20px;}
+  .card{background:#fff;border-radius:14px;padding:18px 20px;border:0.5px solid #A7DBE7;}
+  .card-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:#2C3E50;margin-bottom:4px;}
+  .card-sub{font-size:12px;color:#aaa;margin-bottom:16px;}
+  .bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .task-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid #E6F1F4;}
+  .task-item:last-child{border-bottom:none;}
+  .task-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .task-text{font-size:13.5px;color:#2C3E50;flex:1;}
+  .task-badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+  .badge-yellow{background:#fff7e0;color:#B8840A;}
+  .badge-blue{background:#e6f4fb;color:#0C85C2;}
+  .badge-green{background:#eafbdf;color:#3B7A1A;}
+  .rank-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid #E6F1F4;}
+  .rank-item:last-child{border-bottom:none;}
+  .rank-num{font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;color:#A7DBE7;width:20px;}
+  .rank-name{font-size:13.5px;color:#2C3E50;flex:1;}
+  .rank-rev{font-family:'Montserrat',sans-serif;font-weight:700;font-size:13px;color:#0C85C2;}
+  .rank-you{background:#E6F1F4;border-radius:8px;padding:8px 10px;margin:-4px -4px;}
+  .alert-box{background:#fff8e1;border:1px solid #FFB600;border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;}
+  .alert-icon{width:18px;height:18px;background:#FFB600;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+  .alert-text{font-size:13px;color:#7A5F00;}
+  .alert-text strong{font-weight:700;}
+  .cta-btn{display:inline-block;margin-top:6px;padding:5px 14px;background:#FFB600;color:#7A5F00;font-size:12px;font-weight:700;border-radius:20px;cursor:pointer;font-family:'Montserrat',sans-serif;}
+  .chart-wrap{position:relative;width:100%;height:200px;}
+  .progress-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .progress-label{font-size:13px;color:#2C3E50;width:110px;flex-shrink:0;}
+  .progress-track{flex:1;height:8px;background:#E6F1F4;border-radius:20px;overflow:hidden;}
+  .progress-fill{height:100%;border-radius:20px;}
+  .progress-pct{font-size:12px;font-weight:700;color:#0C85C2;width:36px;text-align:right;flex-shrink:0;}
+</style>
+
+<div class="db">
+  <div class="sidebar">
+    <div class="sb-logo">
+      <img src="https://cleaningforareason.org/wp-content/uploads/2024/02/MAID-THIS-LOGO-VARIATION-08-670-768x293.png" alt="MaidThis">
+    </div>
+    <div class="sb-label">Main Menu</div>
+    <div class="sb-item active">
+      <svg class="sb-icon" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="sb-item">
+      <svg class="sb-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a4 4 0 1 1 0 8A4 4 0 0 1 8 1zm0 9c3.3 0 6 1.3 6 3v1H2v-1c0-1.7 2.7-3 6-3z"/></svg>
+      My Profile
+    </div>
+    <div class="sb-item">
+      <svg class="sb-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12v2H2zm0 4h12v2H2zm0 4h8v2H2z"/></svg>
+      Battle Plan
+    </div>
+    <div class="sb-item">
+      <svg class="sb-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1L1 5v2h14V5L8 1zM2 8v5h3v-3h2v3h2v-3h2v3h3V8H2z"/></svg>
+      Goals & Tracking
+    </div>
+    <div class="sb-item">
+      <svg class="sb-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 3h14v2H1zm2 4h10v2H3zm2 4h6v2H5z"/></svg>
+      Marketing Tools
+    </div>
+    <div class="sb-item">
+      <svg class="sb-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0 3v4l3 2-1 1.5L6 9V4h2z"/></svg>
+      Resources
+    </div>
+    <div class="sb-item">
+      <svg class="sb-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H9l-1 2-1-2H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/></svg>
+      Network
+    </div>
+    <div class="sb-bottom">
+      <div class="sb-avatar">
+        <div class="sb-av-circle">JD</div>
+        <div>
+          <div class="sb-av-name">Jamie D.</div>
+          <div class="sb-av-loc">Denver, CO</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="greeting">Good morning, <span>Jamie.</span> Let's get it. 💪</div>
+        <div class="greeting-sub">Thursday, March 26 &nbsp;·&nbsp; Week 13 of 52 &nbsp;·&nbsp; You're on a 4-week revenue streak</div>
+      </div>
+      <div class="topbar-right">
+        <select class="period-select">
+          <option>This month</option>
+          <option>Last month</option>
+          <option>This quarter</option>
+          <option>YTD</option>
+        </select>
+        <div class="notif-btn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="#2C3E50"><path d="M8 1a5 5 0 0 1 5 5v3l1.5 2H1.5L3 9V6a5 5 0 0 1 5-5zm0 13a2 2 0 0 1-2-2h4a2 2 0 0 1-2 2z"/></svg>
+          <div class="notif-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-box">
+      <div class="alert-icon">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="#7A5F00"><path d="M5 1l.5 5h-1L5 1zm0 6.5a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5z"/></svg>
+      </div>
+      <div>
+        <div class="alert-text"><strong>Your weekly marketing mix hasn't been set yet.</strong> Don't leave money on the table — it takes 2 minutes.</div>
+        <div class="cta-btn">Set my mix</div>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Monthly Revenue</div>
+        <div class="kpi-val">$24,820</div>
+        <div class="kpi-change up">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="#7CCA5B"><path d="M6 2l4 5H2z"/></svg>
+          +12% vs last month
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Jobs Completed</div>
+        <div class="kpi-val">148</div>
+        <div class="kpi-change up">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="#7CCA5B"><path d="M6 2l4 5H2z"/></svg>
+          +9 vs last month
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Job Value</div>
+        <div class="kpi-val">$168</div>
+        <div class="kpi-change down">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="#e05252"><path d="M6 10L2 5h8z"/></svg>
+          -$4 vs last month
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Network Rank</div>
+        <div class="kpi-val green">#4</div>
+        <div class="kpi-change up">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="#7CCA5B"><path d="M6 2l4 5H2z"/></svg>
+          Up 2 spots this month
+        </div>
+      </div>
+    </div>
+
+    <div class="mid-grid">
+      <div class="card">
+        <div class="card-title">Revenue this month</div>
+        <div class="card-sub">Daily bookings revenue — you're tracking ahead of last month</div>
+        <div class="chart-wrap">
+          <canvas id="revChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Monthly goal progress</div>
+        <div class="card-sub">$24,820 of $30,000 target</div>
+        <div style="margin-top:8px;">
+          <div class="progress-row">
+            <div class="progress-label">Revenue</div>
+            <div class="progress-track"><div class="progress-fill" style="width:83%;background:#0C85C2;"></div></div>
+            <div class="progress-pct">83%</div>
+          </div>
+          <div class="progress-row">
+            <div class="progress-label">Jobs booked</div>
+            <div class="progress-track"><div class="progress-fill" style="width:74%;background:#5AB3C9;"></div></div>
+            <div class="progress-pct">74%</div>
+          </div>
+          <div class="progress-row">
+            <div class="progress-label">New clients</div>
+            <div class="progress-track"><div class="progress-fill" style="width:60%;background:#7CCA5B;"></div></div>
+            <div class="progress-pct">60%</div>
+          </div>
+          <div class="progress-row">
+            <div class="progress-label">5-star reviews</div>
+            <div class="progress-track"><div class="progress-fill" style="width:90%;background:#FFB600;"></div></div>
+            <div class="progress-pct">90%</div>
+          </div>
+        </div>
+        <div style="margin-top:16px;padding-top:14px;border-top:0.5px solid #E6F1F4;font-size:12.5px;color:#888;">
+          At this pace you'll hit <strong style="color:#0C85C2;">$29,900</strong> by month end. Close, but you've got 5 days left — go get it.
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-grid">
+      <div class="card">
+        <div class="card-title">Your to-dos</div>
+        <div class="card-sub">Things that need your attention today</div>
+        <div class="task-item">
+          <div class="task-dot" style="background:#FFB600;"></div>
+          <div class="task-text">Set weekly marketing mix</div>
+          <span class="task-badge badge-yellow">Urgent</span>
+        </div>
+        <div class="task-item">
+          <div class="task-dot" style="background:#0C85C2;"></div>
+          <div class="task-text">Review Q1 battle plan progress</div>
+          <span class="task-badge badge-blue">This week</span>
+        </div>
+        <div class="task-item">
+          <div class="task-dot" style="background:#7CCA5B;"></div>
+          <div class="task-text">Follow up with 3 inactive clients</div>
+          <span class="task-badge badge-green">In progress</span>
+        </div>
+        <div class="task-item">
+          <div class="task-dot" style="background:#A7DBE7;"></div>
+          <div class="task-text">Submit March cleaner feedback</div>
+          <span class="task-badge badge-blue">This week</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Network leaderboard</div>
+        <div class="card-sub">Top franchisees by revenue this month</div>
+        <div class="rank-item"><div class="rank-num">#1</div><div class="rank-name">Alex R. &nbsp;<span style="font-size:11px;color:#aaa;">Austin, TX</span></div><div class="rank-rev">$41,200</div></div>
+        <div class="rank-item"><div class="rank-num">#2</div><div class="rank-name">Maria S. &nbsp;<span style="font-size:11px;color:#aaa;">Phoenix, AZ</span></div><div class="rank-rev">$38,750</div></div>
+        <div class="rank-item"><div class="rank-num">#3</div><div class="rank-name">Chris B. &nbsp;<span style="font-size:11px;color:#aaa;">Nashville, TN</span></div><div class="rank-rev">$31,100</div></div>
+        <div class="rank-item rank-you"><div class="rank-num" style="color:#0C85C2;">#4</div><div class="rank-name" style="font-weight:700;color:#0C85C2;">You &nbsp;<span style="font-size:11px;color:#aaa;font-weight:400;">Denver, CO</span></div><div class="rank-rev">$24,820</div></div>
+        <div class="rank-item"><div class="rank-num">#5</div><div class="rank-name">Taylor M. &nbsp;<span style="font-size:11px;color:#aaa;">Orlando, FL</span></div><div class="rank-rev">$22,400</div></div>
+        <div style="margin-top:12px;font-size:12px;color:#aaa;">$6,280 away from #3. Just saying.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const labels = ['Mar 1','Mar 5','Mar 10','Mar 15','Mar 20','Mar 25','Mar 26'];
+const data = [2100,4800,8200,13400,18900,23100,24820];
+new Chart(document.getElementById('revChart'), {
+  type: 'line',
+  data: {
+    labels: labels,
+    datasets: [{
+      label: 'Revenue',
+      data: data,
+      borderColor: '#0C85C2',
+      backgroundColor: 'rgba(90,179,201,0.08)',
+      borderWidth: 2.5,
+      pointRadius: 3,
+      pointBackgroundColor: '#0C85C2',
+      fill: true,
+      tension: 0.4
+    },{
+      label: 'Last month',
+      data: [1800,4200,7100,11200,16400,20500,22150],
+      borderColor: '#A7DBE7',
+      backgroundColor: 'transparent',
+      borderWidth: 1.5,
+      pointRadius: 0,
+      fill: false,
+      tension: 0.4,
+      borderDash: [4,4]
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#aaa' } },
+      y: {
+        grid: { color: 'rgba(0,0,0,0.04)' },
+        ticks: {
+          font: { size: 11 },
+          color: '#aaa',
+          callback: v => '$' + Math.round(v/1000) + 'k'
+        }
+      }
+    }
+  }
+});
+</script>

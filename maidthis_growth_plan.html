@@ -1,0 +1,393 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Open+Sans:wght@400;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+.gp{background:#E6F1F4;min-height:100vh;display:flex;font-family:'Open Sans',sans-serif;}
+.sidebar{width:220px;min-width:220px;background:#2C3E50;display:flex;flex-direction:column;}
+.sb-logo{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.sb-logo img{width:140px;height:auto;}
+.sb-label{font-size:10px;font-weight:700;color:#5AB3C9;letter-spacing:1.5px;text-transform:uppercase;padding:20px 16px 8px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13.5px;color:rgba(255,255,255,0.65);cursor:pointer;}
+.sb-item.active{background:rgba(90,179,201,0.18);color:#5AB3C9;font-weight:600;}
+.sb-icon{width:16px;height:16px;flex-shrink:0;}
+.main{flex:1;padding:28px 32px;overflow:auto;}
+.breadcrumb{font-size:12px;color:#888;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.page-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:24px;color:#2C3E50;}
+.page-sub{font-size:13.5px;color:#888;margin-top:4px;margin-bottom:20px;}
+.plans-row{display:flex;gap:14px;margin-bottom:20px;flex-wrap:wrap;}
+.plan-card{background:#fff;border:0.5px solid #A7DBE7;border-radius:14px;padding:14px 18px;min-width:180px;cursor:pointer;transition:border-color 0.15s;}
+.plan-card.active{border:2px solid #0C85C2;}
+.plan-card-name{font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;color:#2C3E50;}
+.plan-card-meta{font-size:11.5px;color:#aaa;margin-top:3px;}
+.plan-card-status{font-size:11px;font-weight:700;margin-top:6px;padding:2px 8px;border-radius:20px;display:inline-block;}
+.status-active{background:#e6f4fb;color:#0C85C2;}
+.status-draft{background:#E6F1F4;color:#888;}
+.new-plan-btn{background:#fff;border:1.5px dashed #A7DBE7;border-radius:14px;padding:14px 18px;min-width:140px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#0C85C2;font-family:'Montserrat',sans-serif;}
+.section-card{background:#fff;border-radius:16px;border:0.5px solid #A7DBE7;padding:22px 24px;margin-bottom:18px;}
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+.section-num{width:28px;height:28px;border-radius:50%;background:#0C85C2;color:#fff;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.section-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;color:#2C3E50;}
+.section-hint{font-size:12.5px;color:#aaa;margin-bottom:18px;padding-left:38px;}
+.two-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;}
+.three-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:14px;}
+.field-label{font-size:11.5px;font-weight:700;color:#2C3E50;letter-spacing:0.5px;text-transform:uppercase;display:block;margin-bottom:6px;}
+.field-hint{font-size:11.5px;color:#aaa;margin-bottom:8px;display:block;}
+input[type=text],input[type=number],input[type=date]{width:100%;height:42px;border:1.5px solid #A7DBE7;border-radius:10px;padding:0 14px;font-size:14px;font-family:'Open Sans',sans-serif;color:#2C3E50;outline:none;}
+input:focus{border-color:#0C85C2;}
+.prefix-input{display:flex;align-items:center;border:1.5px solid #A7DBE7;border-radius:10px;overflow:hidden;}
+.prefix-input:focus-within{border-color:#0C85C2;}
+.prefix{background:#E6F1F4;padding:0 12px;height:42px;display:flex;align-items:center;font-size:14px;font-weight:700;color:#2C3E50;border-right:1.5px solid #A7DBE7;}
+.prefix-input input{border:none;border-radius:0;height:40px;}
+.prefix-input input:focus{border:none;}
+.radio-group{display:flex;flex-direction:column;gap:8px;}
+.radio-opt{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13.5px;color:#2C3E50;}
+.radio-opt input{accent-color:#0C85C2;width:16px;height:16px;}
+.cv-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+.cv-opt{padding:10px 14px;border:1.5px solid #A7DBE7;border-radius:10px;cursor:pointer;font-size:13px;color:#2C3E50;text-align:center;transition:all 0.15s;}
+.cv-opt.selected{border-color:#0C85C2;background:#e6f4fb;color:#0C85C2;font-weight:700;}
+.season-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;margin-top:16px;}
+.season-col{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.season-month{font-size:10.5px;font-weight:700;color:#888;text-align:center;}
+.season-pct{font-size:12px;font-weight:700;color:#0C85C2;text-align:center;min-width:28px;}
+.season-col input[type=range]{writing-mode:vertical-lr;direction:rtl;height:100px;width:24px;accent-color:#0C85C2;}
+.channel-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid #E6F1F4;}
+.channel-row:last-child{border-bottom:none;}
+.channel-name{font-size:13.5px;color:#2C3E50;width:160px;flex-shrink:0;}
+.channel-bar-track{flex:1;height:8px;background:#E6F1F4;border-radius:20px;overflow:hidden;}
+.channel-bar-fill{height:100%;border-radius:20px;background:#0C85C2;transition:width 0.2s;}
+.channel-pct-label{font-size:13px;font-weight:700;color:#0C85C2;width:36px;text-align:right;}
+.channel-slider{flex:1;}
+.channel-slider input{width:100%;accent-color:#0C85C2;}
+.results-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px;}
+.result-card{background:#fff;border-radius:14px;border:0.5px solid #A7DBE7;padding:16px 18px;text-align:center;}
+.result-label{font-size:11.5px;font-weight:700;color:#888;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px;}
+.result-val{font-family:'Montserrat',sans-serif;font-weight:800;font-size:24px;color:#2C3E50;}
+.result-val.green{color:#3B8C2A;}
+.result-val.blue{color:#0C85C2;}
+.result-sub{font-size:12px;color:#aaa;margin-top:4px;}
+.team-row{display:grid;grid-template-columns:minmax(0,1fr) 100px 100px 120px;gap:10px;align-items:center;padding:10px 0;border-bottom:0.5px solid #E6F1F4;}
+.team-row:last-child{border-bottom:none;}
+.team-col-hdr{font-size:11px;font-weight:700;color:#5AB3C9;letter-spacing:0.8px;text-transform:uppercase;}
+.team-role{font-size:13.5px;color:#2C3E50;}
+.save-bar{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:14px;border:0.5px solid #A7DBE7;padding:12px 20px;margin-bottom:18px;}
+.save-msg{font-size:13px;color:#7CCA5B;font-weight:600;display:flex;align-items:center;gap:6px;}
+.save-btn{height:38px;padding:0 22px;background:#0C85C2;color:#fff;border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:13px;cursor:pointer;}
+.save-btn:hover{background:#5AB3C9;}
+.incomplete-banner{background:#fff8e1;border:1px solid #FFB600;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.incomplete-text{font-size:13px;color:#7A5F00;}
+.chart-wrap{position:relative;width:100%;height:220px;}
+select{width:100%;height:42px;border:1.5px solid #A7DBE7;border-radius:10px;padding:0 14px;font-size:14px;font-family:'Open Sans',sans-serif;color:#2C3E50;outline:none;background:#fff;cursor:pointer;}
+select:focus{border-color:#0C85C2;}
+</style>
+
+<div class="gp">
+  <div class="sidebar">
+    <div class="sb-logo"><img src="https://cleaningforareason.org/wp-content/uploads/2024/02/MAID-THIS-LOGO-VARIATION-08-670-768x293.png" alt="MaidThis"></div>
+    <div class="sb-label">Main Menu</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Dashboard</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M2 3h12v2H2zm0 4h12v2H2zm0 4h8v2H2z"/></svg>Goals & Tracking</div>
+    <div class="sb-item active"><svg class="sb-icon" viewBox="0 0 16 16" fill="#5AB3C9"><path d="M1 12L5 6l3 4 3-5 3 3"/></svg>Growth Plan</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M1 3h14v2H1zm2 4h10v2H3zm2 4h6v2H5z"/></svg>Marketing Tools</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0 3v4l3 2-1 1.5L6 9V4h2z"/></svg>Resources</div>
+  </div>
+
+  <div class="main">
+    <div class="breadcrumb">
+      <span style="color:#0C85C2;">Growth Plan</span>
+    </div>
+    <div class="page-title">Growth Plan</div>
+    <div class="page-sub">Your revenue roadmap. Set your numbers, model your seasonality, and see exactly what it takes to hit your goal.</div>
+
+    <div class="plans-row">
+      <div class="plan-card active">
+        <div class="plan-card-name">2026 Main Plan</div>
+        <div class="plan-card-meta">Jan 1 – Dec 31, 2026</div>
+        <div class="plan-card-status status-active">Active</div>
+      </div>
+      <div class="plan-card">
+        <div class="plan-card-name">Q1 Sprint</div>
+        <div class="plan-card-meta">Jan 1 – Mar 31, 2026</div>
+        <div class="plan-card-status status-draft">Draft</div>
+      </div>
+      <div class="new-plan-btn" onclick="sendPrompt('Create a new Growth Plan')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#0C85C2" stroke-width="1.5"/><path d="M8 5v6M5 8h6" stroke="#0C85C2" stroke-width="1.5"/></svg>
+        New plan
+      </div>
+    </div>
+
+    <div class="incomplete-banner">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="#FFB600"><path d="M8 2l6 11H2L8 2zm0 4v3m0 2v1"/></svg>
+      <div class="incomplete-text">Your plan is incomplete — fill in all sections below and hit Save to lock it in. Don't leave money on the table.</div>
+    </div>
+
+    <div class="results-grid">
+      <div class="result-card">
+        <div class="result-label">Revenue goal</div>
+        <div class="result-val blue" id="res-goal">$0</div>
+        <div class="result-sub">by Dec 31, 2026</div>
+      </div>
+      <div class="result-card">
+        <div class="result-label">Leads needed</div>
+        <div class="result-val" id="res-leads">0</div>
+        <div class="result-sub">total this year</div>
+      </div>
+      <div class="result-card">
+        <div class="result-label">New customers</div>
+        <div class="result-val" id="res-customers">0</div>
+        <div class="result-sub">to hit goal</div>
+      </div>
+      <div class="result-card">
+        <div class="result-label">Revenue gap</div>
+        <div class="result-val green" id="res-gap">$0</div>
+        <div class="result-sub">above base</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="section-num">1</div><div class="section-title">Plan basics</div></div>
+      <div class="section-hint">Name your plan, pick your goal type, and set your timeline.</div>
+      <div class="two-col" style="margin-bottom:16px;">
+        <div>
+          <label class="field-label">Plan name</label>
+          <input type="text" id="planName" placeholder="e.g. 2026 Main Growth Plan" oninput="autoSave()">
+        </div>
+        <div>
+          <label class="field-label">Goal type</label>
+          <select id="goalType" onchange="autoSave()">
+            <option>Increase total revenue</option>
+            <option>Increase monthly recurring revenue</option>
+            <option>Grow new customer count</option>
+          </select>
+        </div>
+      </div>
+      <div class="two-col">
+        <div>
+          <label class="field-label">Start date</label>
+          <input type="date" id="startDate" value="2026-01-01" oninput="autoSave()">
+        </div>
+        <div>
+          <label class="field-label">End date</label>
+          <input type="date" id="endDate" value="2026-12-31" oninput="autoSave()">
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="section-num">2</div><div class="section-title">Revenue targets</div></div>
+      <div class="section-hint">Where you're starting from and where you want to be. The gap is what we're going to close.</div>
+      <div class="two-col">
+        <div>
+          <label class="field-label">Base revenue (current)</label>
+          <span class="field-hint">What you're already making, before this plan kicks in</span>
+          <div class="prefix-input"><div class="prefix">$</div><input type="number" id="baseRev" placeholder="e.g. 180000" oninput="calcResults()"></div>
+        </div>
+        <div>
+          <label class="field-label">Revenue goal</label>
+          <span class="field-hint">What you want to hit by your end date</span>
+          <div class="prefix-input"><div class="prefix">$</div><input type="number" id="revGoal" placeholder="e.g. 360000" oninput="calcResults()"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="section-num">3</div><div class="section-title">Customer value</div></div>
+      <div class="section-hint">How do you measure the value of a customer? This is what we'll use to figure out how many you need.</div>
+      <div class="cv-options" id="cvOptions">
+        <div class="cv-opt selected" onclick="selectCV(this,'ticket')">Ticket value</div>
+        <div class="cv-opt" onclick="selectCV(this,'annual')">Annual customer value</div>
+        <div class="cv-opt" onclick="selectCV(this,'lifetime')">Lifetime value</div>
+        <div class="cv-opt" onclick="selectCV(this,'other')">Other</div>
+      </div>
+      <div style="margin-top:16px;">
+        <label class="field-label">Customer value ($)</label>
+        <div class="prefix-input"><div class="prefix">$</div><input type="number" id="custVal" placeholder="e.g. 250" oninput="calcResults()"></div>
+      </div>
+      <div style="margin-top:14px;">
+        <label class="field-label">Leads to customer conversion</label>
+        <span class="field-hint">How many leads does it typically take to close one customer?</span>
+        <input type="number" id="leadConv" placeholder="e.g. 3" value="3" oninput="calcResults()" style="max-width:160px;">
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="section-num">4</div><div class="section-title">Monthly revenue curve</div></div>
+      <div class="section-hint">Cleaning is seasonal. Adjust each month's slider to reflect how your revenue is typically distributed across the year. Should total 100%.</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:12px;color:#aaa;">Drag sliders to match your business seasonality</span>
+        <span style="font-size:13px;font-weight:700;color:#0C85C2;" id="totalPct">Total: 100%</span>
+      </div>
+      <div class="season-grid" id="seasonGrid"></div>
+      <div style="margin-top:16px;position:relative;width:100%;height:160px;">
+        <canvas id="curveChart"></canvas>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="section-num">5</div><div class="section-title">Marketing channel mix</div></div>
+      <div class="section-hint">Where will your leads come from? Allocate your focus across channels — should total 100%.</div>
+      <div id="channelRows"></div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="section-num">6</div><div class="section-title">Team & headcount</div></div>
+      <div class="section-hint">What does your team need to look like to support this plan?</div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) 100px 100px 120px;gap:10px;margin-bottom:8px;">
+        <div class="team-col-hdr">Role</div>
+        <div class="team-col-hdr">Current</div>
+        <div class="team-col-hdr">Target</div>
+        <div class="team-col-hdr">By when</div>
+      </div>
+      <div id="teamRows"></div>
+      <div style="margin-top:12px;cursor:pointer;font-size:12.5px;color:#0C85C2;font-weight:700;display:flex;align-items:center;gap:6px;" onclick="addTeamRow()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#0C85C2" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="#0C85C2" stroke-width="1.5"/></svg>
+        Add role
+      </div>
+    </div>
+
+    <div class="save-bar">
+      <div class="save-msg" id="saveMsg">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#7CCA5B" stroke-width="2"/></svg>
+        Changes saved automatically
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="save-btn" onclick="savePlan()">Save plan</button>
+        <button class="save-btn" style="background:#7CCA5B;" onclick="sendPrompt('Show me a summary of my Growth Plan projections')">View projections ↗</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const defaultPcts = [8,7,9,8,9,10,9,10,10,10,6,4];
+const channels = ['Google Ads','Social media','Referrals','SEO / organic','Direct outreach','Other'];
+const channelColors = ['#0C85C2','#5AB3C9','#7CCA5B','#FFB600','#A7DBE7','#2C3E50'];
+let teamData = [{role:'Operations Manager',current:0,target:1,by:'2026-06'},{role:'Cleaners / Contractors',current:3,target:8,by:'2026-09'},{role:'Customer Success',current:0,target:1,by:'2026-12'}];
+let channelPcts = [30,20,20,15,10,5];
+let seasonPcts = [...defaultPcts];
+
+function buildSeasonGrid(){
+  const grid = document.getElementById('seasonGrid');
+  grid.innerHTML='';
+  months.forEach((m,i)=>{
+    const col = document.createElement('div');
+    col.className='season-col';
+    col.innerHTML=`
+      <div class="season-pct" id="sp_${i}">${seasonPcts[i]}%</div>
+      <input type="range" min="0" max="20" step="1" value="${seasonPcts[i]}" oninput="updateSeason(${i},this.value)">
+      <div class="season-month">${m}</div>
+    `;
+    grid.appendChild(col);
+  });
+  updateCurveChart();
+}
+
+function updateSeason(i,v){
+  seasonPcts[i]=parseInt(v);
+  document.getElementById('sp_'+i).textContent=v+'%';
+  const total=seasonPcts.reduce((a,b)=>a+b,0);
+  const el=document.getElementById('totalPct');
+  el.textContent='Total: '+total+'%';
+  el.style.color=total===100?'#7CCA5B':total>100?'#e05252':'#FFB600';
+  updateCurveChart();
+  calcResults();
+}
+
+let curveChart;
+function updateCurveChart(){
+  const goal=parseFloat(document.getElementById('revGoal')?.value)||300000;
+  const data=seasonPcts.map(p=>Math.round((p/100)*goal));
+  if(curveChart){curveChart.data.datasets[0].data=data;curveChart.update();return;}
+  curveChart=new Chart(document.getElementById('curveChart'),{
+    type:'bar',
+    data:{labels:months,datasets:[{label:'Revenue',data:data,backgroundColor:'rgba(90,179,201,0.6)',borderColor:'#0C85C2',borderWidth:1.5,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:11},color:'#aaa'}},y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:11},color:'#aaa',callback:v=>'$'+Math.round(v/1000)+'k'}}}}
+  });
+}
+
+function buildChannelRows(){
+  const c=document.getElementById('channelRows');
+  c.innerHTML='';
+  channels.forEach((ch,i)=>{
+    const row=document.createElement('div');
+    row.className='channel-row';
+    row.innerHTML=`
+      <div class="channel-name">${ch}</div>
+      <div class="channel-slider"><input type="range" min="0" max="100" step="1" value="${channelPcts[i]}" oninput="updateChannel(${i},this.value)"></div>
+      <div class="channel-pct-label" id="cp_${i}">${channelPcts[i]}%</div>
+    `;
+    c.appendChild(row);
+  });
+}
+
+function updateChannel(i,v){
+  channelPcts[i]=parseInt(v);
+  document.getElementById('cp_'+i).textContent=v+'%';
+  autoSave();
+}
+
+function buildTeamRows(){
+  const c=document.getElementById('teamRows');
+  c.innerHTML='';
+  teamData.forEach((t,i)=>{
+    const row=document.createElement('div');
+    row.className='team-row';
+    row.innerHTML=`
+      <input type="text" value="${t.role}" placeholder="Role / position" oninput="teamData[${i}].role=this.value;autoSave()" style="height:38px;">
+      <input type="number" value="${t.current}" min="0" oninput="teamData[${i}].current=this.value;autoSave()" style="height:38px;">
+      <input type="number" value="${t.target}" min="0" oninput="teamData[${i}].target=this.value;autoSave()" style="height:38px;">
+      <input type="month" value="${t.by}" oninput="teamData[${i}].by=this.value;autoSave()" style="height:38px;">
+    `;
+    c.appendChild(row);
+  });
+}
+
+function addTeamRow(){
+  teamData.push({role:'',current:0,target:1,by:''});
+  buildTeamRows();
+}
+
+function selectCV(el,type){
+  document.querySelectorAll('.cv-opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  autoSave();
+}
+
+function calcResults(){
+  const base=parseFloat(document.getElementById('baseRev')?.value)||0;
+  const goal=parseFloat(document.getElementById('revGoal')?.value)||0;
+  const cv=parseFloat(document.getElementById('custVal')?.value)||0;
+  const conv=parseFloat(document.getElementById('leadConv')?.value)||3;
+  const gap=Math.max(0,goal-base);
+  const customers=cv>0?Math.ceil(gap/cv):0;
+  const leads=Math.ceil(customers*conv);
+  document.getElementById('res-goal').textContent='$'+goal.toLocaleString();
+  document.getElementById('res-leads').textContent=leads.toLocaleString();
+  document.getElementById('res-customers').textContent=customers.toLocaleString();
+  document.getElementById('res-gap').textContent='$'+gap.toLocaleString();
+  updateCurveChart();
+}
+
+let saveTimer;
+function autoSave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    const msg=document.getElementById('saveMsg');
+    if(msg) msg.innerHTML='<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#7CCA5B" stroke-width="2"/></svg> Saved just now';
+  },800);
+}
+
+function savePlan(){
+  const btn=document.querySelector('.save-btn');
+  const orig=btn.textContent;
+  btn.textContent='Saved!';
+  btn.style.background='#7CCA5B';
+  setTimeout(()=>{btn.textContent=orig;btn.style.background='#0C85C2';},2000);
+}
+
+buildSeasonGrid();
+buildChannelRows();
+buildTeamRows();
+calcResults();
+</script>
