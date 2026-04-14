@@ -1,0 +1,243 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Open+Sans:wght@400;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+.gp{background:#E6F1F4;min-height:100vh;display:flex;font-family:'Open Sans',sans-serif;}
+.sidebar{width:220px;min-width:220px;background:#2C3E50;display:flex;flex-direction:column;}
+.sb-logo{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.sb-logo img{width:140px;height:auto;}
+.sb-label{font-size:10px;font-weight:700;color:#5AB3C9;letter-spacing:1.5px;text-transform:uppercase;padding:20px 16px 8px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13.5px;color:rgba(255,255,255,0.65);cursor:pointer;transition:background 0.15s;}
+.sb-item:hover{background:rgba(255,255,255,0.05);}
+.sb-item.active{background:rgba(90,179,201,0.18);color:#5AB3C9;font-weight:600;}
+.sb-sub{padding:7px 16px 7px 42px;font-size:12.5px;color:rgba(255,255,255,0.45);cursor:pointer;transition:color 0.15s;}
+.sb-sub:hover{color:rgba(255,255,255,0.75);}
+.sb-sub.active{color:#5AB3C9;font-weight:600;}
+.sb-icon{width:16px;height:16px;flex-shrink:0;}
+.main{flex:1;padding:28px 32px;overflow:auto;}
+.breadcrumb{font-size:12px;color:#888;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.breadcrumb a{color:#0C85C2;text-decoration:none;}
+.breadcrumb-sep{color:#ccc;}
+.page-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:24px;color:#2C3E50;}
+.page-sub{font-size:13.5px;color:#888;margin-top:4px;margin-bottom:22px;}
+.section-card{background:#fff;border-radius:16px;border:0.5px solid #A7DBE7;padding:22px 24px;margin-bottom:18px;}
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+.section-num{width:28px;height:28px;border-radius:50%;background:#0C85C2;color:#fff;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.section-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;color:#2C3E50;}
+.section-hint{font-size:12.5px;color:#aaa;margin-bottom:18px;padding-left:38px;}
+.field-label{font-size:11.5px;font-weight:700;color:#2C3E50;letter-spacing:0.5px;text-transform:uppercase;display:block;margin-bottom:6px;}
+.field-hint{font-size:12px;color:#aaa;margin-bottom:8px;display:block;line-height:1.5;}
+input[type=text],input[type=url],input[type=date],input[type=number]{width:100%;height:42px;border:1.5px solid #A7DBE7;border-radius:10px;padding:0 14px;font-size:14px;font-family:'Open Sans',sans-serif;color:#2C3E50;outline:none;}
+input:focus{border-color:#0C85C2;}
+.two-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;}
+.save-bar{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:14px;border:0.5px solid #A7DBE7;padding:12px 20px;margin-bottom:18px;}
+.save-msg{font-size:13px;color:#7CCA5B;font-weight:600;display:flex;align-items:center;gap:6px;}
+.save-btn{height:38px;padding:0 22px;background:#0C85C2;color:#fff;border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:background 0.15s;}
+.save-btn:hover{background:#5AB3C9;}
+
+/* Zip tag input */
+.zip-tags{display:flex;flex-wrap:wrap;gap:7px;padding:10px 12px;border:1.5px solid #A7DBE7;border-radius:10px;min-height:48px;cursor:text;background:#fff;transition:border-color 0.15s;}
+.zip-tags:focus-within{border-color:#0C85C2;}
+.zip-tag{background:#e6f4fb;color:#0C85C2;font-size:12.5px;font-weight:600;padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:6px;}
+.zip-tag-remove{background:none;border:none;color:#5AB3C9;cursor:pointer;font-size:14px;line-height:1;padding:0;}
+.zip-tag-remove:hover{color:#e05252;}
+.zip-input{border:none;outline:none;font-size:13.5px;font-family:'Open Sans',sans-serif;color:#2C3E50;min-width:80px;flex:1;background:transparent;}
+
+/* External link preview */
+.link-preview{margin-top:8px;display:flex;align-items:center;gap:8px;font-size:12px;color:#5AB3C9;}
+.link-preview a{color:#0C85C2;text-decoration:none;font-weight:600;}
+.link-preview a:hover{text-decoration:underline;}
+
+/* Status badge */
+.status-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.status-badge.active{background:#edfae5;color:#3B8C2A;}
+.status-badge.pending{background:#fff8e1;color:#B87800;}
+</style>
+
+<div class="gp">
+  <div class="sidebar">
+    <div class="sb-logo"><img src="https://cleaningforareason.org/wp-content/uploads/2024/02/MAID-THIS-LOGO-VARIATION-08-670-768x293.png" alt="MaidThis"></div>
+    <div class="sb-label">Main Menu</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Dashboard</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M2 3h12v2H2zm0 4h12v2H2zm0 4h8v2H2z"/></svg>Goals & Tracking</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M2 13V5l5-4 5 4v8H9V9H7v4H2z"/></svg>Blueprint</div>
+    <div class="sb-sub">&#x25B8; The Vision</div>
+    <div class="sb-sub">&#x25B8; The Game Plan</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M1 3h14v2H1zm2 4h10v2H3zm2 4h6v2H5z"/></svg>Marketing Tools</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0 3v4l3 2-1 1.5L6 9V4h2z"/></svg>Resources</div>
+    <div class="sb-item active"><svg class="sb-icon" viewBox="0 0 16 16" fill="#5AB3C9"><path d="M8 1a3 3 0 1 1 0 6A3 3 0 0 1 8 1zm0 8c-3.3 0-6 1.3-6 3v1h12v-1c0-1.7-2.7-3-6-3z"/></svg>Settings</div>
+    <div class="sb-sub active">&#x25B8; Business Info</div>
+    <div class="sb-sub">&#x25B8; Personal Info</div>
+  </div>
+
+  <div class="main">
+    <div class="breadcrumb">
+      <a href="settings_home.html">Settings</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>Business Info</span>
+    </div>
+    <div class="page-title">Business info</div>
+    <div class="page-sub">Your territory details, business identity, and online presence. Used across your Blueprint, marketing tools, and reporting.</div>
+
+    <div class="save-bar">
+      <div class="save-msg">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#7CCA5B" stroke-width="2"/></svg>
+        Changes saved automatically
+      </div>
+      <button class="save-btn" onclick="savePage(this)">Save changes</button>
+    </div>
+
+    <!-- Section 1: Territory & Identity -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-num">1</div>
+        <div class="section-title">Territory & identity</div>
+      </div>
+      <div class="section-hint">Your official franchise territory and business name as registered.</div>
+
+      <div class="two-col" style="margin-bottom:16px;">
+        <div>
+          <label class="field-label">Territory name</label>
+          <span class="field-hint">Your assigned territory (e.g. Tulsa, OK)</span>
+          <input type="text" id="territory" value="Tulsa, OK" oninput="autoSave()">
+        </div>
+        <div>
+          <label class="field-label">DBA (Doing Business As)</label>
+          <span class="field-hint">The name your business operates under locally</span>
+          <input type="text" id="dba" value="MaidThis Tulsa" oninput="autoSave()">
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <label class="field-label">Franchise open date</label>
+          <span class="field-hint">The date you officially opened for business</span>
+          <input type="date" id="openDate" value="2024-03-15" oninput="autoSave()">
+        </div>
+        <div>
+          <label class="field-label">Franchise status</label>
+          <span class="field-hint">Current standing with MaidThis corporate</span>
+          <div style="padding-top:10px;">
+            <span class="status-badge active">
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="#3B8C2A"><circle cx="4" cy="4" r="4"/></svg>
+              Active
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Service Area -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-num">2</div>
+        <div class="section-title">Service area zip codes</div>
+      </div>
+      <div class="section-hint">The zip codes that make up your territory. Used for lead routing and territory mapping.</div>
+
+      <label class="field-label">Zip codes</label>
+      <span class="field-hint">Type a zip code and press Enter or comma to add it.</span>
+      <div class="zip-tags" id="zipContainer" onclick="document.getElementById('zipInput').focus()">
+        <span class="zip-tag">74101 <button class="zip-tag-remove" onclick="removeZip(this)">×</button></span>
+        <span class="zip-tag">74102 <button class="zip-tag-remove" onclick="removeZip(this)">×</button></span>
+        <span class="zip-tag">74103 <button class="zip-tag-remove" onclick="removeZip(this)">×</button></span>
+        <span class="zip-tag">74104 <button class="zip-tag-remove" onclick="removeZip(this)">×</button></span>
+        <span class="zip-tag">74105 <button class="zip-tag-remove" onclick="removeZip(this)">×</button></span>
+        <input type="text" class="zip-input" id="zipInput" placeholder="Add zip…" maxlength="5" onkeydown="handleZipKey(event)">
+      </div>
+      <div style="margin-top:8px;font-size:12px;color:#aaa;" id="zipCount">5 zip codes added</div>
+    </div>
+
+    <!-- Section 3: Business Listing -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-num">3</div>
+        <div class="section-title">Business listing (Google Business Profile)</div>
+      </div>
+      <div class="section-hint">Keep this consistent with what's on your GBP. Inconsistencies hurt local SEO.</div>
+
+      <div style="margin-bottom:16px;">
+        <label class="field-label">Business listing address</label>
+        <span class="field-hint">The exact address shown on your Google Business Profile</span>
+        <input type="text" id="gbpAddress" value="1234 S Boston Ave, Tulsa, OK 74119" oninput="autoSave()">
+      </div>
+
+      <div class="two-col">
+        <div>
+          <label class="field-label">Business website</label>
+          <span class="field-hint">Your local franchise website URL</span>
+          <input type="url" id="website" value="https://tulsa.maidthis.com" oninput="autoSave()">
+          <div class="link-preview">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#5AB3C9" stroke-width="1.5"><path d="M5 2H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V7M7 1h4m0 0v4m0-4L5 7"/></svg>
+            <a href="#" onclick="return false;">tulsa.maidthis.com</a>
+          </div>
+        </div>
+        <div>
+          <label class="field-label">Google Business Profile link</label>
+          <span class="field-hint">The direct URL to your GBP listing</span>
+          <input type="url" id="gbpLink" value="https://g.page/maidthistulsa" oninput="autoSave()">
+          <div class="link-preview">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#5AB3C9" stroke-width="1.5"><path d="M5 2H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V7M7 1h4m0 0v4m0-4L5 7"/></svg>
+            <a href="#" onclick="return false;">View GBP listing ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="save-bar">
+      <div class="save-msg" id="saveMsg">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#7CCA5B" stroke-width="2"/></svg>
+        Changes saved automatically
+      </div>
+      <button class="save-btn" onclick="savePage(this)">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function handleZipKey(e){
+  if(e.key==='Enter'||e.key===','){
+    e.preventDefault();
+    const val=e.target.value.replace(',','').trim();
+    if(val.length===5&&/^\d+$/.test(val)) addZip(val);
+    e.target.value='';
+  } else if(e.key==='Backspace'&&e.target.value===''){
+    const tags=document.querySelectorAll('.zip-tag');
+    if(tags.length) tags[tags.length-1].remove();
+    updateZipCount();
+  }
+}
+function addZip(val){
+  const container=document.getElementById('zipContainer');
+  const input=document.getElementById('zipInput');
+  const tag=document.createElement('span');
+  tag.className='zip-tag';
+  tag.innerHTML=`${val} <button class="zip-tag-remove" onclick="removeZip(this)">×</button>`;
+  container.insertBefore(tag,input);
+  updateZipCount();
+  autoSave();
+}
+function removeZip(btn){
+  btn.parentElement.remove();
+  updateZipCount();
+  autoSave();
+}
+function updateZipCount(){
+  const n=document.querySelectorAll('.zip-tag').length;
+  document.getElementById('zipCount').textContent=n+' zip code'+(n!==1?'s':'')+' added';
+}
+let saveTimer;
+function autoSave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    const msg=document.getElementById('saveMsg');
+    if(msg) msg.innerHTML='<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#7CCA5B" stroke-width="2"/></svg> Saved just now';
+  },800);
+}
+function savePage(btn){
+  const orig=btn.textContent;
+  btn.textContent='Saved!';
+  btn.style.background='#7CCA5B';
+  setTimeout(()=>{btn.textContent=orig;btn.style.background='#0C85C2';},2000);
+}
+</script>

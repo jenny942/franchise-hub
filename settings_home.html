@@ -1,0 +1,128 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Open+Sans:wght@400;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+.gp{background:#E6F1F4;min-height:100vh;display:flex;font-family:'Open Sans',sans-serif;}
+.sidebar{width:220px;min-width:220px;background:#2C3E50;display:flex;flex-direction:column;}
+.sb-logo{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.sb-logo img{width:140px;height:auto;}
+.sb-label{font-size:10px;font-weight:700;color:#5AB3C9;letter-spacing:1.5px;text-transform:uppercase;padding:20px 16px 8px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13.5px;color:rgba(255,255,255,0.65);cursor:pointer;transition:background 0.15s;}
+.sb-item:hover{background:rgba(255,255,255,0.05);}
+.sb-item.active{background:rgba(90,179,201,0.18);color:#5AB3C9;font-weight:600;}
+.sb-sub{padding:7px 16px 7px 42px;font-size:12.5px;color:rgba(255,255,255,0.45);cursor:pointer;transition:color 0.15s;}
+.sb-sub:hover{color:rgba(255,255,255,0.75);}
+.sb-sub.active{color:#5AB3C9;font-weight:600;}
+.sb-icon{width:16px;height:16px;flex-shrink:0;}
+.main{flex:1;padding:28px 32px;overflow:auto;}
+.breadcrumb{font-size:12px;color:#888;margin-bottom:6px;}
+.page-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:24px;color:#2C3E50;}
+.page-sub{font-size:13.5px;color:#888;margin-top:4px;margin-bottom:28px;}
+
+.settings-section-label{font-size:11px;font-weight:700;color:#5AB3C9;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;}
+.settings-divider{height:0.5px;background:#A7DBE7;margin-bottom:20px;}
+
+.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:32px;}
+.settings-tile{background:#fff;border:0.5px solid #A7DBE7;border-radius:16px;padding:24px;cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s;text-decoration:none;display:block;}
+.settings-tile:hover{border-color:#0C85C2;box-shadow:0 4px 20px rgba(12,133,194,0.08);}
+.settings-tile-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.settings-tile.business .settings-tile-icon{background:#e6f4fb;}
+.settings-tile.personal .settings-tile-icon{background:#edfae5;}
+.settings-tile-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;color:#2C3E50;margin-bottom:4px;}
+.settings-tile-desc{font-size:12.5px;color:#888;line-height:1.5;margin-bottom:14px;}
+.settings-tile-fields{display:flex;flex-wrap:wrap;gap:6px;}
+.field-pill{font-size:11px;background:#E6F1F4;color:#5AB3C9;font-weight:600;padding:3px 9px;border-radius:20px;}
+.settings-tile-cta{margin-top:16px;font-size:12.5px;font-weight:700;color:#0C85C2;display:flex;align-items:center;gap:4px;}
+.settings-tile.personal .settings-tile-cta{color:#3B8C2A;}
+
+.profile-preview{background:#fff;border:0.5px solid #A7DBE7;border-radius:16px;padding:20px 24px;display:flex;align-items:center;gap:18px;margin-bottom:28px;}
+.profile-avatar{width:56px;height:56px;border-radius:50%;background:#0C85C2;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:800;font-size:20px;color:#fff;flex-shrink:0;}
+.profile-name{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:#2C3E50;}
+.profile-meta{font-size:12.5px;color:#888;margin-top:2px;}
+.profile-complete{margin-left:auto;text-align:right;}
+.profile-complete-pct{font-family:'Montserrat',sans-serif;font-weight:800;font-size:22px;color:#0C85C2;}
+.profile-complete-label{font-size:11.5px;color:#aaa;}
+.profile-bar-track{width:120px;height:6px;background:#E6F1F4;border-radius:20px;overflow:hidden;margin-top:4px;margin-left:auto;}
+.profile-bar-fill{height:100%;background:#0C85C2;border-radius:20px;width:65%;}
+</style>
+
+<div class="gp">
+  <div class="sidebar">
+    <div class="sb-logo"><img src="https://cleaningforareason.org/wp-content/uploads/2024/02/MAID-THIS-LOGO-VARIATION-08-670-768x293.png" alt="MaidThis"></div>
+    <div class="sb-label">Main Menu</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Dashboard</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M2 3h12v2H2zm0 4h12v2H2zm0 4h8v2H2z"/></svg>Goals & Tracking</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M2 13V5l5-4 5 4v8H9V9H7v4H2z"/></svg>Blueprint</div>
+    <div class="sb-sub">&#x25B8; The Vision</div>
+    <div class="sb-sub">&#x25B8; The Game Plan</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M1 3h14v2H1zm2 4h10v2H3zm2 4h6v2H5z"/></svg>Marketing Tools</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0 3v4l3 2-1 1.5L6 9V4h2z"/></svg>Resources</div>
+    <div class="sb-item active"><svg class="sb-icon" viewBox="0 0 16 16" fill="#5AB3C9"><path d="M8 1a3 3 0 1 1 0 6A3 3 0 0 1 8 1zm0 8c-3.3 0-6 1.3-6 3v1h12v-1c0-1.7-2.7-3-6-3z"/></svg>Settings</div>
+    <div class="sb-sub active">&#x25B8; Business Info</div>
+    <div class="sb-sub">&#x25B8; Personal Info</div>
+  </div>
+
+  <div class="main">
+    <div class="breadcrumb">Settings</div>
+    <div class="page-title">Settings</div>
+    <div class="page-sub">Manage your business profile, personal details, and account preferences.</div>
+
+    <!-- Profile preview bar -->
+    <div class="profile-preview">
+      <div class="profile-avatar">JM</div>
+      <div>
+        <div class="profile-name">Jenny Martinez</div>
+        <div class="profile-meta">MaidThis — Tulsa, OK &nbsp;·&nbsp; jenny@maidthisfranchise.com</div>
+      </div>
+      <div class="profile-complete">
+        <div class="profile-complete-pct">65%</div>
+        <div class="profile-complete-label">Profile complete</div>
+        <div class="profile-bar-track"><div class="profile-bar-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- Business settings -->
+    <div class="settings-section-label">Business</div>
+    <div class="settings-divider"></div>
+    <div class="settings-grid">
+      <a class="settings-tile business" href="settings_business.html">
+        <div class="settings-tile-icon">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#0C85C2" stroke-width="1.6"><rect x="2" y="7" width="18" height="13" rx="2"/><path d="M7 7V5a4 4 0 0 1 8 0v2"/><path d="M11 13v2"/></svg>
+        </div>
+        <div class="settings-tile-title">Business info</div>
+        <div class="settings-tile-desc">Your territory, DBA, open date, service area zip codes, business listing details, and website.</div>
+        <div class="settings-tile-fields">
+          <span class="field-pill">Territory</span>
+          <span class="field-pill">DBA</span>
+          <span class="field-pill">Open date</span>
+          <span class="field-pill">Zip codes</span>
+          <span class="field-pill">GBP address</span>
+          <span class="field-pill">Website</span>
+          <span class="field-pill">GBP link</span>
+        </div>
+        <div class="settings-tile-cta">Edit business info ↗</div>
+      </a>
+    </div>
+
+    <!-- Personal settings -->
+    <div class="settings-section-label">Personal</div>
+    <div class="settings-divider"></div>
+    <div class="settings-grid">
+      <a class="settings-tile personal" href="settings_personal.html">
+        <div class="settings-tile-icon">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#3B8C2A" stroke-width="1.6"><circle cx="11" cy="7" r="4"/><path d="M3 19c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <div class="settings-tile-title">Personal info</div>
+        <div class="settings-tile-desc">Your display name, contact details, mailing address, profile photo, and gift preferences.</div>
+        <div class="settings-tile-fields">
+          <span class="field-pill">Display name</span>
+          <span class="field-pill">Email</span>
+          <span class="field-pill">Mailing address</span>
+          <span class="field-pill">Profile photo</span>
+          <span class="field-pill">Gift profile</span>
+        </div>
+        <div class="settings-tile-cta" style="color:#3B8C2A;">Edit personal info ↗</div>
+      </a>
+    </div>
+  </div>
+</div>

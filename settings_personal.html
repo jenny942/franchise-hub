@@ -1,0 +1,302 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Open+Sans:wght@400;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+.gp{background:#E6F1F4;min-height:100vh;display:flex;font-family:'Open Sans',sans-serif;}
+.sidebar{width:220px;min-width:220px;background:#2C3E50;display:flex;flex-direction:column;}
+.sb-logo{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.sb-logo img{width:140px;height:auto;}
+.sb-label{font-size:10px;font-weight:700;color:#5AB3C9;letter-spacing:1.5px;text-transform:uppercase;padding:20px 16px 8px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13.5px;color:rgba(255,255,255,0.65);cursor:pointer;transition:background 0.15s;}
+.sb-item:hover{background:rgba(255,255,255,0.05);}
+.sb-item.active{background:rgba(90,179,201,0.18);color:#5AB3C9;font-weight:600;}
+.sb-sub{padding:7px 16px 7px 42px;font-size:12.5px;color:rgba(255,255,255,0.45);cursor:pointer;transition:color 0.15s;}
+.sb-sub:hover{color:rgba(255,255,255,0.75);}
+.sb-sub.active{color:#5AB3C9;font-weight:600;}
+.sb-icon{width:16px;height:16px;flex-shrink:0;}
+.main{flex:1;padding:28px 32px;overflow:auto;}
+.breadcrumb{font-size:12px;color:#888;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.breadcrumb a{color:#0C85C2;text-decoration:none;}
+.breadcrumb-sep{color:#ccc;}
+.page-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:24px;color:#2C3E50;}
+.page-sub{font-size:13.5px;color:#888;margin-top:4px;margin-bottom:22px;}
+.section-card{background:#fff;border-radius:16px;border:0.5px solid #A7DBE7;padding:22px 24px;margin-bottom:18px;}
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+.section-num{width:28px;height:28px;border-radius:50%;background:#0C85C2;color:#fff;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.section-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;color:#2C3E50;}
+.section-hint{font-size:12.5px;color:#aaa;margin-bottom:18px;padding-left:38px;}
+.field-label{font-size:11.5px;font-weight:700;color:#2C3E50;letter-spacing:0.5px;text-transform:uppercase;display:block;margin-bottom:6px;}
+.field-hint{font-size:12px;color:#aaa;margin-bottom:8px;display:block;line-height:1.5;}
+input[type=text],input[type=email],input[type=url]{width:100%;height:42px;border:1.5px solid #A7DBE7;border-radius:10px;padding:0 14px;font-size:14px;font-family:'Open Sans',sans-serif;color:#2C3E50;outline:none;}
+input:focus{border-color:#0C85C2;}
+textarea{width:100%;border:1.5px solid #A7DBE7;border-radius:10px;padding:12px 14px;font-size:13.5px;font-family:'Open Sans',sans-serif;color:#2C3E50;outline:none;resize:vertical;line-height:1.6;}
+textarea:focus{border-color:#0C85C2;}
+select{width:100%;height:42px;border:1.5px solid #A7DBE7;border-radius:10px;padding:0 14px;font-size:14px;font-family:'Open Sans',sans-serif;color:#2C3E50;outline:none;background:#fff;cursor:pointer;}
+select:focus{border-color:#0C85C2;}
+.two-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;}
+.three-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:14px;}
+.save-bar{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:14px;border:0.5px solid #A7DBE7;padding:12px 20px;margin-bottom:18px;}
+.save-msg{font-size:13px;color:#7CCA5B;font-weight:600;display:flex;align-items:center;gap:6px;}
+.save-btn{height:38px;padding:0 22px;background:#0C85C2;color:#fff;border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:background 0.15s;}
+.save-btn:hover{background:#5AB3C9;}
+
+/* Avatar uploader */
+.avatar-row{display:flex;align-items:center;gap:20px;margin-bottom:18px;}
+.avatar-circle{width:72px;height:72px;border-radius:50%;background:#0C85C2;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:800;font-size:26px;color:#fff;flex-shrink:0;position:relative;overflow:hidden;}
+.avatar-circle img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.avatar-upload-btn{height:38px;padding:0 18px;background:#E6F1F4;color:#2C3E50;border:1.5px solid #A7DBE7;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all 0.15s;}
+.avatar-upload-btn:hover{border-color:#0C85C2;color:#0C85C2;}
+.avatar-hint{font-size:12px;color:#aaa;margin-top:4px;}
+
+/* Gift profile section — special styling */
+.gift-card{background:#fff;border-radius:16px;border:1.5px solid #FFB600;padding:22px 24px;margin-bottom:18px;position:relative;overflow:hidden;}
+.gift-card::before{content:'';position:absolute;top:0;right:0;width:160px;height:160px;background:radial-gradient(circle at top right,rgba(255,182,0,0.06),transparent 70%);}
+.gift-header{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+.gift-icon{width:36px;height:36px;border-radius:10px;background:#fff8e1;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.gift-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;color:#2C3E50;}
+.gift-hint{font-size:12.5px;color:#aaa;margin-bottom:20px;padding-left:48px;line-height:1.5;}
+.gift-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+.gift-field{display:flex;flex-direction:column;}
+.gift-field-icon{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
+.gift-field-icon-dot{width:24px;height:24px;border-radius:8px;background:#fff8e1;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.gift-field-label{font-size:11.5px;font-weight:700;color:#2C3E50;letter-spacing:0.5px;text-transform:uppercase;}
+.gift-badge{display:inline-block;margin-top:6px;font-size:10.5px;font-weight:700;background:#fff8e1;color:#B87800;padding:2px 8px;border-radius:20px;letter-spacing:0.3px;}
+</style>
+
+<div class="gp">
+  <div class="sidebar">
+    <div class="sb-logo"><img src="https://cleaningforareason.org/wp-content/uploads/2024/02/MAID-THIS-LOGO-VARIATION-08-670-768x293.png" alt="MaidThis"></div>
+    <div class="sb-label">Main Menu</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Dashboard</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M2 3h12v2H2zm0 4h12v2H2zm0 4h8v2H2z"/></svg>Goals & Tracking</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M2 13V5l5-4 5 4v8H9V9H7v4H2z"/></svg>Blueprint</div>
+    <div class="sb-sub">&#x25B8; The Vision</div>
+    <div class="sb-sub">&#x25B8; The Game Plan</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M1 3h14v2H1zm2 4h10v2H3zm2 4h6v2H5z"/></svg>Marketing Tools</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0 3v4l3 2-1 1.5L6 9V4h2z"/></svg>Resources</div>
+    <div class="sb-item active"><svg class="sb-icon" viewBox="0 0 16 16" fill="#5AB3C9"><path d="M8 1a3 3 0 1 1 0 6A3 3 0 0 1 8 1zm0 8c-3.3 0-6 1.3-6 3v1h12v-1c0-1.7-2.7-3-6-3z"/></svg>Settings</div>
+    <div class="sb-sub">&#x25B8; Business Info</div>
+    <div class="sb-sub active">&#x25B8; Personal Info</div>
+  </div>
+
+  <div class="main">
+    <div class="breadcrumb">
+      <a href="settings_home.html">Settings</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>Personal Info</span>
+    </div>
+    <div class="page-title">Personal info</div>
+    <div class="page-sub">Your profile, contact details, and a few things that help us celebrate you as part of the MaidThis family.</div>
+
+    <div class="save-bar">
+      <div class="save-msg">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#7CCA5B" stroke-width="2"/></svg>
+        Changes saved automatically
+      </div>
+      <button class="save-btn" onclick="savePage(this)">Save changes</button>
+    </div>
+
+    <!-- Section 1: Profile -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-num">1</div>
+        <div class="section-title">Profile</div>
+      </div>
+      <div class="section-hint">How you appear across the Franchise Hub — on the leaderboard, in reports, and to your support team.</div>
+
+      <div class="avatar-row">
+        <div class="avatar-circle" id="avatarCircle">JM</div>
+        <div>
+          <button class="avatar-upload-btn" onclick="document.getElementById('avatarFile').click()">Upload photo</button>
+          <input type="file" id="avatarFile" accept="image/*" style="display:none" onchange="previewAvatar(this)">
+          <div class="avatar-hint">JPG or PNG, max 5MB. Square crops look best.</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <label class="field-label">Display name</label>
+          <span class="field-hint">How your name appears on leaderboards and reports</span>
+          <input type="text" id="displayName" value="Jenny Martinez" oninput="updateInitials();autoSave()">
+        </div>
+        <div>
+          <label class="field-label">Company email</label>
+          <span class="field-hint">Your primary email for Hub notifications and support</span>
+          <input type="email" id="companyEmail" value="jenny@maidthisfranchise.com" oninput="autoSave()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Mailing Address -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-num">2</div>
+        <div class="section-title">Mailing address</div>
+      </div>
+      <div class="section-hint">Where we send physical mail, recognition awards, and gifts. Keep this current.</div>
+
+      <div style="margin-bottom:14px;">
+        <label class="field-label">Street address</label>
+        <input type="text" id="street" value="4821 S Peoria Ave" oninput="autoSave()">
+      </div>
+      <div class="three-col">
+        <div>
+          <label class="field-label">City</label>
+          <input type="text" id="city" value="Tulsa" oninput="autoSave()">
+        </div>
+        <div>
+          <label class="field-label">State</label>
+          <input type="text" id="state" value="OK" oninput="autoSave()" style="max-width:100%;">
+        </div>
+        <div>
+          <label class="field-label">Zip code</label>
+          <input type="text" id="zip" value="74105" oninput="autoSave()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Gift Profile — special card -->
+    <div class="gift-card">
+      <div class="gift-header">
+        <div class="gift-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#FFB600" stroke-width="1.6">
+            <rect x="2" y="8" width="16" height="11" rx="2"/>
+            <path d="M10 8V19"/>
+            <path d="M2 12h16"/>
+            <path d="M10 8c0 0-2-4 0-6s4 2 0 6"/>
+            <path d="M10 8c0 0 2-4 0-6S6 4 10 8"/>
+          </svg>
+        </div>
+        <div>
+          <div class="gift-title">Gift profile</div>
+        </div>
+      </div>
+      <div class="gift-hint">We love sending surprises to our owners. Fill this out and you might just find something special at your door. 🎁</div>
+
+      <div class="gift-grid">
+
+        <div class="gift-field">
+          <div class="gift-field-icon">
+            <div class="gift-field-icon-dot">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#B87800" stroke-width="1.4"><path d="M7 1l1.5 3 3.5.5-2.5 2.5.5 3.5L7 9 4 10.5l.5-3.5L2 4.5 5.5 4z"/></svg>
+            </div>
+            <span class="gift-field-label">T-shirt size</span>
+          </div>
+          <select id="tshirtSize" onchange="autoSave()">
+            <option value="">Select size…</option>
+            <option selected>Medium (M)</option>
+            <option>Small (S)</option>
+            <option>Large (L)</option>
+            <option>XL</option>
+            <option>2XL</option>
+            <option>3XL</option>
+          </select>
+        </div>
+
+        <div class="gift-field">
+          <div class="gift-field-icon">
+            <div class="gift-field-icon-dot">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#B87800" stroke-width="1.4"><path d="M3 4h8l-1 7H4L3 4z"/><path d="M2 4c0-1.7 2.2-3 5-3s5 1.3 5 3"/><path d="M10 11c0 1-3 2-3 2S4 12 4 11"/></svg>
+            </div>
+            <span class="gift-field-label">Favorite coffee</span>
+          </div>
+          <input type="text" id="favCoffee" placeholder="e.g. Oat milk latte, black coffee…" value="Iced oat milk latte" oninput="autoSave()">
+        </div>
+
+        <div class="gift-field">
+          <div class="gift-field-icon">
+            <div class="gift-field-icon-dot">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#B87800" stroke-width="1.4"><path d="M2 10l2-6h6l2 6H2z"/><path d="M5 10v2m4-2v2M4 7h6"/></svg>
+            </div>
+            <span class="gift-field-label">Favorite fast food</span>
+          </div>
+          <input type="text" id="favFastFood" placeholder="e.g. Chick-fil-A, Chipotle…" value="Chick-fil-A" oninput="autoSave()">
+        </div>
+
+        <div class="gift-field">
+          <div class="gift-field-icon">
+            <div class="gift-field-icon-dot">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#B87800" stroke-width="1.4"><path d="M7 2C4.2 2 2 4.2 2 7s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5z"/><path d="M7 4v3l2 2"/></svg>
+            </div>
+            <span class="gift-field-label">Favorite treat / snack</span>
+          </div>
+          <input type="text" id="favTreat" placeholder="e.g. Sour Patch Kids, dark chocolate…" value="Dark chocolate almonds" oninput="autoSave()">
+        </div>
+
+        <div class="gift-field">
+          <div class="gift-field-icon">
+            <div class="gift-field-icon-dot">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#B87800" stroke-width="1.4"><ellipse cx="7" cy="10" rx="4" ry="2"/><path d="M3 10V6l4-4 4 4v4"/></svg>
+            </div>
+            <span class="gift-field-label">Shoe size</span>
+          </div>
+          <input type="text" id="shoeSize" placeholder="e.g. Men's 10, Women's 8…" value="Women's 8" oninput="autoSave()">
+        </div>
+
+        <div class="gift-field">
+          <div class="gift-field-icon">
+            <div class="gift-field-icon-dot">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#B87800" stroke-width="1.4"><path d="M7 2l1.2 3.6H12L9 7.8l1.2 3.6L7 9.2 3.8 11.4 5 7.8 2 5.6h3.8z"/></svg>
+            </div>
+            <span class="gift-field-label">Favorite sports team</span>
+          </div>
+          <input type="text" id="sportsTeam" placeholder="e.g. OKC Thunder, Chiefs…" value="OKC Thunder" oninput="autoSave()">
+        </div>
+
+        <div class="gift-field" style="grid-column:1/-1;">
+          <div class="gift-field-icon">
+            <div class="gift-field-icon-dot">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#B87800" stroke-width="1.4"><path d="M2 11c1-2 2-4 5-5M7 6c3 1 4 3 5 5M7 2v4"/></svg>
+            </div>
+            <span class="gift-field-label">Hobby or interest</span>
+          </div>
+          <input type="text" id="hobby" placeholder="e.g. Running, woodworking, cooking, reading…" value="Running and hiking" oninput="autoSave()">
+          <span class="gift-badge">Helps us find the perfect gift</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="save-bar">
+      <div class="save-msg" id="saveMsg">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#7CCA5B" stroke-width="2"/></svg>
+        Changes saved automatically
+      </div>
+      <button class="save-btn" onclick="savePage(this)">Save changes</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function updateInitials(){
+  const name=document.getElementById('displayName').value.trim();
+  const parts=name.split(' ').filter(Boolean);
+  const initials=parts.length>=2?parts[0][0]+parts[parts.length-1][0]:name.slice(0,2);
+  const circle=document.getElementById('avatarCircle');
+  if(!circle.querySelector('img')) circle.textContent=initials.toUpperCase();
+}
+function previewAvatar(input){
+  if(!input.files||!input.files[0]) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const circle=document.getElementById('avatarCircle');
+    circle.innerHTML=`<img src="${e.target.result}" alt="avatar">`;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+let saveTimer;
+function autoSave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    const msg=document.getElementById('saveMsg');
+    if(msg) msg.innerHTML='<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#7CCA5B" stroke-width="2"/></svg> Saved just now';
+  },800);
+}
+function savePage(btn){
+  const orig=btn.textContent;
+  btn.textContent='Saved!';
+  btn.style.background='#7CCA5B';
+  setTimeout(()=>{btn.textContent=orig;btn.style.background='#0C85C2';},2000);
+}
+</script>
