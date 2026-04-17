@@ -1,0 +1,773 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Open+Sans:wght@400;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+.gp{background:#E6F1F4;min-height:100vh;display:flex;font-family:'Open Sans',sans-serif;}
+.sidebar{width:220px;min-width:220px;background:#2C3E50;display:flex;flex-direction:column;}
+.sb-logo{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.sb-logo img{width:140px;height:auto;}
+.sb-label{font-size:10px;font-weight:700;color:#5AB3C9;letter-spacing:1.5px;text-transform:uppercase;padding:20px 16px 8px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13.5px;color:rgba(255,255,255,0.65);cursor:pointer;transition:background 0.15s;}
+.sb-item:hover{background:rgba(255,255,255,0.05);}
+.sb-item.active{background:rgba(90,179,201,0.18);color:#5AB3C9;font-weight:600;}
+.sb-sub{padding:7px 16px 7px 42px;font-size:12.5px;color:rgba(255,255,255,0.45);cursor:pointer;}
+.sb-sub:hover{color:rgba(255,255,255,0.75);}
+.sb-sub.active{color:#5AB3C9;font-weight:600;}
+.sb-icon{width:16px;height:16px;flex-shrink:0;}
+.main{flex:1;padding:28px 32px;overflow:auto;max-width:calc(100vw - 220px);}
+.breadcrumb{font-size:12px;color:#888;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.breadcrumb a{color:#0C85C2;text-decoration:none;}
+.page-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:24px;color:#2C3E50;}
+.page-sub{font-size:13.5px;color:#888;margin-top:4px;margin-bottom:20px;}
+.save-bar{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:14px;border:0.5px solid #A7DBE7;padding:12px 20px;margin-bottom:20px;}
+.save-msg{font-size:13px;color:#7CCA5B;font-weight:600;display:flex;align-items:center;gap:6px;}
+.save-btn{height:38px;padding:0 22px;background:#0C85C2;color:#fff;border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:13px;cursor:pointer;}
+.save-btn:hover{background:#5AB3C9;}
+.section-card{background:#fff;border-radius:16px;border:0.5px solid #A7DBE7;padding:22px 24px;margin-bottom:18px;}
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+.section-num{width:28px;height:28px;border-radius:50%;background:#0C85C2;color:#fff;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.section-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;color:#2C3E50;}
+.section-hint{font-size:12.5px;color:#aaa;margin-bottom:18px;padding-left:38px;line-height:1.5;}
+.field-label{font-size:11.5px;font-weight:700;color:#2C3E50;letter-spacing:0.5px;text-transform:uppercase;display:block;margin-bottom:6px;}
+.field-hint{font-size:12px;color:#aaa;margin-bottom:8px;display:block;line-height:1.5;}
+input[type=number],input[type=text]{width:100%;height:42px;border:1.5px solid #A7DBE7;border-radius:10px;padding:0 14px;font-size:14px;font-family:'Open Sans',sans-serif;color:#2C3E50;outline:none;}
+input:focus{border-color:#0C85C2;}
+.prefix-wrap{display:flex;align-items:center;border:1.5px solid #A7DBE7;border-radius:10px;overflow:hidden;transition:border-color 0.15s;}
+.prefix-wrap:focus-within{border-color:#0C85C2;}
+.prefix-wrap.readonly{background:#f4fbfd;border-color:#c8e8f2;}
+.prefix-wrap.editable-override{border-color:#FFB600;}
+.pfx{background:#E6F1F4;padding:0 11px;height:42px;display:flex;align-items:center;font-size:13px;font-weight:700;color:#2C3E50;border-right:1.5px solid #A7DBE7;flex-shrink:0;}
+.prefix-wrap input{border:none;background:transparent;height:40px;flex:1;padding:0 12px;font-size:14px;}
+.prefix-wrap input:focus{outline:none;}
+.prefix-wrap.readonly input{color:#0C85C2;font-weight:700;font-family:'Montserrat',sans-serif;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.four-col{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;}
+
+/* Vision banner */
+.vision-banner{background:#2C3E50;border-radius:12px;padding:12px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px;}
+.vb-text{font-size:12.5px;color:rgba(255,255,255,0.55);line-height:1.4;}
+.vb-text strong{color:#5AB3C9;}
+.vb-link{margin-left:auto;font-size:12px;color:#5AB3C9;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+
+/* Month selector */
+.month-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+.month-btn{height:34px;padding:0 14px;border:1.5px solid #A7DBE7;border-radius:8px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;color:#888;background:#fff;cursor:pointer;transition:all 0.15s;}
+.month-btn:hover{border-color:#0C85C2;color:#0C85C2;}
+.month-btn.active{background:#0C85C2;border-color:#0C85C2;color:#fff;}
+.month-btn.has-data{border-color:#5AB3C9;color:#5AB3C9;}
+.month-btn.active.has-data{background:#0C85C2;color:#fff;}
+
+/* ── GAP BAR ── */
+.gap-hero{background:#2C3E50;border-radius:16px;padding:20px 24px;margin-bottom:18px;}
+.gap-hero-top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:14px;gap:16px;flex-wrap:wrap;}
+.gap-month-label{font-size:11px;font-weight:700;color:#5AB3C9;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.gap-target{font-family:'Montserrat',sans-serif;font-weight:800;font-size:28px;color:#fff;line-height:1;}
+.gap-target-sub{font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px;}
+.gap-stats{display:flex;gap:20px;flex-wrap:wrap;}
+.gap-stat{text-align:right;}
+.gap-stat-val{font-family:'Montserrat',sans-serif;font-weight:800;font-size:18px;line-height:1;}
+.gap-stat-val.covered{color:#7CCA5B;}
+.gap-stat-val.remaining{color:#FFB600;}
+.gap-stat-val.over{color:#5AB3C9;}
+.gap-stat-label{font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;}
+.gap-bar-track{height:18px;background:rgba(255,255,255,0.08);border-radius:20px;overflow:hidden;display:flex;position:relative;}
+.gap-seg-existing{height:100%;background:#7CCA5B;transition:width 0.35s ease;border-radius:20px 0 0 20px;}
+.gap-seg-covered{height:100%;background:#0C85C2;transition:width 0.35s ease;}
+.gap-seg-over{height:100%;background:#5AB3C9;transition:width 0.35s ease;}
+.gap-legend{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;}
+.gap-leg{display:flex;align-items:center;gap:6px;font-size:11.5px;color:rgba(255,255,255,0.5);}
+.gap-leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ── CHANNEL LEVER ── */
+.channel-group-label{font-size:10px;font-weight:700;color:#5AB3C9;letter-spacing:2px;text-transform:uppercase;margin:20px 0 10px;display:flex;align-items:center;gap:10px;}
+.channel-group-label::after{content:'';flex:1;height:1px;background:#E6F1F4;}
+
+.channel-card{border:1.5px solid #A7DBE7;border-radius:14px;padding:16px 18px;margin-bottom:10px;transition:border-color 0.15s;}
+.channel-card:hover{border-color:#5AB3C9;}
+.channel-card.active-channel{border-color:#0C85C2;background:#fafeff;}
+.channel-card.paid{border-left:3px solid #0C85C2;}
+.channel-card.community{border-left:3px solid #7CCA5B;}
+.ch-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.ch-name{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:#2C3E50;flex:1;}
+.ch-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;}
+.tag-paid{background:#e6f4fb;color:#0C85C2;}
+.tag-community{background:#edfae5;color:#3B8C2A;}
+.ch-remove{background:none;border:none;color:#ccc;cursor:pointer;font-size:16px;padding:2px 6px;border-radius:6px;flex-shrink:0;}
+.ch-remove:hover{color:#e05252;background:#fff0f0;}
+
+/* Settings row (CPL + conv rate) */
+.ch-settings{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.ch-setting-label{font-size:10.5px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;}
+.ch-setting-input{display:flex;align-items:center;border:1px solid #d0e8f0;border-radius:8px;overflow:hidden;height:36px;background:#fff;}
+.ch-setting-input:focus-within{border-color:#0C85C2;}
+.ch-setting-pfx{background:#E6F1F4;padding:0 9px;height:100%;display:flex;align-items:center;font-size:12px;font-weight:700;color:#888;border-right:1px solid #d0e8f0;flex-shrink:0;}
+.ch-setting-input input{border:none;background:transparent;height:100%;flex:1;padding:0 10px;font-size:13px;font-family:'Open Sans',sans-serif;color:#2C3E50;outline:none;width:60px;}
+
+/* Spend slider row */
+.ch-lever{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.ch-lever-label{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;flex-shrink:0;width:48px;}
+.ch-slider{flex:1;accent-color:#0C85C2;height:5px;border-radius:20px;cursor:pointer;}
+.ch-slider.community-slider{accent-color:#7CCA5B;}
+.ch-spend-input{width:90px;height:36px;border:1.5px solid #A7DBE7;border-radius:8px;padding:0 10px;font-size:13.5px;font-family:'Montserrat',sans-serif;font-weight:700;color:#2C3E50;text-align:right;outline:none;flex-shrink:0;}
+.ch-spend-input:focus{border-color:#0C85C2;}
+
+/* Output pills */
+.ch-outputs{display:flex;gap:8px;flex-wrap:wrap;}
+.ch-out-pill{background:#E6F1F4;border-radius:10px;padding:8px 12px;text-align:center;flex:1;min-width:90px;}
+.ch-out-val{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:#2C3E50;line-height:1.1;}
+.ch-out-val.blue{color:#0C85C2;}
+.ch-out-val.green{color:#3B8C2A;}
+.ch-out-val.teal{color:#5AB3C9;}
+.ch-out-label{font-size:10.5px;color:#aaa;margin-top:3px;}
+.ch-recurring-note{font-size:11.5px;color:#5AB3C9;margin-top:8px;padding:6px 10px;background:#f0faff;border-radius:8px;display:flex;align-items:center;gap:6px;}
+
+/* Add channel button */
+.add-ch-btn{display:flex;align-items:center;gap:8px;padding:10px 16px;border:1.5px dashed #A7DBE7;border-radius:12px;font-size:13px;font-weight:700;color:#0C85C2;cursor:pointer;background:#fff;width:100%;font-family:'Open Sans',sans-serif;transition:all 0.15s;margin-bottom:10px;}
+.add-ch-btn:hover{border-color:#0C85C2;background:#f4fbfd;}
+.add-ch-btn.community-add{color:#3B8C2A;}
+.add-ch-btn.community-add:hover{border-color:#7CCA5B;background:#f4fdf0;}
+
+/* ── RUNNING TOTAL ── */
+.running-total{background:#fff;border-radius:16px;border:2px solid #0C85C2;padding:20px 24px;margin-top:4px;}
+.rt-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:#2C3E50;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.rt-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px;}
+.rt-stat{text-align:center;padding:12px;background:#E6F1F4;border-radius:12px;}
+.rt-val{font-family:'Montserrat',sans-serif;font-weight:800;font-size:20px;color:#2C3E50;line-height:1.1;}
+.rt-val.blue{color:#0C85C2;}
+.rt-val.green{color:#3B8C2A;}
+.rt-val.teal{color:#5AB3C9;}
+.rt-val.yellow{color:#B87800;}
+.rt-val.red{color:#C0392B;}
+.rt-label{font-size:11px;color:#888;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px;}
+.rt-bar-track{height:14px;background:#E6F1F4;border-radius:20px;overflow:hidden;display:flex;}
+.rt-bar-fill{height:100%;background:#0C85C2;border-radius:20px;transition:width 0.35s ease;}
+.rt-bar-over{height:100%;background:#7CCA5B;transition:width 0.35s ease;}
+.rt-bar-labels{display:flex;justify-content:space-between;margin-top:6px;font-size:11.5px;color:#888;}
+.rt-warning{background:#fff8e1;border:1px solid #FFB600;border-radius:10px;padding:10px 14px;font-size:12.5px;color:#7A5F00;display:flex;align-items:center;gap:8px;margin-top:10px;}
+.rt-success{background:#edfae5;border:1px solid #7CCA5B;border-radius:10px;padding:10px 14px;font-size:12.5px;color:#2C6B1A;display:flex;align-items:center;gap:8px;margin-top:10px;}
+</style>
+
+<div class="gp">
+  <div class="sidebar">
+    <div class="sb-logo"><img src="https://cleaningforareason.org/wp-content/uploads/2024/02/MAID-THIS-LOGO-VARIATION-08-670-768x293.png" alt="MaidThis"></div>
+    <div class="sb-label">Main Menu</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Dashboard</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M2 3h12v2H2zm0 4h12v2H2zm0 4h8v2H2z"/></svg>Goals & Tracking</div>
+    <div class="sb-item active"><svg class="sb-icon" viewBox="0 0 16 16" fill="#5AB3C9"><path d="M2 13V5l5-4 5 4v8H9V9H7v4H2z"/></svg>Blueprint</div>
+    <div class="sb-sub">&#x25B8; The Vision</div>
+    <div class="sb-sub active">&#x25B8; The Game Plan</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M1 3h14v2H1zm2 4h10v2H3zm2 4h6v2H5z"/></svg>Marketing Tools</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0 3v4l3 2-1 1.5L6 9V4h2z"/></svg>Resources</div>
+  </div>
+
+  <div class="main">
+    <div class="breadcrumb"><a href="#">Blueprint</a><span style="color:#ccc">›</span><span>The Game Plan</span></div>
+    <div class="page-title">The Game Plan</div>
+    <div class="page-sub">Pull the levers. See what your marketing spend generates — and whether it closes the gap.</div>
+
+    <div class="save-bar" style="flex-wrap:wrap;gap:10px;">
+      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:260px;">
+        <div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;">Plan name</div>
+        <input type="text" id="planName" value="2026 Main Plan" placeholder="Name this plan…"
+          style="flex:1;height:36px;border:1.5px solid #A7DBE7;border-radius:8px;padding:0 12px;font-size:13.5px;font-family:'Montserrat',sans-serif;font-weight:700;color:#2C3E50;outline:none;max-width:280px;"
+          onfocus="this.style.borderColor='#0C85C2'" onblur="this.style.borderColor='#A7DBE7'" oninput="autoSave()">
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="save-msg" id="saveMsg"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#7CCA5B" stroke-width="2"/></svg>Changes saved automatically</div>
+        <button class="save-btn" onclick="saveAll(this)">Save Game Plan</button>
+      </div>
+    </div>
+
+    <!-- Vision banner -->
+    <div class="vision-banner">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#5AB3C9" stroke-width="1.5"><path d="M2 13V5l5-4 5 4v8H9V9H7v4H2z"/></svg>
+      <div class="vb-text">Revenue goal and assumptions pulled from <strong>The Vision</strong>. Update those numbers there to change this plan.</div>
+      <span class="vb-link">Edit Vision ↗</span>
+    </div>
+
+    <!-- ── SECTION 1: FOUNDATIONS ── -->
+    <div class="section-card">
+      <div class="section-header"><div class="section-num">1</div><div class="section-title">Plan foundations</div></div>
+      <div class="section-hint">Set your annual revenue goal and the assumptions that drive every calculation below. Average ticket defaults your recurring value — override anytime.</div>
+      <div class="four-col" style="margin-bottom:14px;">
+        <div>
+          <label class="field-label">Annual revenue goal</label>
+          <div class="prefix-wrap"><div class="pfx">$</div><input type="number" id="annualGoal" value="667000" oninput="recalc()"></div>
+          <span style="font-size:11px;color:#aaa;margin-top:4px;display:block;">Pulled from The Vision — override anytime</span>
+        </div>
+        <div>
+          <label class="field-label">Average ticket ($)</label>
+          <div class="prefix-wrap"><div class="pfx">$</div><input type="number" id="avgTicket" value="180" oninput="onTicketChange()"></div>
+        </div>
+        <div>
+          <label class="field-label">Avg monthly recurring value</label>
+          <div class="prefix-wrap" id="mrrWrap"><div class="pfx">$</div><input type="number" id="mrrValue" value="180" oninput="onMrrChange()"></div>
+          <span style="font-size:11px;color:#5AB3C9;margin-top:4px;display:none;cursor:pointer;" id="mrrResetLink" onclick="resetMrr()">&#8635; Reset to ticket value</span>
+        </div>
+        <div>
+          <label class="field-label">Recurring conversion %</label>
+          <div class="prefix-wrap"><div class="pfx">%</div><input type="number" id="recurringPct" value="20" oninput="recalc()"></div>
+        </div>
+      </div>
+      <div style="border-top:1px solid #E6F1F4;padding-top:14px;">
+        <div style="display:grid;grid-template-columns:1fr 2fr;gap:16px;align-items:start;">
+          <div>
+            <label class="field-label">Base MRR</label>
+            <span class="field-hint">Monthly recurring revenue you already have. This directly offsets your monthly gap before any new marketing spend.</span>
+            <div class="prefix-wrap"><div class="pfx">$</div><input type="number" id="baseMrr" value="0" placeholder="0" oninput="recalc()"></div>
+          </div>
+          <div style="background:#edfae5;border-radius:10px;padding:12px 16px;margin-top:22px;">
+            <div style="font-size:11px;font-weight:700;color:#3B8C2A;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px;">How base MRR works here</div>
+            <div style="font-size:12.5px;color:#3B8C2A;line-height:1.5;">Base MRR shows as the green segment in the gap bar — it covers part of your monthly target before you spend a dollar. The more recurring revenue you build, the less new marketing you need each month.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MONTH SELECTOR ── -->
+    <div class="section-card" style="padding:16px 24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <div class="field-label" style="margin:0;">Select month to plan</div>
+          <div class="field-hint" style="margin:0;margin-top:2px;">Each month has its own marketing mix. Months with data saved are highlighted.</div>
+        </div>
+        <div style="font-size:12px;color:#888;">Viewing: <strong id="viewingMonth" style="color:#0C85C2;">January</strong></div>
+      </div>
+      <div class="month-selector" id="monthSelector"></div>
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid #E6F1F4;display:flex;align-items:center;gap:10px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;">
+          <input type="checkbox" id="applyAllMonths" style="width:16px;height:16px;accent-color:#0C85C2;cursor:pointer;flex-shrink:0;">
+          <span style="font-size:13px;font-weight:600;color:#2C3E50;">Apply this month's plan to all months</span>
+        </label>
+        <span style="font-size:12px;color:#aaa;">When checked, saving this month copies your marketing mix to Jan–Dec.</span>
+        <button id="applyAllBtn" onclick="applyToAllMonths()" style="margin-left:auto;height:32px;padding:0 16px;background:#0C85C2;color:#fff;border:none;border-radius:8px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;cursor:pointer;display:none;">Apply now</button>
+      </div>
+    </div>
+
+    <!-- ── GAP BAR ── -->
+    <div class="gap-hero" id="gapHero">
+      <div class="gap-hero-top">
+        <div>
+          <div class="gap-month-label" id="gapMonthLabel">January</div>
+          <div class="gap-target" id="gapTarget">$44,467</div>
+          <div class="gap-target-sub">monthly revenue target</div>
+        </div>
+        <div class="gap-stats">
+          <div class="gap-stat">
+            <div class="gap-stat-val covered" id="gapCovered">$0</div>
+            <div class="gap-stat-label">covered by marketing</div>
+          </div>
+          <div class="gap-stat">
+            <div class="gap-stat-val remaining" id="gapRemaining">$44,467</div>
+            <div class="gap-stat-label">still to cover</div>
+          </div>
+        </div>
+      </div>
+      <div class="gap-bar-track">
+        <div class="gap-seg-existing" id="gapSegExisting" style="width:0%"></div>
+        <div class="gap-seg-covered" id="gapSegCovered" style="width:0%"></div>
+        <div class="gap-seg-over" id="gapSegOver" style="width:0%"></div>
+      </div>
+      <div class="gap-legend">
+        <div class="gap-leg"><div class="gap-leg-dot" style="background:#7CCA5B;"></div>Base / recurring revenue</div>
+        <div class="gap-leg"><div class="gap-leg-dot" style="background:#0C85C2;"></div>Covered by this month's marketing</div>
+        <div class="gap-leg"><div class="gap-leg-dot" style="background:#5AB3C9;"></div>Exceeded target</div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: MARKETING LEVERS ── -->
+    <div class="section-card">
+      <div class="section-header"><div class="section-num">2</div><div class="section-title">Marketing levers</div></div>
+      <div class="section-hint">Pull each lever to set your spend for this month. The gap bar above updates in real time showing how much of your target is covered.</div>
+
+      <!-- Paid channels -->
+      <div class="channel-group-label">Paid leads</div>
+      <div id="paidChannels"></div>
+      <button class="add-ch-btn" onclick="addChannel('paid')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#0C85C2" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="#0C85C2" stroke-width="1.5"/></svg>
+        Add paid channel
+      </button>
+
+      <!-- Community channels -->
+      <div class="channel-group-label" style="color:#3B8C2A;">Community marketing</div>
+      <div id="communityChannels"></div>
+      <button class="add-ch-btn community-add" onclick="addChannel('community')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#7CCA5B" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="#7CCA5B" stroke-width="1.5"/></svg>
+        Add community channel
+      </button>
+    </div>
+
+    <!-- ── RUNNING TOTAL ── -->
+    <div class="running-total" id="runningTotal">
+      <div class="rt-title">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#0C85C2" stroke-width="1.5"><path d="M2 12l3-5 3 3 3-4 3 2"/></svg>
+        <span id="rtMonthLabel">January</span> — monthly summary
+      </div>
+      <div class="rt-grid">
+        <div class="rt-stat"><div class="rt-val blue" id="rtTotalSpend">$0</div><div class="rt-label">Total spend</div></div>
+        <div class="rt-stat"><div class="rt-val" id="rtTotalLeads">0</div><div class="rt-label">Est. leads</div></div>
+        <div class="rt-stat"><div class="rt-val blue" id="rtTotalCustomers">0</div><div class="rt-label">New customers</div></div>
+        <div class="rt-stat"><div class="rt-val green" id="rtOneTimeRev">$0</div><div class="rt-label">One-time revenue</div></div>
+        <div class="rt-stat"><div class="rt-val teal" id="rtNewMrr">$0</div><div class="rt-label">New MRR added</div></div>
+      </div>
+      <div class="rt-bar-track">
+        <div class="rt-bar-fill" id="rtBarFill" style="width:0%"></div>
+        <div class="rt-bar-over" id="rtBarOver" style="width:0%"></div>
+      </div>
+      <div class="rt-bar-labels">
+        <span>$0</span>
+        <span id="rtBarTarget">—</span>
+      </div>
+      <div id="rtMessage"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// Default seasonality % from Vision
+const SEASON = [8,7,9,8,9,10,9,10,10,10,6,4];
+
+// Default channels
+const DEFAULT_PAID = [
+  {id:'cohesive',  name:'Cohesive AI',   cpl:18,  conv:54, maxSpend:500},
+  {id:'meta',      name:'Meta Ads',       cpl:20,  conv:10, maxSpend:5000},
+  {id:'thumbtack', name:'Thumbtack',      cpl:35,  conv:18, maxSpend:3000},
+  {id:'lsa',       name:'LSA',            cpl:62,  conv:30, maxSpend:3000},
+];
+const DEFAULT_COMMUNITY = [
+  {id:'bni',       name:'BNI / Networking',   conv:33, maxHours:20,  maxActions:20,  actionLabel:'events attended'},
+  {id:'dropoffs',  name:'Drop-offs / Flyers',  conv:5,  maxHours:10,  maxActions:500, actionLabel:'flyers dropped'},
+];
+
+let currentMonth = 0; // 0 = January
+let channels = {paid: JSON.parse(JSON.stringify(DEFAULT_PAID)), community: JSON.parse(JSON.stringify(DEFAULT_COMMUNITY))};
+// monthData stores spend per channel per month: {channelId: spend}
+let monthData = {};
+let mrrOverridden = false;
+
+function $id(id){return document.getElementById(id);}
+function fmt$(n){return'$'+Math.round(n||0).toLocaleString();}
+function fmtN(n){return Math.round(n||0).toLocaleString();}
+
+function getMonthTarget(mo){
+  const annual = parseFloat($id('annualGoal').value)||667000;
+  return annual * (SEASON[mo]/100);
+}
+
+function onTicketChange(){
+  if(!mrrOverridden){
+    $id('mrrValue').value = $id('avgTicket').value;
+  }
+  recalc();
+}
+
+function resetMrr(){
+  mrrOverridden = false;
+  $id('mrrValue').value = $id('avgTicket').value;
+  $id('mrrResetLink').style.display='none';
+  $id('mrrWrap').style.borderColor='';
+  recalc();
+}
+
+// Build month selector buttons
+function buildMonthSelector(){
+  const sel = $id('monthSelector');
+  sel.innerHTML = '';
+  MONTH_SHORT.forEach((m,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'month-btn' + (i===currentMonth?' active':'') + (monthData[i]?' has-data':'');
+    btn.textContent = m;
+    btn.onclick = ()=>{ currentMonth=i; buildMonthSelector(); renderChannels(); recalc(); };
+    sel.appendChild(btn);
+  });
+  $id('viewingMonth').textContent = MONTHS[currentMonth];
+}
+
+// Render all channel cards for current month
+function renderChannels(){
+  renderGroup('paid');
+  renderGroup('community');
+}
+
+function renderGroup(grp){
+  const container = $id(grp+'Channels');
+  container.innerHTML = '';
+  const list = channels[grp];
+  list.forEach((ch,idx)=>{
+    const val = getSpend(ch.id); // for paid=spend, for community=actions
+    const hours = getCommunityHours(ch.id);
+    const card = document.createElement('div');
+    const isPaid = grp==='paid';
+    card.className = `channel-card ${grp}` + (val>0?' active-channel':'');
+    card.id = 'card_'+ch.id;
+
+    const outputs = isPaid ? calcOutputs(ch, val) : calcCommunityOutputs(ch, val);
+    const tagClass = isPaid?'tag-paid':'tag-community';
+    const tagLabel = isPaid?'Paid':'Community';
+
+    if(isPaid){
+      card.innerHTML = `
+        <div class="ch-top">
+          <div class="ch-name">${ch.name}</div>
+          <span class="ch-tag ${tagClass}">${tagLabel}</span>
+          <button class="ch-remove" onclick="removeChannel('${grp}',${idx})" title="Remove">×</button>
+        </div>
+        <div class="ch-settings">
+          <div>
+            <span class="ch-setting-label">Cost per lead ($)</span>
+            <div class="ch-setting-input">
+              <div class="ch-setting-pfx">$</div>
+              <input type="number" value="${ch.cpl}" min="1" oninput="updateChannelSetting('${grp}',${idx},'cpl',this.value)">
+            </div>
+          </div>
+          <div>
+            <span class="ch-setting-label">Conversion rate (%)</span>
+            <div class="ch-setting-input">
+              <div class="ch-setting-pfx">%</div>
+              <input type="number" value="${ch.conv}" min="1" max="100" oninput="updateChannelSetting('${grp}',${idx},'conv',this.value)">
+            </div>
+          </div>
+        </div>
+        <div class="ch-lever">
+          <span class="ch-lever-label">Spend</span>
+          <input type="range" class="ch-slider" min="0" max="${ch.maxSpend}" step="50" value="${val}"
+            oninput="onSlider('${ch.id}',this.value,'spend_${ch.id}')">
+          <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+            <span style="font-size:12px;font-weight:700;color:#888;">$</span>
+            <input type="number" class="ch-spend-input" id="spend_${ch.id}" value="${val}" min="0" max="${ch.maxSpend}"
+              oninput="onSpendInput('${ch.id}',this.value)">
+          </div>
+        </div>
+        <div class="ch-outputs">
+          <div class="ch-out-pill"><div class="ch-out-val" id="out_leads_${ch.id}">${fmtN(outputs.leads)}</div><div class="ch-out-label">Leads</div></div>
+          <div class="ch-out-pill"><div class="ch-out-val blue" id="out_customers_${ch.id}">${fmtN(outputs.customers)}</div><div class="ch-out-label">New customers</div></div>
+          <div class="ch-out-pill"><div class="ch-out-val green" id="out_rev_${ch.id}">${fmt$(outputs.revenue)}</div><div class="ch-out-label">One-time revenue</div></div>
+          <div class="ch-out-pill"><div class="ch-out-val teal" id="out_mrr_${ch.id}">${fmt$(outputs.newMrr)}</div><div class="ch-out-label">New MRR added</div></div>
+        </div>
+        ${outputs.newMrr>0?`<div class="ch-recurring-note">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#5AB3C9" stroke-width="1.5"><path d="M6 1v3l2 1M1 6a5 5 0 1 0 10 0A5 5 0 0 0 1 6"/></svg>
+          ${fmtN(outputs.customers*(parseFloat($id('recurringPct').value)||20)/100)} customers projected to become recurring — adding ${fmt$(outputs.newMrr)}/mo
+        </div>`:''}
+      `;
+    } else {
+      // Community card — hours + actions, no spend/CPL
+      const actionLabel = ch.actionLabel || 'actions completed';
+      card.innerHTML = `
+        <div class="ch-top">
+          <div class="ch-name">${ch.name}</div>
+          <span class="ch-tag ${tagClass}">${tagLabel}</span>
+          <button class="ch-remove" onclick="removeChannel('${grp}',${idx})" title="Remove">×</button>
+        </div>
+        <div class="ch-settings">
+          <div>
+            <span class="ch-setting-label">Action label</span>
+            <div class="ch-setting-input" style="border:1px solid #d0e8f0;border-radius:8px;overflow:hidden;height:36px;background:#fff;">
+              <input type="text" value="${actionLabel}" style="border:none;background:transparent;height:100%;flex:1;padding:0 10px;font-size:12.5px;font-family:'Open Sans',sans-serif;color:#2C3E50;outline:none;width:100%;"
+                oninput="updateChannelSetting('${grp}',${idx},'actionLabel',this.value)">
+            </div>
+          </div>
+          <div>
+            <span class="ch-setting-label">Conversion rate (%)</span>
+            <div class="ch-setting-input">
+              <div class="ch-setting-pfx">%</div>
+              <input type="number" value="${ch.conv}" min="1" max="100" oninput="updateChannelSetting('${grp}',${idx},'conv',this.value)">
+            </div>
+          </div>
+        </div>
+        <div class="ch-settings" style="margin-bottom:10px;grid-template-columns:1fr 1fr 1fr;">
+          <div>
+            <span class="ch-setting-label">Hours invested</span>
+            <div class="ch-setting-input">
+              <div class="ch-setting-pfx" style="background:#edfae5;color:#3B8C2A;">hrs</div>
+              <input type="number" id="hours_${ch.id}" value="${hours}" min="0"
+                oninput="onCommunityHoursInput('${ch.id}',this.value)" placeholder="0">
+            </div>
+          </div>
+          <div>
+            <span class="ch-setting-label">${actionLabel}</span>
+            <div class="ch-setting-input">
+              <div class="ch-setting-pfx" style="background:#edfae5;color:#3B8C2A;">#</div>
+              <input type="number" id="actions_${ch.id}" value="${val}" min="0"
+                oninput="onSpendInput('${ch.id}',this.value)" placeholder="0">
+            </div>
+          </div>
+          <div>
+            <span class="ch-setting-label">Leads generated</span>
+            <div class="ch-setting-input">
+              <div class="ch-setting-pfx" style="background:#edfae5;color:#3B8C2A;">leads</div>
+              <input type="number" id="comm_leads_${ch.id}" value="${getCommunityLeads(ch.id)}" min="0"
+                oninput="onCommunityLeads('${ch.id}',this.value)" placeholder="0">
+            </div>
+          </div>
+        </div>
+        <div class="ch-outputs">
+          <div class="ch-out-pill"><div class="ch-out-val" id="out_leads_${ch.id}">${fmtN(outputs.leads)}</div><div class="ch-out-label">Leads generated</div></div>
+          <div class="ch-out-pill"><div class="ch-out-val blue" id="out_customers_${ch.id}">${fmtN(outputs.customers)}</div><div class="ch-out-label">New customers</div></div>
+          <div class="ch-out-pill"><div class="ch-out-val green" id="out_rev_${ch.id}">${fmt$(outputs.revenue)}</div><div class="ch-out-label">One-time revenue</div></div>
+          <div class="ch-out-pill"><div class="ch-out-val teal" id="out_mrr_${ch.id}">${fmt$(outputs.newMrr)}</div><div class="ch-out-label">New MRR added</div></div>
+        </div>
+        ${outputs.newMrr>0?`<div class="ch-recurring-note">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#5AB3C9" stroke-width="1.5"><path d="M6 1v3l2 1M1 6a5 5 0 1 0 10 0A5 5 0 0 0 1 6"/></svg>
+          ${fmtN(outputs.customers*(parseFloat($id('recurringPct').value)||20)/100)} customers projected to become recurring — adding ${fmt$(outputs.newMrr)}/mo
+        </div>`:''}
+      `;
+    }
+    container.appendChild(card);
+  });
+}
+
+function calcOutputs(ch, spend){
+  const ticket   = parseFloat($id('avgTicket').value)||180;
+  const mrrVal   = parseFloat($id('mrrValue').value)||180;
+  const recurPct = (parseFloat($id('recurringPct').value)||20)/100;
+  const cpl      = parseFloat(ch.cpl)||1;
+  const conv     = (parseFloat(ch.conv)||10)/100;
+  const leads    = spend/cpl;
+  const customers = leads * conv;
+  const revenue   = customers * ticket;
+  const newMrr    = customers * recurPct * mrrVal;
+  return {leads, customers, revenue, newMrr};
+}
+
+function calcCommunityOutputs(ch, actions){
+  const ticket   = parseFloat($id('avgTicket').value)||180;
+  const mrrVal   = parseFloat($id('mrrValue').value)||180;
+  const recurPct = (parseFloat($id('recurringPct').value)||20)/100;
+  const conv     = (parseFloat(ch.conv)||10)/100;
+  // Use manually entered leads if provided, otherwise fall back to actions × conv
+  const manualLeads = getCommunityLeads(ch.id);
+  const leads    = manualLeads > 0 ? manualLeads : actions * conv;
+  const customers = leads * conv;
+  const revenue   = customers * ticket;
+  const newMrr    = customers * recurPct * mrrVal;
+  return {leads, customers, revenue, newMrr};
+}
+
+function getSpend(chId){
+  if(!monthData[currentMonth]) return 0;
+  return monthData[currentMonth][chId]||0;
+}
+
+function getCommunityHours(chId){
+  if(!monthData[currentMonth]) return 0;
+  return monthData[currentMonth]['hours_'+chId]||0;
+}
+
+function getCommunityLeads(chId){
+  if(!monthData[currentMonth]) return 0;
+  return monthData[currentMonth]['cleads_'+chId]||0;
+}
+
+function onCommunityLeads(chId, val){
+  if(!monthData[currentMonth]) monthData[currentMonth]={};
+  monthData[currentMonth]['cleads_'+chId] = parseFloat(val)||0;
+  updateCardOutputs(chId);
+  recalc();
+}
+
+function setSpend(chId, val){
+  if(!monthData[currentMonth]) monthData[currentMonth]={};
+  monthData[currentMonth][chId] = parseFloat(val)||0;
+}
+
+function onCommunityHours(chId, val, inputId){
+  if(!monthData[currentMonth]) monthData[currentMonth]={};
+  monthData[currentMonth]['hours_'+chId] = parseFloat(val)||0;
+  const inp = $id(inputId);
+  if(inp) inp.value = val;
+  recalc();
+}
+
+function onCommunityHoursInput(chId, val){
+  if(!monthData[currentMonth]) monthData[currentMonth]={};
+  monthData[currentMonth]['hours_'+chId] = parseFloat(val)||0;
+  const sliders = document.querySelectorAll(`#card_${chId} .ch-slider`);
+  // first slider is hours
+  if(sliders[0]) sliders[0].value = val;
+  recalc();
+}
+
+function onSlider(chId, val, inputId){
+  setSpend(chId, val);
+  const inp = $id(inputId);
+  if(inp) inp.value = val;
+  updateCardOutputs(chId);
+  recalc();
+}
+
+function onSpendInput(chId, val){
+  setSpend(chId, val);
+  // Update slider
+  const sliders = document.querySelectorAll(`#card_${chId} .ch-slider`);
+  sliders.forEach(s=>s.value=val);
+  updateCardOutputs(chId);
+  recalc();
+}
+
+function updateCardOutputs(chId){
+  const ch = [...channels.paid,...channels.community].find(c=>c.id===chId);
+  if(!ch) return;
+  const spend = getSpend(chId);
+  const outputs = calcOutputs(ch, spend);
+  const el = id=>{ const e=$id('out_'+id+'_'+chId); if(e) return e; };
+  if(el('leads')) $id('out_leads_'+chId).textContent=fmtN(outputs.leads);
+  if($id('out_customers_'+chId)) $id('out_customers_'+chId).textContent=fmtN(outputs.customers);
+  if($id('out_rev_'+chId)) $id('out_rev_'+chId).textContent=fmt$(outputs.revenue);
+  if($id('out_mrr_'+chId)) $id('out_mrr_'+chId).textContent=fmt$(outputs.newMrr);
+  const card = $id('card_'+chId);
+  if(card) card.className = card.className.replace(' active-channel','') + (spend>0?' active-channel':'');
+}
+
+function updateChannelSetting(grp, idx, field, val){
+  channels[grp][idx][field] = parseFloat(val)||0;
+  const chId = channels[grp][idx].id;
+  updateCardOutputs(chId);
+  recalc();
+}
+
+function removeChannel(grp, idx){
+  channels[grp].splice(idx,1);
+  renderChannels();
+  recalc();
+}
+
+
+
+function recalc(){
+  const monthTarget = getMonthTarget(currentMonth);
+  const allCh = [...channels.paid,...channels.community];
+
+  const baseMrr = parseFloat($id('baseMrr').value)||0;
+  let totalSpend=0, totalLeads=0, totalCustomers=0, totalRevenue=0, totalNewMrr=0;
+  channels.paid.forEach(ch=>{
+    const spend = getSpend(ch.id);
+    const out = calcOutputs(ch, spend);
+    totalSpend     += spend;
+    totalLeads     += out.leads;
+    totalCustomers += out.customers;
+    totalRevenue   += out.revenue;
+    totalNewMrr    += out.newMrr;
+  });
+  channels.community.forEach(ch=>{
+    const actions = getSpend(ch.id);
+    const out = calcCommunityOutputs(ch, actions);
+    totalLeads     += out.leads;
+    totalCustomers += out.customers;
+    totalRevenue   += out.revenue;
+    totalNewMrr    += out.newMrr;
+  });
+  // Add base MRR to covered revenue
+  const totalRevWithMrr = totalRevenue + baseMrr;
+
+  // Gap bar — baseMrr is green, marketing revenue is blue
+  const mrrSeg    = Math.min(baseMrr, monthTarget);
+  const mktCover  = Math.min(totalRevenue, Math.max(0, monthTarget - baseMrr));
+  const over      = Math.max(0, totalRevWithMrr - monthTarget);
+  const remaining = Math.max(0, monthTarget - totalRevWithMrr);
+  const pctMrr    = monthTarget>0 ? Math.min(mrrSeg/monthTarget*100, 100) : 0;
+  const pctMkt    = monthTarget>0 ? Math.min(mktCover/monthTarget*100, 100) : 0;
+  const pctOver   = monthTarget>0 ? Math.min(over/monthTarget*100, 100) : 0;
+
+  $id('gapMonthLabel').textContent  = MONTHS[currentMonth].toUpperCase();
+  $id('gapTarget').textContent      = fmt$(monthTarget);
+  $id('gapCovered').textContent     = fmt$(totalRevWithMrr);
+  $id('gapRemaining').textContent   = remaining>0 ? fmt$(remaining) : '✓ Gap closed';
+  $id('gapRemaining').style.color   = remaining>0?'#FFB600':'#7CCA5B';
+  $id('gapSegExisting').style.width = pctMrr.toFixed(1)+'%';
+  $id('gapSegCovered').style.width  = pctMkt.toFixed(1)+'%';
+  $id('gapSegOver').style.width     = pctOver.toFixed(1)+'%';
+
+  // Running total
+  $id('rtMonthLabel').textContent   = MONTHS[currentMonth];
+  $id('rtTotalSpend').textContent   = fmt$(totalSpend);
+  $id('rtTotalLeads').textContent   = fmtN(totalLeads);
+  $id('rtTotalCustomers').textContent = fmtN(totalCustomers);
+  $id('rtOneTimeRev').textContent   = fmt$(totalRevenue);
+  $id('rtNewMrr').textContent       = fmt$(totalNewMrr);
+  $id('rtBarTarget').textContent    = fmt$(monthTarget)+' target';
+
+  const pctFill = monthTarget>0?Math.min(totalRevWithMrr/monthTarget*100,100):0;
+  const pctOverFill = monthTarget>0?Math.min(Math.max(0,totalRevWithMrr-monthTarget)/monthTarget*100,100):0;
+  $id('rtBarFill').style.width = pctFill.toFixed(1)+'%';
+  $id('rtBarOver').style.width = pctOverFill.toFixed(1)+'%';
+
+  // Status message
+  const msgEl = $id('rtMessage');
+  const totalActivity = totalSpend + [...channels.community].reduce((s,ch)=>s+(getSpend(ch.id)||0),0);
+  if(totalActivity===0 && baseMrr===0){
+    msgEl.innerHTML = '';
+  } else if(remaining>0){
+    const pct = Math.round(pctFill);
+    msgEl.innerHTML = `<div class="rt-warning">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="#FFB600"><path d="M7 1l6 11H1L7 1zm0 4v3m0 2v1"/></svg>
+      Your plan covers <strong>${pct}%</strong> of your ${MONTHS[currentMonth]} target. You still need <strong>${fmt$(remaining)}</strong> more — add spend, increase activity, or grow your recurring base.
+    </div>`;
+  } else {
+    msgEl.innerHTML = `<div class="rt-success">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#3B8C2A" stroke-width="2"/></svg>
+      Gap closed! Your ${MONTHS[currentMonth]} plan projects <strong>${fmt$(totalRevWithMrr)}</strong> — <strong>${fmt$(over)}</strong> above target. Plus <strong>${fmt$(totalNewMrr)}/mo</strong> in new recurring revenue added this month.
+    </div>`;
+  }
+
+  autoSave();
+}
+
+let saveTimer;
+function autoSave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    const m=$id('saveMsg');
+    if(m) m.innerHTML='<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#7CCA5B" stroke-width="2"/></svg> Saved just now';
+  },800);
+}
+function saveAll(btn){
+  const o=btn.textContent; btn.textContent='Saved!'; btn.style.background='#7CCA5B';
+  setTimeout(()=>{btn.textContent=o;btn.style.background='#0C85C2';},2000);
+}
+
+function onMrrChange(){
+  mrrOverridden = true;
+  $id('mrrResetLink').style.display = 'block';
+  $id('mrrWrap').style.borderColor = '#FFB600';
+  recalc();
+}
+
+function applyToAllMonths(){
+  if(!monthData[currentMonth]) return;
+  const currentData = JSON.parse(JSON.stringify(monthData[currentMonth]));
+  for(let m=0; m<12; m++){
+    if(m !== currentMonth) monthData[m] = JSON.parse(JSON.stringify(currentData));
+  }
+  buildMonthSelector();
+  const btn = $id('applyAllBtn');
+  if(btn){ btn.textContent='Applied!'; btn.style.background='#7CCA5B'; setTimeout(()=>{btn.textContent='Apply now';btn.style.background='#0C85C2';},2000); }
+}
+
+document.addEventListener('change', function(e){
+  if(e.target && e.target.id === 'applyAllMonths'){
+    const btn = $id('applyAllBtn');
+    if(btn) btn.style.display = e.target.checked ? 'block' : 'none';
+  }
+});
+
+function addChannel(grp){
+  const name = prompt(grp==='paid'?'Paid channel name:':'Community channel name:');
+  if(!name) return;
+  const id = 'custom_'+Date.now();
+  if(grp==='paid'){
+    channels[grp].push({id, name, cpl:20, conv:10, maxSpend:3000});
+  } else {
+    channels[grp].push({id, name, conv:10, maxHours:20, maxActions:100, actionLabel:'actions completed'});
+  }
+  renderChannels();
+  recalc();
+}
+
+// Init
+buildMonthSelector();
+renderChannels();
+recalc();
+</script>

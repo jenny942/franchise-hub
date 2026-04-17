@@ -1,0 +1,258 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Open+Sans:wght@400;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+.gp{background:#E6F1F4;min-height:100vh;display:flex;font-family:'Open Sans',sans-serif;}
+.sidebar{width:220px;min-width:220px;background:#2C3E50;display:flex;flex-direction:column;}
+.sb-logo{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.sb-logo img{width:140px;height:auto;}
+.sb-label{font-size:10px;font-weight:700;color:#5AB3C9;letter-spacing:1.5px;text-transform:uppercase;padding:20px 16px 8px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13.5px;color:rgba(255,255,255,0.65);cursor:pointer;transition:background 0.15s;}
+.sb-item:hover{background:rgba(255,255,255,0.05);}
+.sb-item.active{background:rgba(90,179,201,0.18);color:#5AB3C9;font-weight:600;}
+.sb-sub{padding-left:42px;font-size:12.5px;color:rgba(255,255,255,0.45);padding-top:6px;padding-bottom:6px;cursor:pointer;transition:color 0.15s;}
+.sb-sub:hover{color:rgba(255,255,255,0.75);}
+.sb-sub.active{color:#5AB3C9;font-weight:600;}
+.sb-icon{width:16px;height:16px;flex-shrink:0;}
+.main{flex:1;padding:28px 32px;overflow:auto;}
+.breadcrumb{font-size:12px;color:#888;margin-bottom:6px;}
+.page-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:24px;color:#2C3E50;}
+.page-sub{font-size:13.5px;color:#888;margin-top:4px;margin-bottom:24px;}
+
+/* Blueprint hero banner */
+.bp-hero{background:#2C3E50;border-radius:18px;padding:28px 32px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:24px;position:relative;overflow:hidden;}
+.bp-hero::before{content:'';position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:rgba(90,179,201,0.08);}
+.bp-hero::after{content:'';position:absolute;right:40px;bottom:-80px;width:180px;height:180px;border-radius:50%;background:rgba(12,133,194,0.1);}
+.bp-hero-text{position:relative;z-index:1;}
+.bp-hero-eyebrow{font-size:10px;font-weight:700;color:#5AB3C9;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.bp-hero-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:28px;color:#fff;line-height:1.2;margin-bottom:10px;}
+.bp-hero-desc{font-size:13.5px;color:rgba(255,255,255,0.6);max-width:480px;line-height:1.6;}
+.bp-hero-badge{position:relative;z-index:1;flex-shrink:0;background:rgba(90,179,201,0.12);border:1px solid rgba(90,179,201,0.25);border-radius:14px;padding:18px 22px;text-align:center;min-width:130px;}
+.bp-hero-badge-num{font-family:'Montserrat',sans-serif;font-weight:800;font-size:32px;color:#5AB3C9;line-height:1;}
+.bp-hero-badge-label{font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;}
+
+/* Progress bar */
+.bp-progress{background:#fff;border-radius:14px;border:0.5px solid #A7DBE7;padding:16px 22px;margin-bottom:24px;display:flex;align-items:center;gap:20px;}
+.bp-progress-label{font-size:12.5px;font-weight:700;color:#2C3E50;white-space:nowrap;}
+.bp-progress-track{flex:1;height:8px;background:#E6F1F4;border-radius:20px;overflow:hidden;}
+.bp-progress-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#0C85C2,#5AB3C9);transition:width 0.4s;}
+.bp-progress-pct{font-size:12.5px;font-weight:700;color:#0C85C2;white-space:nowrap;}
+
+/* Section cards row */
+.bp-modules{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px;}
+
+.module-card{background:#fff;border-radius:18px;border:0.5px solid #A7DBE7;padding:24px;cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s;position:relative;overflow:hidden;}
+.module-card:hover{border-color:#0C85C2;box-shadow:0 4px 20px rgba(12,133,194,0.08);}
+.module-card.complete{border-color:#7CCA5B;}
+.module-card-accent{position:absolute;top:0;left:0;width:4px;height:100%;border-radius:18px 0 0 18px;}
+.module-card.vision .module-card-accent{background:linear-gradient(180deg,#0C85C2,#5AB3C9);}
+.module-card.gameplan .module-card-accent{background:linear-gradient(180deg,#7CCA5B,#5AB3C9);}
+.module-card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;padding-left:16px;}
+.module-card-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.module-card.vision .module-card-icon{background:#e6f4fb;}
+.module-card.gameplan .module-card-icon{background:#edfae5;}
+.module-status{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.status-not-started{background:#E6F1F4;color:#888;}
+.status-in-progress{background:#fff8e1;color:#B87800;}
+.status-complete{background:#edfae5;color:#3B8C2A;}
+.module-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:17px;color:#2C3E50;margin-bottom:4px;padding-left:16px;}
+.module-cadence{font-size:11px;color:#5AB3C9;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;padding-left:16px;}
+.module-desc{font-size:13px;color:#888;line-height:1.6;margin-bottom:16px;padding-left:16px;}
+.module-items{padding-left:16px;display:flex;flex-direction:column;gap:6px;margin-bottom:18px;}
+.module-item{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#2C3E50;}
+.module-item-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.module-card.vision .module-item-dot{background:#0C85C2;}
+.module-card.gameplan .module-item-dot{background:#7CCA5B;}
+.module-item-done{color:#aaa;text-decoration:line-through;}
+.module-item-done .module-item-dot{background:#ccc;}
+.module-cta{margin-left:16px;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 18px;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12.5px;border:none;cursor:pointer;transition:background 0.15s;}
+.module-card.vision .module-cta{background:#0C85C2;color:#fff;}
+.module-card.vision .module-cta:hover{background:#5AB3C9;}
+.module-card.gameplan .module-cta{background:#7CCA5B;color:#fff;}
+.module-card.gameplan .module-cta:hover{background:#5AB3C9;}
+
+/* Connection arrow between modules */
+.bp-connector{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:24px;font-size:12.5px;color:#888;}
+.bp-connector-line{flex:1;height:1px;background:#A7DBE7;max-width:160px;}
+.bp-connector-text{background:#E6F1F4;border-radius:20px;padding:4px 14px;font-size:11.5px;color:#5AB3C9;font-weight:700;}
+
+/* Recent activity / quick stats row */
+.bp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.stat-card{background:#fff;border-radius:14px;border:0.5px solid #A7DBE7;padding:16px 18px;}
+.stat-label{font-size:11px;font-weight:700;color:#888;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px;}
+.stat-val{font-family:'Montserrat',sans-serif;font-weight:800;font-size:22px;color:#2C3E50;}
+.stat-sub{font-size:11.5px;color:#aaa;margin-top:3px;}
+.stat-val.blue{color:#0C85C2;}
+.stat-val.green{color:#3B8C2A;}
+
+/* Tips banner */
+.tip-banner{background:#fff;border-radius:14px;border:0.5px solid #A7DBE7;padding:16px 20px;display:flex;align-items:center;gap:14px;}
+.tip-icon{width:36px;height:36px;border-radius:10px;background:#e6f4fb;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tip-title{font-size:13px;font-weight:700;color:#2C3E50;margin-bottom:2px;}
+.tip-text{font-size:12.5px;color:#888;line-height:1.5;}
+</style>
+
+<div class="gp">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sb-logo">
+      <img src="https://cleaningforareason.org/wp-content/uploads/2024/02/MAID-THIS-LOGO-VARIATION-08-670-768x293.png" alt="MaidThis">
+    </div>
+    <div class="sb-label">Main Menu</div>
+    <div class="sb-item">
+      <svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="sb-item">
+      <svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M2 3h12v2H2zm0 4h12v2H2zm0 4h8v2H2z"/></svg>
+      Goals & Tracking
+    </div>
+    <div class="sb-item active">
+      <svg class="sb-icon" viewBox="0 0 16 16" fill="#5AB3C9"><path d="M2 13V5l5-4 5 4v8H9V9H7v4H2z"/></svg>
+      Blueprint
+    </div>
+    <div class="sb-sub active">&#x25B8; The Vision</div>
+    <div class="sb-sub">&#x25B8; The Game Plan</div>
+    <div class="sb-item">
+      <svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M1 3h14v2H1zm2 4h10v2H3zm2 4h6v2H5z"/></svg>
+      Marketing Tools
+    </div>
+    <div class="sb-item">
+      <svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0 3v4l3 2-1 1.5L6 9V4h2z"/></svg>
+      Resources
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main">
+    <div class="breadcrumb">Blueprint</div>
+    <div class="page-title">Blueprint</div>
+    <div class="page-sub">Your complete franchise planning system — where your vision drives your numbers.</div>
+
+    <!-- Hero banner -->
+    <div class="bp-hero">
+      <div class="bp-hero-text">
+        <div class="bp-hero-eyebrow">Your planning system</div>
+        <div class="bp-hero-title">Build it once.<br>Execute all year.</div>
+        <div class="bp-hero-desc">Blueprint has two parts. <strong style="color:#5AB3C9;">The Vision</strong> is your long-range foundation — your why, your values, your 3-year picture. <strong style="color:#7CCA5B;">The Game Plan</strong> is where that vision becomes this year's numbers.</div>
+      </div>
+      <div class="bp-hero-badge">
+        <div class="bp-hero-badge-num" id="hero-pct">40%</div>
+        <div class="bp-hero-badge-label">Blueprint complete</div>
+      </div>
+    </div>
+
+    <!-- Overall progress -->
+    <div class="bp-progress">
+      <div class="bp-progress-label">Overall progress</div>
+      <div class="bp-progress-track">
+        <div class="bp-progress-fill" id="overallBar" style="width:40%"></div>
+      </div>
+      <div class="bp-progress-pct" id="overallPct">40%</div>
+    </div>
+
+    <!-- Quick stats -->
+    <div class="bp-stats">
+      <div class="stat-card">
+        <div class="stat-label">Revenue goal</div>
+        <div class="stat-val blue">$0</div>
+        <div class="stat-sub">Set in Game Plan</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">3-year target</div>
+        <div class="stat-val">—</div>
+        <div class="stat-sub">Set in The Vision</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Q1 Rocks</div>
+        <div class="stat-val green">3</div>
+        <div class="stat-sub">priorities set</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Last updated</div>
+        <div class="stat-val" style="font-size:16px;">Today</div>
+        <div class="stat-sub">Game Plan</div>
+      </div>
+    </div>
+
+    <!-- Module cards -->
+    <div class="bp-modules">
+
+      <!-- The Vision card -->
+      <div class="module-card vision" onclick="window.location='#vision'">
+        <div class="module-card-accent"></div>
+        <div class="module-card-header">
+          <div class="module-card-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#0C85C2" stroke-width="1.6">
+              <circle cx="11" cy="11" r="9"/>
+              <path d="M11 6v5l3 3"/>
+              <circle cx="11" cy="11" r="2" fill="#0C85C2" stroke="none"/>
+            </svg>
+          </div>
+          <div class="module-status status-in-progress">In progress</div>
+        </div>
+        <div class="module-title">The Vision</div>
+        <div class="module-cadence">Revisit annually</div>
+        <div class="module-desc">Your foundation. Define why you own this business, what you stand for, and where you're headed — 1 year, 3 years, and beyond.</div>
+        <div class="module-items">
+          <div class="module-item module-item-done"><div class="module-item-dot"></div>Personal why</div>
+          <div class="module-item module-item-done"><div class="module-item-dot"></div>Core values</div>
+          <div class="module-item module-item-done"><div class="module-item-dot"></div>Core focus & purpose</div>
+          <div class="module-item"><div class="module-item-dot"></div>3-year picture</div>
+          <div class="module-item"><div class="module-item-dot"></div>1-year plan</div>
+          <div class="module-item"><div class="module-item-dot"></div>Rocks (quarterly priorities)</div>
+        </div>
+        <button class="module-cta">Continue Vision ↗</button>
+      </div>
+
+      <!-- The Game Plan card -->
+      <div class="module-card gameplan" onclick="window.location='#gameplan'">
+        <div class="module-card-accent"></div>
+        <div class="module-card-header">
+          <div class="module-card-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#7CCA5B" stroke-width="1.6">
+              <rect x="3" y="3" width="16" height="16" rx="3"/>
+              <path d="M7 15l3-4 3 3 3-5"/>
+            </svg>
+          </div>
+          <div class="module-status status-not-started">Not started</div>
+        </div>
+        <div class="module-title">The Game Plan</div>
+        <div class="module-cadence">Revisit monthly</div>
+        <div class="module-desc">Your year in numbers. Set revenue targets, model your lead flow, map your seasonality, and build the team that gets you there.</div>
+        <div class="module-items">
+          <div class="module-item"><div class="module-item-dot"></div>Revenue goal + base revenue</div>
+          <div class="module-item"><div class="module-item-dot"></div>Customer value & conversion</div>
+          <div class="module-item"><div class="module-item-dot"></div>Monthly revenue curve</div>
+          <div class="module-item"><div class="module-item-dot"></div>Marketing channel mix</div>
+          <div class="module-item"><div class="module-item-dot"></div>Team & staffing goals</div>
+          <div class="module-item"><div class="module-item-dot"></div>Quarterly milestones</div>
+        </div>
+        <button class="module-cta">Start Game Plan ↗</button>
+      </div>
+
+    </div>
+
+    <!-- Connection note -->
+    <div class="bp-connector">
+      <div class="bp-connector-line"></div>
+      <div class="bp-connector-text">The Vision informs The Game Plan</div>
+      <div class="bp-connector-line"></div>
+    </div>
+
+    <!-- Tip -->
+    <div class="tip-banner">
+      <div class="tip-icon">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#0C85C2" stroke-width="1.5">
+          <circle cx="9" cy="9" r="7"/>
+          <path d="M9 8v5M9 6v.5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="tip-title">Start with The Vision, then build The Game Plan</div>
+        <div class="tip-text">Your 1-year plan and quarterly Rocks in The Vision should directly shape the revenue targets and milestones you set in The Game Plan. Do them in order for the best results.</div>
+      </div>
+    </div>
+
+  </div>
+</div>

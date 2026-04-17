@@ -1,0 +1,499 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Open+Sans:wght@400;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+.gp{background:#E6F1F4;min-height:100vh;display:flex;font-family:'Open Sans',sans-serif;}
+.sidebar{width:220px;min-width:220px;background:#2C3E50;display:flex;flex-direction:column;}
+.sb-logo{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.sb-logo img{width:140px;height:auto;}
+.sb-label{font-size:10px;font-weight:700;color:#5AB3C9;letter-spacing:1.5px;text-transform:uppercase;padding:20px 16px 8px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13.5px;color:rgba(255,255,255,0.65);cursor:pointer;transition:background 0.15s;}
+.sb-item:hover{background:rgba(255,255,255,0.05);}
+.sb-item.active{background:rgba(90,179,201,0.18);color:#5AB3C9;font-weight:600;}
+.sb-sub{padding:7px 16px 7px 42px;font-size:12.5px;color:rgba(255,255,255,0.45);cursor:pointer;transition:color 0.15s;}
+.sb-sub:hover{color:rgba(255,255,255,0.75);}
+.sb-sub.active{color:#5AB3C9;font-weight:600;}
+.sb-icon{width:16px;height:16px;flex-shrink:0;}
+.main{flex:1;padding:28px 32px;overflow:auto;}
+.breadcrumb{font-size:12px;color:#888;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.breadcrumb a{color:#0C85C2;text-decoration:none;}
+.breadcrumb-sep{color:#ccc;}
+.page-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:24px;color:#2C3E50;}
+.page-sub{font-size:13.5px;color:#888;margin-top:4px;margin-bottom:20px;}
+.vision-progress{background:#fff;border-radius:14px;border:0.5px solid #A7DBE7;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.vp-step{display:flex;align-items:center;gap:7px;font-size:12.5px;color:#aaa;cursor:pointer;}
+.vp-step.done{color:#3B8C2A;}
+.vp-step.active{color:#0C85C2;font-weight:600;}
+.vp-dot{width:20px;height:20px;border-radius:50%;border:2px solid #A7DBE7;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;font-weight:700;color:#aaa;}
+.vp-step.done .vp-dot{background:#7CCA5B;border-color:#7CCA5B;color:#fff;}
+.vp-step.active .vp-dot{background:#0C85C2;border-color:#0C85C2;color:#fff;}
+.vp-sep{flex:1;height:1px;background:#E6F1F4;min-width:16px;max-width:40px;}
+.save-bar{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:14px;border:0.5px solid #A7DBE7;padding:12px 20px;margin-bottom:20px;}
+.save-msg{font-size:13px;color:#7CCA5B;font-weight:600;display:flex;align-items:center;gap:6px;}
+.save-btn{height:38px;padding:0 22px;background:#0C85C2;color:#fff;border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:background 0.15s;}
+.save-btn:hover{background:#5AB3C9;}
+.next-btn{height:38px;padding:0 22px;background:#7CCA5B;color:#fff;border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:background 0.15s;}
+.next-btn:hover{background:#5AB3C9;}
+.section-card{background:#fff;border-radius:16px;border:0.5px solid #A7DBE7;padding:22px 24px;margin-bottom:18px;}
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+.section-num{width:28px;height:28px;border-radius:50%;background:#0C85C2;color:#fff;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.section-num.done{background:#7CCA5B;}
+.section-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;color:#2C3E50;}
+.section-hint{font-size:12.5px;color:#aaa;margin-bottom:18px;padding-left:38px;line-height:1.5;}
+.field-label{font-size:11.5px;font-weight:700;color:#2C3E50;letter-spacing:0.5px;text-transform:uppercase;display:block;margin-bottom:6px;}
+.field-hint{font-size:12px;color:#aaa;margin-bottom:8px;display:block;line-height:1.5;}
+textarea{width:100%;border:1.5px solid #A7DBE7;border-radius:10px;padding:12px 14px;font-size:13.5px;font-family:'Open Sans',sans-serif;color:#2C3E50;outline:none;resize:vertical;line-height:1.6;}
+textarea:focus{border-color:#0C85C2;}
+input[type=text],input[type=number],input[type=date]{width:100%;height:42px;border:1.5px solid #A7DBE7;border-radius:10px;padding:0 14px;font-size:14px;font-family:'Open Sans',sans-serif;color:#2C3E50;outline:none;}
+input:focus{border-color:#0C85C2;}
+.two-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;}
+.prefix-input{display:flex;align-items:center;border:1.5px solid #A7DBE7;border-radius:10px;overflow:hidden;transition:border-color 0.2s;}
+.prefix-input:focus-within{border-color:#0C85C2;}
+.prefix-input.autofilled{border-color:#5AB3C9;background:#f4fbfd;}
+.prefix-input.overridden{border-color:#FFB600;background:#fffdf0;}
+.prefix{background:#E6F1F4;padding:0 12px;height:42px;display:flex;align-items:center;font-size:14px;font-weight:700;color:#2C3E50;border-right:1.5px solid #A7DBE7;flex-shrink:0;}
+.prefix-input.autofilled .prefix{background:#d8f2f8;border-right-color:#5AB3C9;}
+.prefix-input.overridden .prefix{background:#fff3cd;border-right-color:#FFB600;}
+.prefix-input input{border:none;background:transparent;height:40px;flex:1;padding:0 40px 0 14px;}
+.prefix-input input:focus{outline:none;}
+.autofill-wrap{position:relative;}
+.autofill-badge{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;pointer-events:none;white-space:nowrap;}
+.autofill-badge.auto{background:#d8f2f8;color:#0C85C2;}
+.autofill-badge.overridden{background:#fff3cd;color:#B87800;}
+.reset-link{font-size:11.5px;color:#5AB3C9;cursor:pointer;margin-top:5px;display:inline-block;}
+.reset-link:hover{color:#0C85C2;text-decoration:underline;}
+
+/* Income engine */
+.income-engine{background:#2C3E50;border-radius:16px;padding:22px 24px;margin-bottom:18px;}
+.ie-eyebrow{font-size:10px;font-weight:700;color:#5AB3C9;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;}
+.ie-top-row{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,0.9fr) minmax(0,1.3fr);gap:20px;margin-bottom:20px;align-items:end;}
+.ie-field-label{font-size:11px;font-weight:700;color:rgba(255,255,255,0.45);letter-spacing:0.5px;text-transform:uppercase;display:block;margin-bottom:6px;}
+.ie-input-wrap{display:flex;align-items:center;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.12);border-radius:10px;overflow:hidden;transition:border-color 0.15s;height:44px;}
+.ie-input-wrap:focus-within{border-color:#5AB3C9;}
+.ie-prefix{padding:0 12px;height:100%;display:flex;align-items:center;font-size:14px;font-weight:700;color:rgba(255,255,255,0.35);border-right:1.5px solid rgba(255,255,255,0.1);flex-shrink:0;}
+.ie-input-wrap input{border:none;background:transparent;height:100%;padding:0 14px;font-size:15px;font-family:'Montserrat',sans-serif;font-weight:700;color:#fff;outline:none;width:100%;}
+.ie-input-wrap input::placeholder{color:rgba(255,255,255,0.2);font-weight:400;}
+.ie-input-wrap input[type=date]{font-size:13px;font-family:'Open Sans',sans-serif;font-weight:400;}
+.ie-slider-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+.ie-slider-pct{font-family:'Montserrat',sans-serif;font-weight:800;font-size:22px;color:#5AB3C9;line-height:1;}
+.ie-slider-note{font-size:10.5px;color:rgba(255,255,255,0.3);}
+input[type=range].ie-slider{width:100%;accent-color:#5AB3C9;height:5px;border-radius:20px;cursor:pointer;display:block;}
+.ie-slider-ends{display:flex;justify-content:space-between;margin-top:4px;}
+.ie-slider-end{font-size:10.5px;color:rgba(255,255,255,0.25);}
+
+/* Math panel */
+.ie-math{background:rgba(255,255,255,0.05);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:4px;}
+.ie-math-step{flex:1;text-align:center;padding:0 4px;}
+.ie-math-val{font-family:'Montserrat',sans-serif;font-weight:800;font-size:18px;line-height:1.1;}
+.ie-math-val.w{color:#fff;}
+.ie-math-val.teal{color:#5AB3C9;}
+.ie-math-val.green{color:#7CCA5B;}
+.ie-math-val.yellow{color:#FFB600;}
+.ie-math-sub{font-size:10.5px;color:rgba(255,255,255,0.35);margin-top:4px;}
+.ie-math-op{font-size:20px;font-weight:700;color:rgba(255,255,255,0.18);flex-shrink:0;padding:0 6px;}
+
+/* Multiplier row */
+.mult-row{display:flex;align-items:center;gap:14px;padding:12px 16px;background:#E6F1F4;border-radius:12px;margin-bottom:14px;}
+.mult-text{font-size:13px;color:#2C3E50;flex:1;line-height:1.4;}
+.mult-text strong{color:#0C85C2;}
+.mult-controls{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.mult-controls span{font-size:11px;color:#aaa;}
+input[type=range].mult-slider{width:140px;accent-color:#0C85C2;height:5px;border-radius:20px;cursor:pointer;}
+.mult-val{font-family:'Montserrat',sans-serif;font-weight:800;font-size:15px;color:#0C85C2;min-width:28px;text-align:right;}
+
+/* Values */
+.values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
+.value-chip{position:relative;background:#E6F1F4;border:1.5px solid #A7DBE7;border-radius:10px;padding:10px 32px 10px 14px;font-size:13px;color:#2C3E50;}
+.value-chip.filled{background:#e6f4fb;border-color:#0C85C2;color:#0C85C2;font-weight:600;}
+.value-chip-remove{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#aaa;cursor:pointer;font-size:14px;line-height:1;padding:2px;}
+.value-chip-remove:hover{color:#e05252;}
+.value-add-row{display:flex;gap:8px;}
+.value-add-row input{flex:1;}
+.value-add-btn{height:42px;padding:0 18px;background:#0C85C2;color:#fff;border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;}
+.value-add-btn:hover{background:#5AB3C9;}
+
+/* Horizon cards */
+.horizon-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.horizon-card{border:1.5px solid #A7DBE7;border-radius:12px;overflow:hidden;}
+.horizon-card-header{padding:10px 14px;display:flex;align-items:center;gap:8px;}
+.horizon-card.yr1 .horizon-card-header{background:#e6f4fb;}
+.horizon-card.yr3 .horizon-card-header{background:#edfae5;}
+.horizon-card.beyond .horizon-card-header{background:#f3f0ff;}
+.horizon-label{font-family:'Montserrat',sans-serif;font-weight:800;font-size:12px;}
+.horizon-card.yr1 .horizon-label{color:#0C85C2;}
+.horizon-card.yr3 .horizon-label{color:#3B8C2A;}
+.horizon-card.beyond .horizon-label{color:#6B5CE7;}
+.horizon-card textarea{border:none;border-radius:0;padding:12px 14px;font-size:12.5px;min-height:100px;background:#fff;}
+.horizon-card textarea:focus{border:none;outline:none;}
+
+/* Rocks */
+.rocks-header{display:grid;grid-template-columns:minmax(0,1fr) 130px 110px 36px;gap:10px;align-items:center;padding:0 0 8px;border-bottom:0.5px solid #E6F1F4;margin-bottom:4px;}
+.rocks-col-hdr{font-size:11px;font-weight:700;color:#5AB3C9;letter-spacing:0.8px;text-transform:uppercase;}
+.rock-row{display:grid;grid-template-columns:minmax(0,1fr) 130px 110px 36px;gap:10px;align-items:center;padding:8px 0;border-bottom:0.5px solid #E6F1F4;}
+.rock-row:last-child{border-bottom:none;}
+.rock-row input{height:38px;}
+.rock-q-select,.rock-status-select{height:38px;border:1.5px solid #A7DBE7;border-radius:10px;padding:0 10px;font-size:13px;font-family:'Open Sans',sans-serif;color:#2C3E50;outline:none;background:#fff;cursor:pointer;width:100%;}
+.rock-q-select:focus,.rock-status-select:focus{border-color:#0C85C2;}
+.rock-remove{background:none;border:none;color:#ccc;cursor:pointer;font-size:18px;line-height:1;padding:4px;border-radius:6px;}
+.rock-remove:hover{color:#e05252;background:#fff0f0;}
+.add-rock-btn{margin-top:12px;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:#0C85C2;cursor:pointer;background:none;border:none;font-family:'Open Sans',sans-serif;}
+.add-rock-btn:hover{color:#5AB3C9;}
+
+/* Why callout */
+.why-callout{background:linear-gradient(135deg,#e6f4fb 0%,#edfae5 100%);border:1.5px solid #A7DBE7;border-radius:14px;padding:18px 20px;margin-top:14px;}
+.why-callout-label{font-size:10.5px;font-weight:700;color:#0C85C2;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+.why-callout textarea{background:transparent;border:none;padding:0;font-size:14px;color:#2C3E50;min-height:60px;font-style:italic;}
+.why-callout textarea:focus{border:none;outline:none;}
+
+/* Focus card */
+.focus-card{background:#E6F1F4;border-radius:12px;padding:16px 18px;margin-top:12px;}
+.focus-row{display:flex;gap:12px;align-items:flex-start;}
+.focus-divider{font-size:13px;font-weight:700;color:#aaa;white-space:nowrap;padding-top:36px;}
+</style>
+
+<div class="gp">
+  <div class="sidebar">
+    <div class="sb-logo"><img src="https://cleaningforareason.org/wp-content/uploads/2024/02/MAID-THIS-LOGO-VARIATION-08-670-768x293.png" alt="MaidThis"></div>
+    <div class="sb-label">Main Menu</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Dashboard</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M2 3h12v2H2zm0 4h12v2H2zm0 4h8v2H2z"/></svg>Goals & Tracking</div>
+    <div class="sb-item active"><svg class="sb-icon" viewBox="0 0 16 16" fill="#5AB3C9"><path d="M2 13V5l5-4 5 4v8H9V9H7v4H2z"/></svg>Blueprint</div>
+    <div class="sb-sub active">&#x25B8; The Vision</div>
+    <div class="sb-sub">&#x25B8; The Game Plan</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M1 3h14v2H1zm2 4h10v2H3zm2 4h6v2H5z"/></svg>Marketing Tools</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0 3v4l3 2-1 1.5L6 9V4h2z"/></svg>Resources</div>
+  </div>
+
+  <div class="main">
+    <div class="breadcrumb"><a href="#">Blueprint</a><span class="breadcrumb-sep">›</span><span>The Vision</span></div>
+    <div class="page-title">The Vision</div>
+    <div class="page-sub">Your foundation. Do this once a year — it's the work that makes every other decision easier.</div>
+
+    <div class="vision-progress">
+      <div class="vp-step done"><div class="vp-dot">✓</div>Personal why</div>
+      <div class="vp-sep"></div>
+      <div class="vp-step done"><div class="vp-dot">✓</div>Core values</div>
+      <div class="vp-sep"></div>
+      <div class="vp-step done"><div class="vp-dot">✓</div>Core focus</div>
+      <div class="vp-sep"></div>
+      <div class="vp-step active"><div class="vp-dot">4</div>3-year picture</div>
+      <div class="vp-sep"></div>
+      <div class="vp-step"><div class="vp-dot">5</div>1-year plan</div>
+      <div class="vp-sep"></div>
+      <div class="vp-step"><div class="vp-dot">6</div>Rocks</div>
+    </div>
+
+    <div class="save-bar">
+      <div class="save-msg"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#7CCA5B" stroke-width="2"/></svg>Changes saved automatically</div>
+      <div style="display:flex;gap:8px;">
+        <button class="save-btn" onclick="saveVision(event)">Save Vision</button>
+        <button class="next-btn" onclick="alert('Navigating to The Game Plan…')">Build Game Plan ↗</button>
+      </div>
+    </div>
+
+    <!-- ══ INCOME ENGINE ══ -->
+    <div class="income-engine">
+      <div class="ie-eyebrow">Income target — drives your revenue goals below</div>
+      <div class="ie-top-row">
+        <div>
+          <label class="ie-field-label">Personal income goal (annual)</label>
+          <div class="ie-input-wrap">
+            <div class="ie-prefix">$</div>
+            <input type="number" id="incomeGoal" value="120000" placeholder="120,000" oninput="recalc()">
+          </div>
+        </div>
+        <div>
+          <label class="ie-field-label">Target date</label>
+          <div class="ie-input-wrap">
+            <input type="date" id="incomeBy" value="2028-12-31" oninput="autoSave()">
+          </div>
+        </div>
+        <div>
+          <label class="ie-field-label">
+            <span style="display:flex;justify-content:space-between;align-items:flex-end;">
+              Profit margin assumption
+              <span class="ie-slider-pct" id="marginLabel">18%</span>
+            </span>
+          </label>
+          <input type="range" class="ie-slider" id="marginSlider" min="5" max="40" step="1" value="18" oninput="updateMargin();recalc()">
+          <div class="ie-slider-ends"><span class="ie-slider-end">5% conservative</span><span class="ie-slider-end">40% optimistic</span></div>
+        </div>
+      </div>
+
+      <!-- Live math -->
+      <div class="ie-math">
+        <div class="ie-math-step">
+          <div class="ie-math-val teal" id="mathIncome">$120,000</div>
+          <div class="ie-math-sub">income goal</div>
+        </div>
+        <div class="ie-math-op">÷</div>
+        <div class="ie-math-step">
+          <div class="ie-math-val teal" id="mathMargin">18%</div>
+          <div class="ie-math-sub">profit margin</div>
+        </div>
+        <div class="ie-math-op">=</div>
+        <div class="ie-math-step">
+          <div class="ie-math-val green" id="mathOneYr">$667,000</div>
+          <div class="ie-math-sub">1-year revenue needed</div>
+        </div>
+        <div class="ie-math-op" style="font-size:14px;padding:0 10px;">→ ×</div>
+        <div class="ie-math-step">
+          <div class="ie-math-val w" id="mathMult">2×</div>
+          <div class="ie-math-sub">growth multiplier</div>
+        </div>
+        <div class="ie-math-op">=</div>
+        <div class="ie-math-step">
+          <div class="ie-math-val yellow" id="mathThreeYr">$1,333,000</div>
+          <div class="ie-math-sub">3-year revenue target</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1: Personal Why -->
+    <div class="section-card">
+      <div class="section-header"><div class="section-num done">✓</div><div class="section-title">Personal why</div></div>
+      <div class="section-hint">Why did you invest in this franchise? What does success look like for your life — not just your business?</div>
+      <div style="margin-bottom:20px;">
+        <label class="field-label">Why I own this franchise</label>
+        <span class="field-hint">Be honest. This is your north star — the reason you'll push through the hard days.</span>
+        <textarea id="whyOwn" rows="3" oninput="autoSave()">I want to build a business that gives my family financial freedom and lets me be present for the moments that matter. I chose this franchise because I believe in the brand and I know I can scale it.</textarea>
+      </div>
+      <div class="why-callout">
+        <div class="why-callout-label">Your why statement</div>
+        <textarea id="whyStatement" rows="2" oninput="autoSave()">I'm building this business to create financial freedom for my family and to prove that hard work and the right systems can take someone from zero to thriving.</textarea>
+      </div>
+    </div>
+
+    <!-- Section 2: Core Values -->
+    <div class="section-card">
+      <div class="section-header"><div class="section-num done">✓</div><div class="section-title">Core values</div></div>
+      <div class="section-hint">What principles are non-negotiable in how you run your business and treat your team and customers? Aim for 3–5.</div>
+      <div class="values-grid" id="valuesGrid"></div>
+      <div class="value-add-row">
+        <input type="text" id="newValueInput" placeholder="Add a value (e.g. Integrity, Reliability…)" onkeydown="if(event.key==='Enter')addValue()">
+        <button class="value-add-btn" onclick="addValue()">+ Add</button>
+      </div>
+    </div>
+
+    <!-- Section 3: Core Focus -->
+    <div class="section-card">
+      <div class="section-header"><div class="section-num done">✓</div><div class="section-title">Core focus</div></div>
+      <div class="section-hint">Your purpose (why you exist beyond money) and your niche (what you do better than anyone).</div>
+      <div class="focus-card">
+        <div class="focus-row">
+          <div style="flex:1;">
+            <label class="field-label">Purpose</label>
+            <span class="field-hint">Why do you exist beyond making money?</span>
+            <textarea id="corePurpose" rows="2" oninput="autoSave()">To give homeowners their time back so they can focus on what matters most to them.</textarea>
+          </div>
+          <div class="focus-divider">+</div>
+          <div style="flex:1;">
+            <label class="field-label">Niche</label>
+            <span class="field-hint">What do you do better than anyone in your market?</span>
+            <textarea id="coreNiche" rows="2" oninput="autoSave()">Premium recurring home cleaning for busy families and professionals who value reliability.</textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: 3-Year Picture -->
+    <div class="section-card" style="border-color:#0C85C2;">
+      <div class="section-header">
+        <div class="section-num">4</div>
+        <div class="section-title">3-year picture</div>
+        <span style="margin-left:auto;font-size:11px;font-weight:700;background:#e6f4fb;color:#0C85C2;padding:3px 10px;border-radius:20px;">You are here</span>
+      </div>
+      <div class="section-hint">Project yourself 3 years forward. What does your business look like? Be specific — revenue, team size, how it feels to run it.</div>
+      <div class="horizon-grid">
+        <div class="horizon-card yr1">
+          <div class="horizon-card-header">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#0C85C2" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 1.5"/></svg>
+            <div class="horizon-label">End of 2026</div>
+          </div>
+          <textarea placeholder="Revenue, team, systems, customers… what's true in 12 months?" oninput="autoSave()"></textarea>
+        </div>
+        <div class="horizon-card yr3">
+          <div class="horizon-card-header">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#3B8C2A" stroke-width="1.5"><path d="M2 10l3-4 3 3 4-6"/></svg>
+            <div class="horizon-label">End of 2028 (3 years)</div>
+          </div>
+          <textarea placeholder="Revenue target, team size, market position, how you spend your days…" oninput="autoSave()"></textarea>
+        </div>
+        <div class="horizon-card beyond">
+          <div class="horizon-card-header">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#6B5CE7" stroke-width="1.5"><path d="M7 2l1.5 3.5L13 6.5l-3 3 .7 4.5L7 12l-3.7 2 .7-4.5-3-3L5.5 5.5z"/></svg>
+            <div class="horizon-label">Dream state</div>
+          </div>
+          <textarea placeholder="If everything went perfectly — what does it look like?" oninput="autoSave()"></textarea>
+        </div>
+      </div>
+
+      <!-- 3-yr revenue autofill -->
+      <div>
+        <label class="field-label">3-year revenue target</label>
+        <span class="field-hint">Auto-calculated from your income goal × multiplier. Adjust the multiplier or override directly.</span>
+        <div class="mult-row">
+          <div class="mult-text">Growth multiplier: your 3-year target is <strong id="multDisplay">2×</strong> your 1-year revenue goal.</div>
+          <div class="mult-controls">
+            <span>1×</span>
+            <input type="range" class="mult-slider" id="multSlider" min="1" max="5" step="0.5" value="2" oninput="updateMult()">
+            <span>5×</span>
+            <div class="mult-val" id="multVal">2×</div>
+          </div>
+        </div>
+        <div class="autofill-wrap" style="max-width:260px;">
+          <div class="prefix-input autofilled" id="threeYrWrap">
+            <div class="prefix">$</div>
+            <input type="number" id="threeYrRev" oninput="onManualThreeYr()">
+          </div>
+          <span class="autofill-badge auto" id="threeYrBadge">Auto-calculated</span>
+        </div>
+        <span class="reset-link" id="threeYrReset" style="display:none;" onclick="resetThreeYr()">↺ Reset to calculated value</span>
+      </div>
+    </div>
+
+    <!-- Section 5: 1-Year Plan -->
+    <div class="section-card">
+      <div class="section-header"><div class="section-num">5</div><div class="section-title">1-year plan</div></div>
+      <div class="section-hint">What must be true by December 31, 2026? Your income goal back-calculates the revenue you need — confirm or adjust it here.</div>
+      <div style="margin-bottom:16px;">
+          <label class="field-label">Revenue goal this year</label>
+          <span class="field-hint">Auto-filled from your income goal. Override anytime.</span>
+          <div class="autofill-wrap" style="max-width:260px;">
+            <div class="prefix-input autofilled" id="oneYrWrap">
+              <div class="prefix">$</div>
+              <input type="number" id="oneYrRev" oninput="onManualOneYr()">
+            </div>
+            <span class="autofill-badge auto" id="oneYrBadge">Auto-calculated</span>
+          </div>
+          <span class="reset-link" id="oneYrReset" style="display:none;" onclick="resetOneYr()">↺ Reset to calculated value</span>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label class="field-label">What has to be true by Dec 31, 2026?</label>
+        <span class="field-hint">Think beyond revenue — team, systems, marketing, your own role in the business.</span>
+        <textarea id="oneYrCommit" rows="4" placeholder="e.g. I have a full-time ops manager, I am not doing cleans myself, I have 3 reliable lead channels…" oninput="autoSave()"></textarea>
+      </div>
+      <div>
+        <label class="field-label">Biggest obstacle this year</label>
+        <span class="field-hint">What's the single thing most likely to get in the way?</span>
+        <textarea id="oneYrObstacle" rows="2" placeholder="e.g. Finding and keeping reliable cleaners…" oninput="autoSave()"></textarea>
+      </div>
+    </div>
+
+    <!-- Section 6: Rocks -->
+    <div class="section-card">
+      <div class="section-header"><div class="section-num">6</div><div class="section-title">Rocks — quarterly priorities</div></div>
+      <div class="section-hint">Rocks are the 3–5 most important things to accomplish this quarter. Not tasks — outcomes. If these get done, the quarter was a success.</div>
+      <div class="rocks-header">
+        <div class="rocks-col-hdr">Rock (outcome)</div>
+        <div class="rocks-col-hdr">Quarter</div>
+        <div class="rocks-col-hdr">Status</div>
+        <div></div>
+      </div>
+      <div id="rocksRows"></div>
+      <button class="add-rock-btn" onclick="addRock()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#0C85C2" stroke-width="1.5"/><path d="M7 4v6M4 7h6" stroke="#0C85C2" stroke-width="1.5"/></svg>
+        Add Rock
+      </button>
+    </div>
+
+    <div class="save-bar">
+      <div class="save-msg" id="saveMsg"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#7CCA5B" stroke-width="2"/></svg>Changes saved automatically</div>
+      <div style="display:flex;gap:8px;">
+        <button class="save-btn" onclick="saveVision(event)">Save Vision</button>
+        <button class="next-btn" onclick="alert('Navigating to The Game Plan…')">Build Game Plan ↗</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let oneYrOverridden=false, threeYrOverridden=false;
+function fmt(n){return '$'+Math.round(n).toLocaleString();}
+
+function recalc(){
+  const income=parseFloat(document.getElementById('incomeGoal').value)||0;
+  const margin=parseFloat(document.getElementById('marginSlider').value)/100;
+  const mult=parseFloat(document.getElementById('multSlider').value);
+  const oneYr=margin>0?income/margin:0;
+  const threeYr=oneYr*mult;
+  document.getElementById('mathIncome').textContent=fmt(income);
+  document.getElementById('mathMargin').textContent=Math.round(margin*100)+'%';
+  document.getElementById('mathOneYr').textContent=fmt(oneYr);
+  document.getElementById('mathMult').textContent=mult+'×';
+  document.getElementById('mathThreeYr').textContent=fmt(threeYr);
+  if(!oneYrOverridden) document.getElementById('oneYrRev').value=Math.round(oneYr)||'';
+  if(!threeYrOverridden) document.getElementById('threeYrRev').value=Math.round(threeYr)||'';
+  autoSave();
+}
+function updateMargin(){
+  const v=document.getElementById('marginSlider').value;
+  document.getElementById('marginLabel').textContent=v+'%';
+}
+function updateMult(){
+  const v=parseFloat(document.getElementById('multSlider').value);
+  document.getElementById('multVal').textContent=v+'×';
+  document.getElementById('multDisplay').textContent=v+'×';
+  recalc();
+}
+function onManualOneYr(){
+  oneYrOverridden=true;
+  document.getElementById('oneYrWrap').className='prefix-input overridden';
+  document.getElementById('oneYrBadge').textContent='Overridden';
+  document.getElementById('oneYrBadge').className='autofill-badge overridden';
+  document.getElementById('oneYrReset').style.display='inline-block';
+  autoSave();
+}
+function resetOneYr(){
+  oneYrOverridden=false;
+  document.getElementById('oneYrWrap').className='prefix-input autofilled';
+  document.getElementById('oneYrBadge').textContent='Auto-calculated';
+  document.getElementById('oneYrBadge').className='autofill-badge auto';
+  document.getElementById('oneYrReset').style.display='none';
+  recalc();
+}
+function onManualThreeYr(){
+  threeYrOverridden=true;
+  document.getElementById('threeYrWrap').className='prefix-input overridden';
+  document.getElementById('threeYrBadge').textContent='Overridden';
+  document.getElementById('threeYrBadge').className='autofill-badge overridden';
+  document.getElementById('threeYrReset').style.display='inline-block';
+  autoSave();
+}
+function resetThreeYr(){
+  threeYrOverridden=false;
+  document.getElementById('threeYrWrap').className='prefix-input autofilled';
+  document.getElementById('threeYrBadge').textContent='Auto-calculated';
+  document.getElementById('threeYrBadge').className='autofill-badge auto';
+  document.getElementById('threeYrReset').style.display='none';
+  recalc();
+}
+let values=['Reliability','Integrity','Hustle','Customer first'];
+function renderValues(){
+  const g=document.getElementById('valuesGrid');g.innerHTML='';
+  values.forEach((v,i)=>{const c=document.createElement('div');c.className='value-chip filled';c.innerHTML=`${v}<button class="value-chip-remove" onclick="removeValue(${i})">×</button>`;g.appendChild(c);});
+}
+function addValue(){const i=document.getElementById('newValueInput');const v=i.value.trim();if(!v)return;values.push(v);i.value='';renderValues();autoSave();}
+function removeValue(i){values.splice(i,1);renderValues();autoSave();}
+let rocks=[
+  {text:'Hire and onboard operations manager',q:'Q1 2026',status:'on-track'},
+  {text:'Launch Google Ads campaign and hit 30 leads/mo',q:'Q1 2026',status:'on-track'},
+  {text:'Build out cleaner hiring & retention process',q:'Q2 2026',status:'not-started'},
+  {text:'Hit $75k revenue in a single month',q:'Q3 2026',status:'not-started'},
+];
+function renderRocks(){
+  const c=document.getElementById('rocksRows');c.innerHTML='';
+  rocks.forEach((r,i)=>{
+    const sc=r.status==='on-track'?'color:#3B8C2A':r.status==='at-risk'?'color:#B87800':'color:#888';
+    const row=document.createElement('div');row.className='rock-row';
+    row.innerHTML=`<input type="text" value="${r.text}" placeholder="What outcome must be achieved?" oninput="rocks[${i}].text=this.value;autoSave()"><select class="rock-q-select" onchange="rocks[${i}].q=this.value;autoSave()"><option ${r.q==='Q1 2026'?'selected':''}>Q1 2026</option><option ${r.q==='Q2 2026'?'selected':''}>Q2 2026</option><option ${r.q==='Q3 2026'?'selected':''}>Q3 2026</option><option ${r.q==='Q4 2026'?'selected':''}>Q4 2026</option></select><select class="rock-status-select" onchange="rocks[${i}].status=this.value;autoSave()" style="${sc}"><option value="not-started" ${r.status==='not-started'?'selected':''}>Not started</option><option value="on-track" ${r.status==='on-track'?'selected':''}>On track</option><option value="at-risk" ${r.status==='at-risk'?'selected':''}>At risk</option><option value="done" ${r.status==='done'?'selected':''}>Done</option></select><button class="rock-remove" onclick="removeRock(${i})">×</button>`;
+    c.appendChild(row);
+  });
+}
+function addRock(){rocks.push({text:'',q:'Q1 2026',status:'not-started'});renderRocks();document.querySelectorAll('.rock-row input')[rocks.length-1]?.focus();}
+function removeRock(i){rocks.splice(i,1);renderRocks();autoSave();}
+let saveTimer;
+function autoSave(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{const m=document.getElementById('saveMsg');if(m)m.innerHTML='<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#7CCA5B" stroke-width="2"/></svg> Saved just now';},800);}
+function saveVision(e){const b=e.target;const o=b.textContent;b.textContent='Saved!';b.style.background='#7CCA5B';setTimeout(()=>{b.textContent=o;b.style.background='#0C85C2';},2000);}
+renderValues();renderRocks();recalc();
+</script>

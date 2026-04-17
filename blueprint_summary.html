@@ -1,0 +1,576 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Open+Sans:wght@400;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+.gp{background:#E6F1F4;min-height:100vh;display:flex;font-family:'Open Sans',sans-serif;}
+.sidebar{width:220px;min-width:220px;background:#2C3E50;display:flex;flex-direction:column;}
+.sb-logo{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.sb-logo img{width:140px;height:auto;}
+.sb-label{font-size:10px;font-weight:700;color:#5AB3C9;letter-spacing:1.5px;text-transform:uppercase;padding:20px 16px 8px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13.5px;color:rgba(255,255,255,0.65);cursor:pointer;transition:background 0.15s;}
+.sb-item:hover{background:rgba(255,255,255,0.05);}
+.sb-item.active{background:rgba(90,179,201,0.18);color:#5AB3C9;font-weight:600;}
+.sb-sub{padding:7px 16px 7px 42px;font-size:12.5px;color:rgba(255,255,255,0.45);cursor:pointer;}
+.sb-sub:hover{color:rgba(255,255,255,0.75);}
+.sb-sub.active{color:#5AB3C9;font-weight:600;}
+.sb-icon{width:16px;height:16px;flex-shrink:0;}
+.main{flex:1;padding:28px 32px;overflow:auto;}
+
+/* ── Top identity bar ── */
+.identity-bar{background:#2C3E50;border-radius:16px;padding:22px 28px;margin-bottom:20px;display:flex;align-items:center;gap:20px;}
+.id-avatar{width:56px;height:56px;border-radius:50%;background:#0C85C2;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:800;font-size:20px;color:#fff;flex-shrink:0;}
+.id-info{flex:1;}
+.id-name{font-family:'Montserrat',sans-serif;font-weight:800;font-size:20px;color:#fff;line-height:1.1;}
+.id-meta{font-size:12.5px;color:rgba(255,255,255,0.45);margin-top:3px;}
+.id-badges{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.id-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);}
+.id-badge.green{background:rgba(124,202,91,0.15);color:#7CCA5B;}
+.id-badge.blue{background:rgba(90,179,201,0.15);color:#5AB3C9;}
+.id-actions{display:flex;gap:8px;flex-shrink:0;}
+.id-btn{height:34px;padding:0 16px;border-radius:8px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;cursor:pointer;border:none;transition:background 0.15s;}
+.id-btn.primary{background:#0C85C2;color:#fff;}
+.id-btn.primary:hover{background:#5AB3C9;}
+.id-btn.ghost{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.12);}
+.id-btn.ghost:hover{background:rgba(255,255,255,0.14);}
+
+/* ── Coach note banner ── */
+.coach-banner{background:#fff8e1;border:1px solid #FFE066;border-radius:12px;padding:12px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px;}
+.coach-banner-icon{width:28px;height:28px;border-radius:8px;background:#fff3b0;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.coach-banner-text{font-size:12.5px;color:#7A5F00;line-height:1.5;flex:1;}
+.coach-note-input{flex:1;border:1px solid #FFE066;border-radius:8px;padding:6px 10px;font-size:12.5px;font-family:'Open Sans',sans-serif;color:#2C3E50;outline:none;background:#fff;min-width:200px;}
+.coach-note-input:focus{border-color:#FFB600;}
+.coach-save-btn{height:30px;padding:0 12px;background:#FFB600;color:#fff;border:none;border-radius:8px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:11.5px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+
+/* ── Section blocks ── */
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+.summary-grid.single{grid-template-columns:1fr;}
+.summary-block{background:#fff;border-radius:16px;border:0.5px solid #A7DBE7;padding:20px 22px;}
+.sb-header{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #E6F1F4;}
+.sb-icon-wrap{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sb-header-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:13.5px;color:#2C3E50;}
+.sb-header-sub{font-size:11px;color:#aaa;margin-left:auto;}
+
+/* Why statement */
+.why-statement{font-size:15px;color:#2C3E50;font-style:italic;line-height:1.6;padding:14px 16px;background:#f4fbfd;border-left:3px solid #5AB3C9;border-radius:0 10px 10px 0;}
+
+/* Values chips */
+.values-row{display:flex;flex-wrap:wrap;gap:8px;}
+.val-chip{background:#e6f4fb;color:#0C85C2;font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:20px;}
+
+/* Revenue targets */
+.rev-targets{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.rev-target-card{background:#E6F1F4;border-radius:10px;padding:12px 14px;text-align:center;}
+.rev-target-val{font-family:'Montserrat',sans-serif;font-weight:800;font-size:20px;color:#2C3E50;line-height:1;}
+.rev-target-val.blue{color:#0C85C2;}
+.rev-target-val.green{color:#3B8C2A;}
+.rev-target-val.yellow{color:#B87800;}
+.rev-target-label{font-size:11px;color:#888;margin-top:4px;}
+
+/* Monthly revenue curve mini chart */
+.curve-wrap{display:flex;align-items:flex-end;gap:3px;height:60px;margin-top:12px;}
+.curve-bar{flex:1;border-radius:3px 3px 0 0;background:#A7DBE7;transition:background 0.15s;position:relative;cursor:default;}
+.curve-bar.current-month{background:#0C85C2;}
+.curve-bar:hover{background:#5AB3C9;}
+.curve-labels{display:flex;gap:3px;margin-top:4px;}
+.curve-label{flex:1;text-align:center;font-size:9px;color:#aaa;font-weight:700;}
+
+/* Rocks */
+.rocks-list{display:flex;flex-direction:column;gap:8px;}
+.rock-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid #E6F1F4;}
+.rock-item.on-track{border-color:#c8eed0;background:#f4fdf5;}
+.rock-item.at-risk{border-color:#fde8b0;background:#fffbf0;}
+.rock-item.not-started{border-color:#E6F1F4;background:#fafafa;}
+.rock-item.done{border-color:#c8eed0;background:#f4fdf5;opacity:0.7;}
+.rock-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.rock-text{font-size:13px;color:#2C3E50;flex:1;line-height:1.4;}
+.rock-q{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;}
+.rock-status-pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;}
+.pill-on-track{background:#edfae5;color:#3B8C2A;}
+.pill-at-risk{background:#fff8e1;color:#B87800;}
+.pill-not-started{background:#E6F1F4;color:#888;}
+.pill-done{background:#edfae5;color:#3B8C2A;}
+.q1c{background:#e6f4fb;color:#0C85C2;}
+.q2c{background:#edfae5;color:#3B8C2A;}
+.q3c{background:#fff8e1;color:#B87800;}
+.q4c{background:#f3f0ff;color:#6B5CE7;}
+
+/* Marketing plan table */
+.mkt-table{width:100%;border-collapse:collapse;font-size:13px;}
+.mkt-table th{background:#E6F1F4;padding:8px 12px;text-align:left;font-size:10.5px;font-weight:700;color:#5AB3C9;letter-spacing:0.8px;text-transform:uppercase;}
+.mkt-table th.right{text-align:right;}
+.mkt-table td{padding:9px 12px;border-bottom:0.5px solid #f0f4f6;color:#2C3E50;vertical-align:middle;}
+.mkt-table tr:last-child td{border-bottom:none;}
+.mkt-table tr.totals td{background:#f7fbfd;font-weight:700;border-top:1.5px solid #A7DBE7;}
+.mkt-table tr.community-section td{background:#f4fdf5;font-size:10.5px;font-weight:700;color:#3B8C2A;letter-spacing:1px;text-transform:uppercase;padding:6px 12px;}
+.mkt-table tr.paid-section td{background:#f0f8ff;font-size:10.5px;font-weight:700;color:#0C85C2;letter-spacing:1px;text-transform:uppercase;padding:6px 12px;}
+.mkt-num{text-align:right;font-family:'Montserrat',sans-serif;font-weight:700;}
+.ch-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;flex-shrink:0;}
+.conv-bar-track{width:60px;height:6px;background:#E6F1F4;border-radius:20px;overflow:hidden;display:inline-block;vertical-align:middle;}
+.conv-bar-fill{height:100%;border-radius:20px;background:#0C85C2;}
+
+/* Core focus card */
+.focus-two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.focus-half{background:#E6F1F4;border-radius:10px;padding:12px 14px;}
+.focus-half-label{font-size:10px;font-weight:700;color:#5AB3C9;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.focus-half-text{font-size:13px;color:#2C3E50;line-height:1.5;}
+
+/* Income goal callout */
+.income-callout{background:#2C3E50;border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:16px;}
+.income-val{font-family:'Montserrat',sans-serif;font-weight:800;font-size:28px;color:#7CCA5B;line-height:1;}
+.income-sub{font-size:12px;color:rgba(255,255,255,0.45);margin-top:3px;}
+.income-divider{width:1px;height:40px;background:rgba(255,255,255,0.1);flex-shrink:0;}
+.income-detail{font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;}
+.income-detail strong{color:#fff;}
+
+/* Cleaner snapshot */
+.cleaner-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid #f0f4f6;}
+.cleaner-row:last-child{border-bottom:none;}
+.cleaner-label{font-size:13px;color:#2C3E50;flex:1;}
+.cleaner-val{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:#0C85C2;}
+
+/* Status indicator */
+.plan-status{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;}
+.status-dot{width:8px;height:8px;border-radius:50%;}
+</style>
+
+<div class="gp">
+  <div class="sidebar">
+    <div class="sb-logo"><img src="https://cleaningforareason.org/wp-content/uploads/2024/02/MAID-THIS-LOGO-VARIATION-08-670-768x293.png" alt="MaidThis"></div>
+    <div class="sb-label">Main Menu</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Dashboard</div>
+    <div class="sb-item active"><svg class="sb-icon" viewBox="0 0 16 16" fill="#5AB3C9"><path d="M2 13V5l5-4 5 4v8H9V9H7v4H2z"/></svg>Blueprint</div>
+    <div class="sb-sub">&#x25B8; The Vision</div>
+    <div class="sb-sub">&#x25B8; The Game Plan</div>
+    <div class="sb-sub active">&#x25B8; Summary</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M1 3h14v2H1zm2 4h10v2H3zm2 4h6v2H5z"/></svg>Marketing Tools</div>
+    <div class="sb-item"><svg class="sb-icon" viewBox="0 0 16 16" fill="rgba(255,255,255,0.65)"><path d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0 3v4l3 2-1 1.5L6 9V4h2z"/></svg>Resources</div>
+  </div>
+
+  <div class="main">
+
+    <!-- Identity bar -->
+    <div class="identity-bar">
+      <div class="id-avatar">JM</div>
+      <div class="id-info">
+        <div class="id-name">Jenny Martinez</div>
+        <div class="id-meta">MaidThis Tulsa &nbsp;·&nbsp; Open since Mar 2024 &nbsp;·&nbsp; 2026 Main Plan</div>
+        <div class="id-badges">
+          <span class="id-badge blue">Blueprint complete</span>
+          <span class="id-badge green">Vision ✓</span>
+          <span class="id-badge green">Game Plan ✓</span>
+          <span class="id-badge">Last updated today</span>
+        </div>
+      </div>
+      <div class="id-actions">
+        <button class="id-btn ghost" onclick="toggleCoachMode()">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-right:4px;vertical-align:middle;"><circle cx="6" cy="4" r="2.5"/><path d="M1 11c0-2.8 2.2-4 5-4s5 1.2 5 4"/></svg>
+          Coach view
+        </button>
+        <button class="id-btn primary" onclick="window.print()">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-right:4px;vertical-align:middle;"><rect x="2" y="4" width="8" height="6" rx="1"/><path d="M4 4V2h4v2M4 8h4"/></svg>
+          Print / save
+        </button>
+      </div>
+    </div>
+
+    <!-- Coach note banner (hidden by default) -->
+    <div class="coach-banner" id="coachBanner" style="display:none;">
+      <div class="coach-banner-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#B87800" stroke-width="1.5"><path d="M7 1l1.2 3.6H12L9 7.8l1.2 3.6L7 9.2 3.8 11.4 5 7.8 2 5.6h3.8z"/></svg>
+      </div>
+      <div class="coach-banner-text"><strong style="color:#7A5F00;">Coach note</strong> — visible only to you. Saved per session.</div>
+      <input type="text" class="coach-note-input" id="coachNote" placeholder="Add a note for this coaching session… (e.g. 'Focus on Meta Ads ROI, ask about cleaner retention')">
+      <button class="coach-save-btn" onclick="saveCoachNote()">Save note</button>
+    </div>
+
+    <!-- ── WHY STATEMENT: full width ── -->
+    <div class="summary-grid single" style="margin-bottom:18px;">
+      <div class="summary-block" style="border-left:4px solid #5AB3C9;padding:18px 22px;">
+        <div style="font-size:10px;font-weight:700;color:#5AB3C9;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
+          <span>Why statement — The Vision</span>
+          <span style="font-size:11px;color:#aaa;font-weight:400;text-transform:none;letter-spacing:0;">Doesn't change month to month</span>
+        </div>
+        <div class="why-statement" style="font-size:16px;">"I'm building this business to create financial freedom for my family and to prove that hard work and the right systems can take someone from zero to thriving."</div>
+      </div>
+    </div>
+
+    <!-- ── COLLAPSIBLE: Core values + Core focus ── -->
+    <div style="margin-bottom:18px;">
+      <button onclick="toggleVisionDetails()" style="display:flex;align-items:center;gap:8px;background:#fff;border:0.5px solid #A7DBE7;border-radius:10px;padding:10px 16px;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:600;color:#5AB3C9;cursor:pointer;width:100%;transition:background 0.15s;" onmouseover="this.style.background='#f4fbfd'" onmouseout="this.style.background='#fff'">
+        <svg id="visionChevron" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#5AB3C9" stroke-width="2" style="transition:transform 0.2s;transform:rotate(0deg);"><path d="M3 5l4 4 4-4"/></svg>
+        Core values &amp; core focus
+        <span style="margin-left:auto;font-size:11px;color:#aaa;font-weight:400;">Click to expand</span>
+      </button>
+      <div id="visionDetails" style="display:none;margin-top:8px;">
+        <div class="summary-grid">
+          <div class="summary-block">
+            <div class="sb-header">
+              <div class="sb-icon-wrap" style="background:#f3f0ff;">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#6B5CE7" stroke-width="1.5"><path d="M7 1l1.2 3.6H12L9 7.8l1.2 3.6L7 9.2 3.8 11.4 5 7.8 2 5.6h3.8z"/></svg>
+              </div>
+              <span class="sb-header-title">Core values</span>
+              <span class="sb-header-sub">The Vision</span>
+            </div>
+            <div class="values-row" id="valuesRow">
+              <span class="val-chip">Reliability</span>
+              <span class="val-chip">Integrity</span>
+              <span class="val-chip">Hustle</span>
+              <span class="val-chip">Customer first</span>
+            </div>
+          </div>
+          <div class="summary-block">
+            <div class="sb-header">
+              <div class="sb-icon-wrap" style="background:#E6F1F4;">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#5AB3C9" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 2"/></svg>
+              </div>
+              <span class="sb-header-title">Core focus</span>
+              <span class="sb-header-sub">The Vision</span>
+            </div>
+            <div class="focus-two-col">
+              <div class="focus-half">
+                <div class="focus-half-label">Purpose</div>
+                <div class="focus-half-text">To give homeowners their time back so they can focus on what matters most.</div>
+              </div>
+              <div class="focus-half">
+                <div class="focus-half-label">Niche</div>
+                <div class="focus-half-text">Premium recurring home cleaning for busy families and professionals.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── REVENUE TARGETS: full width, prominent ── -->
+    <div class="summary-grid single" style="margin-bottom:18px;">
+      <div class="summary-block" style="border-top:3px solid #0C85C2;">
+        <div class="sb-header" style="margin-bottom:16px;">
+          <div class="sb-icon-wrap" style="background:#e6f4fb;">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#0C85C2" stroke-width="1.5"><path d="M2 10l3-4 3 3 4-6"/></svg>
+          </div>
+          <span class="sb-header-title" style="font-size:15px;">Revenue targets</span>
+          <span class="sb-header-sub">Vision + Game Plan</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px;">
+          <div class="rev-target-card" style="background:#e6f4fb;border:1.5px solid #A7DBE7;">
+            <div class="rev-target-val blue" style="font-size:24px;">$667,000</div>
+            <div class="rev-target-label">1-year revenue goal</div>
+          </div>
+          <div class="rev-target-card">
+            <div class="rev-target-val green" style="font-size:22px;">$1,334,000</div>
+            <div class="rev-target-label">3-year target (2028)</div>
+          </div>
+          <div class="rev-target-card">
+            <div class="rev-target-val" style="font-size:22px;">$0</div>
+            <div class="rev-target-label">Base MRR today</div>
+          </div>
+          <div class="rev-target-card">
+            <div class="rev-target-val yellow" style="font-size:22px;">18%</div>
+            <div class="rev-target-label">Target profit margin</div>
+          </div>
+          <div class="rev-target-card">
+            <div class="rev-target-val" style="font-size:22px;color:#5AB3C9;">$180</div>
+            <div class="rev-target-label">Avg ticket value</div>
+          </div>
+        </div>
+        <div style="border-top:1px solid #E6F1F4;padding-top:14px;">
+          <div style="font-size:10.5px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Monthly distribution</div>
+          <div class="curve-wrap" id="revCurve" style="height:56px;"></div>
+          <div class="curve-labels" id="curveLabels"></div>
+          <div style="font-size:11px;color:#aaa;margin-top:5px;">Hover each bar for monthly target · current month highlighted in blue</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Marketing plan ── -->
+    <div class="summary-grid single">
+      <div class="summary-block">
+        <div class="sb-header">
+          <div class="sb-icon-wrap" style="background:#e6f4fb;">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#0C85C2" stroke-width="1.5"><path d="M1 7h12M7 1l5 6-5 6"/></svg>
+          </div>
+          <span class="sb-header-title">Marketing plan — January snapshot</span>
+          <span class="sb-header-sub">Game Plan · paid + community</span>
+          <div style="margin-left:auto;">
+            <select id="monthPicker" onchange="renderMarketingTable()" style="height:28px;border:1px solid #A7DBE7;border-radius:6px;font-size:12px;padding:0 8px;font-family:'Open Sans',sans-serif;color:#2C3E50;outline:none;background:#fff;cursor:pointer;">
+              <option>January</option><option>February</option><option>March</option>
+              <option>April</option><option>May</option><option>June</option>
+              <option>July</option><option>August</option><option>September</option>
+              <option>October</option><option>November</option><option>December</option>
+            </select>
+          </div>
+        </div>
+        <table class="mkt-table" id="mktTable"></table>
+        <div style="margin-top:12px;background:#E6F1F4;border-radius:10px;padding:12px 16px;display:flex;gap:24px;flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <div style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:18px;color:#0C85C2;" id="mktTotalSpend">$6,822</div>
+            <div style="font-size:11px;color:#888;margin-top:2px;">Total marketing spend</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:18px;color:#2C3E50;" id="mktTotalLeads">138</div>
+            <div style="font-size:11px;color:#888;margin-top:2px;">Est. total leads</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:18px;color:#3B8C2A;" id="mktTotalRev">$4,314</div>
+            <div style="font-size:11px;color:#888;margin-top:2px;">Projected revenue</div>
+          </div>
+          <div style="text-align:center;margin-left:auto;">
+            <div style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:18px;color:#5AB3C9;" id="mktNewMrr">$1,294</div>
+            <div style="font-size:11px;color:#888;margin-top:2px;">New MRR added</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Cleaner capacity ── -->
+    <div class="summary-grid single" style="margin-bottom:18px;">
+      <div class="summary-block">
+        <div class="sb-header">
+          <div class="sb-icon-wrap" style="background:#edfae5;">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#3B8C2A" stroke-width="1.5"><circle cx="5" cy="4" r="2"/><circle cx="9" cy="4" r="2"/><path d="M1 12c0-2.2 1.8-4 4-4M9 8c2.2 0 4 1.8 4 4"/></svg>
+          </div>
+          <span class="sb-header-title">Cleaner capacity</span>
+          <span class="sb-header-sub">Game Plan</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;">
+          <div class="rev-target-card"><div class="cleaner-val" style="font-size:20px;">2</div><div class="rev-target-label">Current teams</div></div>
+          <div class="rev-target-card"><div class="cleaner-val" style="font-size:20px;">$7,033</div><div class="rev-target-label">Revenue/cleaner/mo</div></div>
+          <div class="rev-target-card"><div class="cleaner-val" style="font-size:20px;color:#B87800;">+7</div><div class="rev-target-label">Net new needed (EOY)</div></div>
+          <div class="rev-target-card"><div class="cleaner-val" style="font-size:20px;color:#B87800;">+14</div><div class="rev-target-label">Gross to onboard (2×)</div></div>
+          <div class="rev-target-card"><div class="cleaner-val" style="font-size:20px;color:#3B8C2A;">9</div><div class="rev-target-label">Total teams by EOY</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Rocks ── -->
+    <div class="summary-grid single" style="margin-bottom:18px;">
+      <div class="summary-block">
+        <div class="sb-header">
+          <div class="sb-icon-wrap" style="background:#fff8e1;">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#B87800" stroke-width="1.5"><path d="M7 1l1.2 3.6H12L9 7.8l1.2 3.6L7 9.2 3.8 11.4 5 7.8 2 5.6h3.8z"/></svg>
+          </div>
+          <span class="sb-header-title">Rocks — quarterly priorities</span>
+          <span class="sb-header-sub">The Vision</span>
+          <div style="margin-left:auto;display:flex;gap:8px;">
+            <span class="plan-status"><span class="status-dot" style="background:#7CCA5B;"></span>2 on track</span>
+            <span class="plan-status"><span class="status-dot" style="background:#888;"></span>2 not started</span>
+          </div>
+        </div>
+        <div class="rocks-list" id="rocksList"></div>
+      </div>
+    </div>
+
+    <!-- ── 3-year picture ── -->
+    <div class="summary-grid">
+      <div class="summary-block">
+        <div class="sb-header">
+          <div class="sb-icon-wrap" style="background:#f3f0ff;">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#6B5CE7" stroke-width="1.5"><path d="M2 10l3-4 3 3 4-6M2 13h10"/></svg>
+          </div>
+          <span class="sb-header-title">3-year picture</span>
+          <span class="sb-header-sub">The Vision</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:#e6f4fb;border-radius:10px;padding:10px 14px;">
+            <div style="font-size:10px;font-weight:700;color:#0C85C2;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">End of 2026</div>
+            <div style="font-size:13px;color:#2C3E50;line-height:1.5;font-style:italic;">—</div>
+          </div>
+          <div style="background:#edfae5;border-radius:10px;padding:10px 14px;">
+            <div style="font-size:10px;font-weight:700;color:#3B8C2A;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">End of 2028 (3 years)</div>
+            <div style="font-size:13px;color:#2C3E50;line-height:1.5;font-style:italic;">—</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;background:#fff;border-radius:16px;border:0.5px solid #A7DBE7;padding:24px;text-align:center;">
+        <div>
+          <div style="font-size:28px;margin-bottom:8px;">🏆</div>
+          <div style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:#2C3E50;margin-bottom:4px;">Dream state</div>
+          <div style="font-size:12.5px;color:#aaa;line-height:1.5;">Complete The Vision to<br>see your long-range picture</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const SEASON = [8,7,9,8,9,10,9,10,10,10,6,4];
+const ANNUAL_GOAL = 667000;
+
+const ROCKS = [
+  {text:'Hire and onboard operations manager', q:'Q1', status:'on-track'},
+  {text:'Launch Google Ads campaign and hit 30 leads/mo', q:'Q1', status:'on-track'},
+  {text:'Build out cleaner hiring & retention process', q:'Q2', status:'not-started'},
+  {text:'Hit $75k revenue in a single month', q:'Q3', status:'not-started'},
+];
+
+const MKT_CHANNELS = {
+  paid: [
+    {name:'Cohesive AI',  spend:225,  leads:12,  conv:54},
+    {name:'Meta Ads',     spend:1500, leads:75,  conv:10},
+    {name:'Thumbtack',    spend:1000, leads:29,  conv:18},
+    {name:'LSA',          spend:1000, leads:16,  conv:30},
+  ],
+  community: [
+    {name:'BNI / Networking', hours:8,  actions:2,  leads:6,  conv:33, actionLabel:'events attended'},
+    {name:'Drop-offs / Flyers', hours:4, actions:100, leads:5, conv:5,  actionLabel:'flyers dropped'},
+  ]
+};
+
+// Build revenue curve mini chart
+function buildCurve(){
+  const wrap = document.getElementById('revCurve');
+  const labels = document.getElementById('curveLabels');
+  const maxPct = Math.max(...SEASON);
+  const now = new Date().getMonth();
+  wrap.innerHTML = '';
+  labels.innerHTML = '';
+  SEASON.forEach((pct,i)=>{
+    const h = Math.round((pct/maxPct)*56)+4;
+    const bar = document.createElement('div');
+    bar.className = 'curve-bar' + (i===now?' current-month':'');
+    bar.style.height = h+'px';
+    const monthTarget = Math.round(ANNUAL_GOAL * pct/100);
+    bar.title = MONTHS_SHORT[i]+': $'+monthTarget.toLocaleString();
+    wrap.appendChild(bar);
+    const lbl = document.createElement('div');
+    lbl.className = 'curve-label';
+    lbl.textContent = MONTHS_SHORT[i];
+    labels.appendChild(lbl);
+  });
+}
+
+// Build rocks list
+function buildRocks(){
+  const list = document.getElementById('rocksList');
+  list.innerHTML = '';
+  ROCKS.forEach(r=>{
+    const item = document.createElement('div');
+    item.className = 'rock-item '+r.status.replace('-','‑');
+    const dotColor = r.status==='on-track'?'#7CCA5B':r.status==='at-risk'?'#FFB600':r.status==='done'?'#7CCA5B':'#ccc';
+    const qClass = r.q==='Q1'?'q1c':r.q==='Q2'?'q2c':r.q==='Q3'?'q3c':'q4c';
+    const statusLabel = r.status==='on-track'?'On track':r.status==='at-risk'?'At risk':r.status==='done'?'Done':'Not started';
+    const pillClass = 'pill-'+r.status;
+    item.innerHTML = `
+      <div class="rock-dot" style="background:${dotColor};"></div>
+      <div class="rock-text">${r.text}</div>
+      <span class="rock-q ${qClass}">${r.q}</span>
+      <span class="rock-status-pill ${pillClass}">${statusLabel}</span>
+    `;
+    list.appendChild(item);
+  });
+}
+
+// Build marketing table
+function renderMarketingTable(){
+  const table = document.getElementById('mktTable');
+  let html = `<thead><tr>
+    <th>Channel</th>
+    <th>Conv. rate</th>
+    <th class="right">Spend / input</th>
+    <th class="right">Leads</th>
+    <th class="right">Customers</th>
+    <th class="right">One-time rev.</th>
+    <th class="right">New MRR</th>
+  </tr></thead><tbody>`;
+
+  const ticket = 180, mrrVal = 180, recurPct = 0.20;
+  let totalSpend=0, totalLeads=0, totalCustomers=0, totalRev=0, totalMrr=0;
+
+  // Paid
+  html += `<tr class="paid-section"><td colspan="7">Paid leads</td></tr>`;
+  MKT_CHANNELS.paid.forEach(ch=>{
+    const customers = ch.leads * (ch.conv/100);
+    const rev = customers * ticket;
+    const mrr = customers * recurPct * mrrVal;
+    totalSpend += ch.spend; totalLeads += ch.leads;
+    totalCustomers += customers; totalRev += rev; totalMrr += mrr;
+    html += `<tr>
+      <td><span class="ch-dot" style="background:#0C85C2;"></span>${ch.name}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="conv-bar-track"><div class="conv-bar-fill" style="width:${ch.conv}%;"></div></div>
+          <span style="font-size:12px;color:#888;">${ch.conv}%</span>
+        </div>
+      </td>
+      <td class="mkt-num">$${ch.spend.toLocaleString()}</td>
+      <td class="mkt-num">${ch.leads}</td>
+      <td class="mkt-num blue">${Math.round(customers*10)/10}</td>
+      <td class="mkt-num green">$${Math.round(rev).toLocaleString()}</td>
+      <td class="mkt-num" style="color:#5AB3C9;">$${Math.round(mrr).toLocaleString()}</td>
+    </tr>`;
+  });
+
+  // Community
+  html += `<tr class="community-section"><td colspan="7">Community marketing</td></tr>`;
+  MKT_CHANNELS.community.forEach(ch=>{
+    const customers = ch.leads * (ch.conv/100);
+    const rev = customers * ticket;
+    const mrr = customers * recurPct * mrrVal;
+    totalLeads += ch.leads;
+    totalCustomers += customers; totalRev += rev; totalMrr += mrr;
+    html += `<tr>
+      <td><span class="ch-dot" style="background:#7CCA5B;"></span>${ch.name}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="conv-bar-track"><div class="conv-bar-fill" style="width:${ch.conv}%;background:#7CCA5B;"></div></div>
+          <span style="font-size:12px;color:#888;">${ch.conv}%</span>
+        </div>
+      </td>
+      <td class="mkt-num" style="color:#3B8C2A;">${ch.hours}h · ${ch.actions} ${ch.actionLabel}</td>
+      <td class="mkt-num">${ch.leads}</td>
+      <td class="mkt-num blue">${Math.round(customers*10)/10}</td>
+      <td class="mkt-num green">$${Math.round(rev).toLocaleString()}</td>
+      <td class="mkt-num" style="color:#5AB3C9;">$${Math.round(mrr).toLocaleString()}</td>
+    </tr>`;
+  });
+
+  html += `<tr class="totals">
+    <td colspan="2"><strong>Totals</strong></td>
+    <td class="mkt-num">$${totalSpend.toLocaleString()}</td>
+    <td class="mkt-num">${Math.round(totalLeads)}</td>
+    <td class="mkt-num blue">${Math.round(totalCustomers*10)/10}</td>
+    <td class="mkt-num green">$${Math.round(totalRev).toLocaleString()}</td>
+    <td class="mkt-num" style="color:#5AB3C9;">$${Math.round(totalMrr).toLocaleString()}</td>
+  </tr>`;
+  html += '</tbody>';
+  table.innerHTML = html;
+
+  document.getElementById('mktTotalSpend').textContent = '$'+totalSpend.toLocaleString();
+  document.getElementById('mktTotalLeads').textContent = Math.round(totalLeads);
+  document.getElementById('mktTotalRev').textContent   = '$'+Math.round(totalRev).toLocaleString();
+  document.getElementById('mktNewMrr').textContent     = '$'+Math.round(totalMrr).toLocaleString();
+
+  // Update header label
+  const mo = document.getElementById('monthPicker').value;
+  document.querySelector('.sb-header-title').textContent = 'Marketing plan — '+mo+' snapshot';
+}
+
+let coachMode = false;
+function toggleCoachMode(){
+  coachMode = !coachMode;
+  document.getElementById('coachBanner').style.display = coachMode ? 'flex' : 'none';
+}
+function saveCoachNote(){
+  const btn = event.target;
+  btn.textContent = 'Saved!';
+  setTimeout(()=>btn.textContent='Save note', 2000);
+}
+
+function toggleVisionDetails(){
+  const panel = document.getElementById('visionDetails');
+  const chevron = document.getElementById('visionChevron');
+  const btn = chevron.closest('button');
+  const open = panel.style.display === 'none' || panel.style.display === '';
+  panel.style.display = open ? 'block' : 'none';
+  chevron.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
+  const hint = btn.querySelector('span:last-child');
+  if(hint) hint.textContent = open ? 'Click to collapse' : 'Click to expand';
+}
+
+// Init
+buildCurve();
+buildRocks();
+renderMarketingTable();
+</script>

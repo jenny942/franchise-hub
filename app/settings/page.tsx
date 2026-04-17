@@ -60,29 +60,33 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Business tile */}
-        <div style={{ fontSize: '11px', fontWeight: 700, color: '#5AB3C9', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '12px' }}>Business</div>
-        <div style={{ height: '0.5px', background: '#A7DBE7', marginBottom: '20px' }} />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginBottom: '32px' }}>
-          <div
-            onClick={() => router.push('/settings/business')}
-            style={{ background: '#fff', border: '0.5px solid #A7DBE7', borderRadius: '16px', padding: '24px', cursor: 'pointer' }}
-          >
-            <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#e6f4fb', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#0C85C2" strokeWidth="1.6"><rect x="2" y="7" width="18" height="13" rx="2"/><path d="M7 7V5a4 4 0 0 1 8 0v2"/></svg>
+        {/* Business tile — zees only */}
+        {profile?.role !== 'corporate' && (
+          <>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: '#5AB3C9', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '12px' }}>Business</div>
+            <div style={{ height: '0.5px', background: '#A7DBE7', marginBottom: '20px' }} />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginBottom: '32px' }}>
+              <div
+                onClick={() => router.push('/settings/business')}
+                style={{ background: '#fff', border: '0.5px solid #A7DBE7', borderRadius: '16px', padding: '24px', cursor: 'pointer' }}
+              >
+                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#e6f4fb', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
+                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#0C85C2" strokeWidth="1.6"><rect x="2" y="7" width="18" height="13" rx="2"/><path d="M7 7V5a4 4 0 0 1 8 0v2"/></svg>
+                </div>
+                <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '15px', color: '#2C3E50', marginBottom: '4px' }}>Business info</div>
+                <div style={{ fontSize: '12.5px', color: '#888', lineHeight: 1.5, marginBottom: '14px' }}>
+                  Your territory, DBA, open date, service area zip codes, business listing details, and website.
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
+                  {['Territory', 'DBA', 'Open date', 'Zip codes', 'GBP address', 'Website', 'GBP link'].map(f => (
+                    <span key={f} style={{ fontSize: '11px', background: '#E6F1F4', color: '#5AB3C9', fontWeight: 600, padding: '3px 9px', borderRadius: '20px' }}>{f}</span>
+                  ))}
+                </div>
+                <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#0C85C2' }}>Edit business info ↗</div>
+              </div>
             </div>
-            <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '15px', color: '#2C3E50', marginBottom: '4px' }}>Business info</div>
-            <div style={{ fontSize: '12.5px', color: '#888', lineHeight: 1.5, marginBottom: '14px' }}>
-              Your territory, DBA, open date, service area zip codes, business listing details, and website.
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
-              {['Territory', 'DBA', 'Open date', 'Zip codes', 'GBP address', 'Website', 'GBP link'].map(f => (
-                <span key={f} style={{ fontSize: '11px', background: '#E6F1F4', color: '#5AB3C9', fontWeight: 600, padding: '3px 9px', borderRadius: '20px' }}>{f}</span>
-              ))}
-            </div>
-            <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#0C85C2' }}>Edit business info ↗</div>
-          </div>
-        </div>
+          </>
+        )}
 
         {/* Personal tile */}
         <div style={{ fontSize: '11px', fontWeight: 700, color: '#5AB3C9', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '12px' }}>Personal</div>

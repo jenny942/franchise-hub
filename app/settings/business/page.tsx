@@ -20,6 +20,9 @@ export default function BusinessSettingsPage() {
       if (!data.user) { router.push('/login'); return }
       const uid = data.user.id
       setUserId(uid)
+      // Zors don't have business profiles — redirect them away
+      supabase.from('profiles').select('role').eq('id', uid).single()
+        .then(({ data: p }) => { if (p?.role === 'corporate') router.push('/settings') })
       supabase.from('business_profiles').select('*').eq('profile_id', uid).single()
         .then(({ data: b }) => {
           if (b) { setBizId(b.id); setForm({ ...b, zip_codes: b.zip_codes || [] }) }

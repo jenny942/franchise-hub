@@ -19,6 +19,7 @@ const nav = [
     children: [
       { label: 'The Vision', href: '/blueprint/vision' },
       { label: 'The Game Plan', href: '/blueprint/game-plan' },
+      { label: 'Summary', href: '/blueprint/summary' },
     ]
   },
   {

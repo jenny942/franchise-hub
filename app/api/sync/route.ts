@@ -175,13 +175,15 @@ export async function POST() {
     const locationCount = await syncLocations()
 
     // Step 2: build a name → id map for the other syncs
+    // Include both CapForge names AND GHL names so either can match
     const { data: locations } = await supabaseAdmin
       .from('locations')
-      .select('id, name')
+      .select('id, name, name_ghl')
 
     const locationMap: Record<string, string> = {}
     for (const loc of locations ?? []) {
-      locationMap[loc.name] = loc.id
+      locationMap[loc.name] = loc.id       // e.g. "MaidThis Carmel Fishers"
+      locationMap[loc.name_ghl] = loc.id   // e.g. "Carmel-Fishers"
     }
 
     // Step 3: sync everything else in parallel
