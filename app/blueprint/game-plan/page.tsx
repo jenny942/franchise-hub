@@ -383,7 +383,7 @@ export default function GamePlanPage() {
               { label: 'Annual revenue goal', hint: 'From Vision — override anytime', prefix: '$', key: 'annual_goal' },
               { label: 'Average ticket ($)',   hint: 'From Vision — override anytime', prefix: '$', key: 'avg_ticket' },
               { label: 'Recurring conv. %',   hint: '% of new customers who recur',  prefix: '%', key: 'recurring_pct' },
-              { label: 'Base MRR',            hint: 'Existing recurring revenue',     prefix: '$', key: 'base_mrr' },
+              { label: 'Recurring MRR',       hint: 'Revenue from recurring clients', prefix: '$', key: 'base_mrr' },
             ] as { label: string; hint: string; prefix: string; key: keyof Plan }[]).map(f => (
               <div key={String(f.key)}>
                 <label style={fieldLabel}>{f.label}</label>
@@ -415,8 +415,8 @@ export default function GamePlanPage() {
               )}
             </div>
             <div style={{ background: '#edfae5', borderRadius: '10px', padding: '12px 16px', marginTop: '28px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#3B8C2A', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '4px' }}>How base MRR works</div>
-              <div style={{ fontSize: '12.5px', color: '#3B8C2A', lineHeight: 1.5 }}>Base MRR is the green segment in the gap bar — it covers part of your monthly target before you spend a dollar. The more recurring revenue you build, the less new marketing you need each month.</div>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#3B8C2A', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '4px' }}>How Recurring MRR works</div>
+              <div style={{ fontSize: '12.5px', color: '#3B8C2A', lineHeight: 1.5 }}>Recurring MRR is the green segment in the gap bar — it covers part of your monthly target before you spend a dollar on marketing. The more recurring clients you build, the smaller the gap you need to close each month.</div>
             </div>
           </div>
         </div>

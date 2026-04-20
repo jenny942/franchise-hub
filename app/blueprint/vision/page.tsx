@@ -92,6 +92,7 @@ export default function VisionPage() {
   const [activePlanId, setActivePlanId] = useState<string | null>(null)
   const [planDrift, setPlanDrift] = useState<PlanDrift | null>(null)
   const [syncingPlan, setSyncingPlan] = useState(false)
+  const [createdAt, setCreatedAt] = useState<string | null>(null)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Computed values
@@ -127,6 +128,7 @@ export default function VisionPage() {
           core_values: Array.isArray(v.core_values) ? v.core_values : (v.core_values ? JSON.parse(v.core_values) : []),
           rocks: Array.isArray(v.rocks) ? v.rocks : (v.rocks ? JSON.parse(v.rocks) : []),
         })
+        if (v.created_at) setCreatedAt(v.created_at)
       }
       if (ps && ps.length > 0) {
         const active = ps.find((p: any) => p.is_active) ?? ps[0]
@@ -250,7 +252,14 @@ export default function VisionPage() {
           <span style={{ color: '#ccc' }}>›</span>
           <span>The Vision</span>
         </div>
-        <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '24px', color: '#2C3E50' }}>The Vision</div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px' }}>
+          <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '24px', color: '#2C3E50' }}>The Vision</div>
+          {createdAt && (
+            <div style={{ fontSize: '12px', color: '#aaa', fontWeight: 600 }}>
+              Created {new Date(createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+            </div>
+          )}
+        </div>
         <div style={{ fontSize: '13.5px', color: '#888', marginTop: '4px', marginBottom: '20px' }}>
           Your foundation. Do this once a year — it's the work that makes every other decision easier.
         </div>
@@ -313,7 +322,7 @@ export default function VisionPage() {
                   <div>· <strong>Avg ticket:</strong> Vision says {fmt(planDrift.avg_ticket.vision)}, Game Plan still shows {fmt(planDrift.avg_ticket.plan)}</div>
                 )}
                 {planDrift.base_mrr && (
-                  <div>· <strong>Base MRR:</strong> Vision says {fmt(planDrift.base_mrr.vision)}, Game Plan still shows {fmt(planDrift.base_mrr.plan)}</div>
+                  <div>· <strong>Recurring MRR:</strong> Vision says {fmt(planDrift.base_mrr.vision)}, Game Plan still shows {fmt(planDrift.base_mrr.plan)}</div>
                 )}
               </div>
             </div>
@@ -411,6 +420,74 @@ export default function VisionPage() {
             </div>
           </div>
         </div>
+
+        {/* ── WHERE YOU ARE TODAY ── */}
+        {(() => {
+          const mrr = form.baseline_revenue
+          const annualRunRate = mrr * 12
+          const goalOneYr = form.one_yr_overridden ? form.one_yr_rev : Math.round(oneYrCalc)
+          const annualGap = goalOneYr > 0 ? goalOneYr - annualRunRate : 0
+          const monthlyGap = goalOneYr > 0 ? (goalOneYr / 12) - mrr : 0
+          const pctOfGoal = goalOneYr > 0 ? Math.min(100, Math.round((annualRunRate / goalOneYr) * 100)) : 0
+          return (
+            <div style={{ background: '#fff', borderRadius: '16px', border: '1.5px solid #5AB3C9', padding: '22px 24px', marginBottom: '18px' }}>
+              <div style={{ fontSize: '10px', fontWeight: 700, color: '#5AB3C9', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '4px' }}>
+                Where you are today
+              </div>
+              <div style={{ fontSize: '12.5px', color: '#aaa', marginBottom: '18px', lineHeight: 1.5 }}>
+                Your current recurring revenue — clients on a regular cleaning schedule. This anchors your gap calculation.
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                <div>
+                  <FieldLabel>Recurring Monthly Revenue (MRR)</FieldLabel>
+                  <FieldHint>Revenue from customers on a recurring cleaning plan — not one-time jobs.</FieldHint>
+                  <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid #A7DBE7', borderRadius: '10px', overflow: 'hidden', maxWidth: '240px', marginTop: '8px' }}>
+                    <div style={{ background: '#E6F1F4', padding: '0 12px', height: '44px', display: 'flex', alignItems: 'center', fontSize: '14px', fontWeight: 700, color: '#2C3E50', borderRight: '1.5px solid #A7DBE7', flexShrink: 0 }}>$</div>
+                    <input type="number" value={mrr || ''} placeholder="0"
+                      onChange={e => update({ baseline_revenue: parseFloat(e.target.value) || 0 })}
+                      style={{ border: 'none', background: 'transparent', height: '42px', flex: 1, padding: '0 14px', fontSize: '15px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, color: '#2C3E50', outline: 'none' }} />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', justifyContent: 'flex-end' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '12px', color: '#888' }}>Annual run rate</span>
+                    <span style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '14px', color: '#2C3E50' }}>{fmt(annualRunRate)}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '12px', color: '#888' }}>1-year revenue goal</span>
+                    <span style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '14px', color: '#0C85C2' }}>{goalOneYr > 0 ? fmt(goalOneYr) : '—'}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '12px', color: '#888' }}>Monthly gap to close</span>
+                    <span style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '14px', color: monthlyGap > 0 ? '#FFB600' : '#7CCA5B' }}>
+                      {goalOneYr > 0 ? (monthlyGap > 0 ? `${fmt(monthlyGap)}/mo` : 'Goal met!') : '—'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {goalOneYr > 0 && (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#2C3E50' }}>
+                      {pctOfGoal}% of your annual goal covered by recurring revenue
+                    </span>
+                    <span style={{ fontSize: '12px', color: '#aaa' }}>
+                      {annualGap > 0 ? `${fmt(annualGap)} gap to close` : 'On track'}
+                    </span>
+                  </div>
+                  <div style={{ height: '10px', background: '#E6F1F4', borderRadius: '20px', overflow: 'hidden' }}>
+                    <div style={{ width: `${pctOfGoal}%`, height: '100%', background: pctOfGoal >= 100 ? '#7CCA5B' : '#5AB3C9', borderRadius: '20px', transition: 'width 0.35s' }} />
+                  </div>
+                  <div style={{ fontSize: '11.5px', color: '#aaa', marginTop: '6px' }}>
+                    The remaining {fmt(Math.max(0, annualGap)}/yr needs to come from new customer acquisition — that's what your Game Plan is built to solve.
+                  </div>
+                </>
+              )}
+            </div>
+          )
+        })()}
 
         {/* ── SECTION 1: Personal Why ── */}
         <SectionCard done={sectionDone[0]} num={1} title="Personal why" hint="Why did you invest in this franchise? What does success look like for your life — not just your business?">
@@ -561,26 +638,14 @@ export default function VisionPage() {
               )}
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-            <div>
-              <FieldLabel>Average job value ($)</FieldLabel>
-              <FieldHint>Your typical first-job ticket price. Flows into Game Plan to calculate lead targets.</FieldHint>
-              <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid #A7DBE7', borderRadius: '10px', overflow: 'hidden' }}>
-                <div style={{ background: '#E6F1F4', padding: '0 12px', height: '42px', display: 'flex', alignItems: 'center', fontSize: '14px', fontWeight: 700, color: '#2C3E50', borderRight: '1.5px solid #A7DBE7', flexShrink: 0 }}>$</div>
-                <input type="number" value={form.avg_ticket || ''} placeholder="180"
-                  onChange={e => update({ avg_ticket: parseFloat(e.target.value) || 0 })}
-                  style={{ border: 'none', background: 'transparent', height: '40px', flex: 1, padding: '0 14px', fontSize: '14px', fontFamily: "'Open Sans', sans-serif", color: '#2C3E50', outline: 'none' }} />
-              </div>
-            </div>
-            <div>
-              <FieldLabel>Current baseline revenue (monthly)</FieldLabel>
-              <FieldHint>Your monthly recurring revenue right now. Flows into Game Plan to show the gap to close.</FieldHint>
-              <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid #A7DBE7', borderRadius: '10px', overflow: 'hidden' }}>
-                <div style={{ background: '#E6F1F4', padding: '0 12px', height: '42px', display: 'flex', alignItems: 'center', fontSize: '14px', fontWeight: 700, color: '#2C3E50', borderRight: '1.5px solid #A7DBE7', flexShrink: 0 }}>$</div>
-                <input type="number" value={form.baseline_revenue || ''} placeholder="8,500"
-                  onChange={e => update({ baseline_revenue: parseFloat(e.target.value) || 0 })}
-                  style={{ border: 'none', background: 'transparent', height: '40px', flex: 1, padding: '0 14px', fontSize: '14px', fontFamily: "'Open Sans', sans-serif", color: '#2C3E50', outline: 'none' }} />
-              </div>
+          <div style={{ marginBottom: '16px' }}>
+            <FieldLabel>Average first-job ticket ($)</FieldLabel>
+            <FieldHint>What a new customer typically pays for their first clean. Flows into Game Plan to calculate how many jobs you need.</FieldHint>
+            <div style={{ display: 'flex', alignItems: 'center', border: '1.5px solid #A7DBE7', borderRadius: '10px', overflow: 'hidden', maxWidth: '200px' }}>
+              <div style={{ background: '#E6F1F4', padding: '0 12px', height: '42px', display: 'flex', alignItems: 'center', fontSize: '14px', fontWeight: 700, color: '#2C3E50', borderRight: '1.5px solid #A7DBE7', flexShrink: 0 }}>$</div>
+              <input type="number" value={form.avg_ticket || ''} placeholder="180"
+                onChange={e => update({ avg_ticket: parseFloat(e.target.value) || 0 })}
+                style={{ border: 'none', background: 'transparent', height: '40px', flex: 1, padding: '0 14px', fontSize: '14px', fontFamily: "'Open Sans', sans-serif", color: '#2C3E50', outline: 'none' }} />
             </div>
           </div>
           <div style={{ marginBottom: '16px' }}>
