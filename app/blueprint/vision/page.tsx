@@ -481,7 +481,7 @@ export default function VisionPage() {
                     <div style={{ width: `${pctOfGoal}%`, height: '100%', background: pctOfGoal >= 100 ? '#7CCA5B' : '#5AB3C9', borderRadius: '20px', transition: 'width 0.35s' }} />
                   </div>
                   <div style={{ fontSize: '11.5px', color: '#aaa', marginTop: '6px' }}>
-                    The remaining {fmt(Math.max(0, annualGap)}/yr needs to come from new customer acquisition — that's what your Game Plan is built to solve.
+                    The remaining {fmt(Math.max(0, annualGap))}/yr needs to come from new customer acquisition — that's what your Game Plan is built to solve.
                   </div>
                 </>
               )}
