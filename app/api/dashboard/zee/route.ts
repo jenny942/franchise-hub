@@ -164,7 +164,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       _debug: { locationId, currentPeriod, currentPeriodEnd, wonCount: wonOpps.length, latestOppDate: latestOpp?.date },
       period: { current: currentPeriod, end: currentPeriodEnd },
-      profile: { name: profile.full_name, location: (profile.locations as any)?.name_ghl },
+      profile: { name: profile.full_name, location: (profile.locations as any)?.name_ghl, avatar_url: profile.avatar_url ?? null },
       kpis: {
         revenue: currentRevenue,
         revenue_mom: revMoM,

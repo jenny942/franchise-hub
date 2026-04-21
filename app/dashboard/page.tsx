@@ -202,12 +202,19 @@ function ZeeDashboard() {
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-        <div>
-          <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '22px', color: '#2C3E50' }}>
-            {greeting()}, <span style={{ color: '#0C85C2' }}>{firstName}.</span> Let's get it.
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#5AB3C9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '15px', color: '#2C3E50', flexShrink: 0, overflow: 'hidden', border: '2px solid #fff', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
+            {profile?.avatar_url
+              ? <img src={profile.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : (profile?.name ? profile.name.split(' ').filter(Boolean).map((n: string) => n[0]).slice(0, 2).join('').toUpperCase() : '?')}
           </div>
-          <div style={{ fontSize: '13px', color: '#888', marginTop: '3px' }}>
-            {period?.current ? monthLabel(period.current) : ''} &nbsp;·&nbsp; Week {weekNum} of 52
+          <div>
+            <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '22px', color: '#2C3E50' }}>
+              {greeting()}, <span style={{ color: '#0C85C2' }}>{firstName}.</span> Let's get it.
+            </div>
+            <div style={{ fontSize: '13px', color: '#888', marginTop: '3px' }}>
+              {period?.current ? monthLabel(period.current) : ''} &nbsp;·&nbsp; Week {weekNum} of 52
+            </div>
           </div>
         </div>
         <select style={{ height: '36px', border: '1px solid #A7DBE7', borderRadius: '10px', background: '#fff', padding: '0 12px', fontSize: '13px', color: '#2C3E50', outline: 'none' }}>

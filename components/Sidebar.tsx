@@ -1,17 +1,13 @@
 'use client'
 
 import { useRouter, usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
 const nav = [
   {
     label: 'Dashboard', href: '/dashboard',
     icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
-  },
-  {
-    label: 'Goals & Tracking', href: '/goals',
-    icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12v2H2zm0 4h12v2H2zm0 4h8v2H2z"/></svg>
   },
   {
     label: 'Blueprint', href: '/blueprint',
@@ -21,10 +17,6 @@ const nav = [
       { label: 'The Game Plan', href: '/blueprint/game-plan' },
       { label: 'Summary', href: '/blueprint/summary' },
     ]
-  },
-  {
-    label: 'Marketing Tools', href: '/marketing',
-    icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M1 3h14v2H1zm2 4h10v2H3zm2 4h6v2H5z"/></svg>
   },
   {
     label: 'Resources', href: '/resources',
@@ -43,6 +35,15 @@ const nav = [
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const [userProfile, setUserProfile] = useState<{ full_name?: string; mailing_city?: string; mailing_state?: string; avatar_url?: string } | null>(null)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) return
+      supabase.from('profiles').select('full_name, mailing_city, mailing_state, avatar_url').eq('id', data.user.id).single()
+        .then(({ data: p }) => { if (p) setUserProfile(p) })
+    })
+  }, [])
 
   // Track which parent items are expanded
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
@@ -151,12 +152,21 @@ export default function Sidebar() {
             width: '34px', height: '34px', borderRadius: '50%', background: '#5AB3C9',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '13px', fontWeight: 700, color: '#2C3E50', flexShrink: 0,
+            overflow: 'hidden',
           }}>
-            JD
+            {userProfile?.avatar_url
+              ? <img src={userProfile.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : (userProfile?.full_name
+                  ? userProfile.full_name.split(' ').filter(Boolean).map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()
+                  : '?')}
           </div>
           <div>
-            <div style={{ fontSize: '13px', color: '#fff', fontWeight: 600 }}>Jamie D.</div>
-            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)' }}>Denver, CO</div>
+            <div style={{ fontSize: '13px', color: '#fff', fontWeight: 600 }}>{userProfile?.full_name || 'My Account'}</div>
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)' }}>
+              {userProfile?.mailing_city && userProfile?.mailing_state
+                ? `${userProfile.mailing_city}, ${userProfile.mailing_state}`
+                : 'Settings'}
+            </div>
           </div>
         </div>
         <button

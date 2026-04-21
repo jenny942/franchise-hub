@@ -21,7 +21,9 @@ export default function PersonalSettingsPage() {
   const [form, setForm] = useState<Record<string, string>>({})
   const [saveMsg, setSaveMsg] = useState('Changes saved automatically')
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const saveTimer = useRef<any>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -42,6 +44,22 @@ export default function PersonalSettingsPage() {
     if (!userId) return
     await supabase.from('profiles').update(data).eq('id', userId)
     setSaveMsg('Saved just now')
+  }
+
+  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !userId) return
+    setUploading(true)
+    const ext = file.name.split('.').pop()
+    const path = `${userId}/avatar.${ext}`
+    const { error: uploadError } = await supabase.storage.from('avatars').upload(path, file, { upsert: true })
+    if (uploadError) { setSaveMsg('Upload failed: ' + uploadError.message); setUploading(false); return }
+    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path)
+    const avatar_url = urlData.publicUrl
+    await supabase.from('profiles').update({ avatar_url }).eq('id', userId)
+    setForm(prev => ({ ...prev, avatar_url }))
+    setSaveMsg('Photo saved')
+    setUploading(false)
   }
 
   async function handleSave() {
@@ -100,8 +118,13 @@ export default function PersonalSettingsPage() {
               {form.avatar_url ? <img src={form.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials}
             </div>
             <div>
-              <button style={{ height: '38px', padding: '0 18px', background: '#E6F1F4', color: '#2C3E50', border: '1.5px solid #A7DBE7', borderRadius: '10px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>
-                Upload photo
+              <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" style={{ display: 'none' }} onChange={handleAvatarUpload} />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                style={{ height: '38px', padding: '0 18px', background: '#E6F1F4', color: '#2C3E50', border: '1.5px solid #A7DBE7', borderRadius: '10px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '13px', cursor: uploading ? 'not-allowed' : 'pointer', opacity: uploading ? 0.6 : 1 }}
+              >
+                {uploading ? 'Uploading…' : 'Upload photo'}
               </button>
               <div style={{ fontSize: '12px', color: '#aaa', marginTop: '4px' }}>JPG or PNG, max 5MB. Square crops look best.</div>
             </div>
