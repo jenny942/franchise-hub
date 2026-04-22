@@ -40,12 +40,13 @@ export default function BusinessSettingsPage() {
   async function autoSave(data: Record<string, any>) {
     if (!userId) return
     if (bizId) {
-      await supabase.from('business_profiles').update(data).eq('id', bizId)
+      const { error } = await supabase.from('business_profiles').update(data).eq('id', bizId)
+      setSaveMsg(error ? 'Save failed: ' + error.message : 'Saved just now')
     } else {
-      const { data: created } = await supabase.from('business_profiles').insert({ ...data, profile_id: userId }).select().single()
+      const { data: created, error } = await supabase.from('business_profiles').insert({ ...data, profile_id: userId }).select().single()
       if (created) setBizId(created.id)
+      setSaveMsg(error ? 'Save failed: ' + error.message : 'Saved just now')
     }
-    setSaveMsg('Saved just now')
   }
 
   async function handleSave() {

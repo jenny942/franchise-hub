@@ -42,8 +42,8 @@ export default function PersonalSettingsPage() {
 
   async function autoSave(data: Record<string, string>) {
     if (!userId) return
-    await supabase.from('profiles').update(data).eq('id', userId)
-    setSaveMsg('Saved just now')
+    const { error } = await supabase.from('profiles').update(data).eq('id', userId)
+    setSaveMsg(error ? 'Save failed: ' + error.message : 'Saved just now')
   }
 
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -65,9 +65,9 @@ export default function PersonalSettingsPage() {
   async function handleSave() {
     if (!userId) return
     setSaving(true)
-    await supabase.from('profiles').update(form).eq('id', userId)
+    const { error } = await supabase.from('profiles').update(form).eq('id', userId)
     setSaving(false)
-    setSaveMsg('Saved just now')
+    setSaveMsg(error ? 'Save failed: ' + error.message : 'Saved just now')
   }
 
   const initials = form.full_name
