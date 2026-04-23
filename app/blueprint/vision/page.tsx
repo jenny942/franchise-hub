@@ -304,37 +304,32 @@ export default function VisionPage() {
           </div>
         </div>
 
-        {/* ── Game Plan sync prompt ── */}
+        {/* ── Game Plan sync prompt — fixed bottom bar ── */}
         {planDrift && (
-          <div style={{ background: '#fff8e1', border: '1.5px solid #FFB600', borderRadius: '14px', padding: '16px 20px', marginBottom: '18px', display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
-            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#fff3b0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#B87800" strokeWidth="1.5"><path d="M2 13V5l5-4 5 4v8H9V9H7v4H2z"/></svg>
+          <div style={{
+            position: 'fixed', bottom: 0, left: '220px', right: 0, zIndex: 100,
+            background: '#fff8e1', borderTop: '2px solid #FFB600',
+            padding: '14px 28px', display: 'flex', alignItems: 'center', gap: '16px',
+            boxShadow: '0 -4px 20px rgba(0,0,0,0.08)',
+          }}>
+            <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: '#fff3b0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#B87800" strokeWidth="1.5"><path d="M2 13V5l5-4 5 4v8H9V9H7v4H2z"/></svg>
             </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '13px', color: '#7A5F00', marginBottom: '6px' }}>
-                Your Vision changed — do you want to update your Game Plan?
-              </div>
-              <div style={{ fontSize: '12.5px', color: '#7A5F00', lineHeight: 1.7 }}>
-                {planDrift.annual_goal && (
-                  <div>· <strong>1-year revenue goal:</strong> Vision says {fmt(planDrift.annual_goal.vision)}, Game Plan still shows {fmt(planDrift.annual_goal.plan)}</div>
-                )}
-                {planDrift.avg_ticket && (
-                  <div>· <strong>Avg ticket:</strong> Vision says {fmt(planDrift.avg_ticket.vision)}, Game Plan still shows {fmt(planDrift.avg_ticket.plan)}</div>
-                )}
-                {planDrift.base_mrr && (
-                  <div>· <strong>Recurring MRR:</strong> Vision says {fmt(planDrift.base_mrr.vision)}, Game Plan still shows {fmt(planDrift.base_mrr.plan)}</div>
-                )}
-              </div>
+            <div style={{ flex: 1, fontSize: '13px', color: '#7A5F00', lineHeight: 1.5 }}>
+              <strong style={{ fontFamily: "'Montserrat', sans-serif" }}>Your Vision changed — Game Plan may be out of date.</strong>
+              {' '}
+              {[
+                planDrift.annual_goal && `Revenue goal: ${fmt(planDrift.annual_goal.vision)} vs ${fmt(planDrift.annual_goal.plan)}`,
+                planDrift.avg_ticket  && `Avg ticket: ${fmt(planDrift.avg_ticket.vision)} vs ${fmt(planDrift.avg_ticket.plan)}`,
+                planDrift.base_mrr    && `Recurring MRR: ${fmt(planDrift.base_mrr.vision)} vs ${fmt(planDrift.base_mrr.plan)}`,
+              ].filter(Boolean).join(' · ')}
             </div>
             <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-              <button
-                onClick={() => setPlanDrift(null)}
+              <button onClick={() => setPlanDrift(null)}
                 style={{ height: '34px', padding: '0 14px', background: 'transparent', color: '#B87800', border: '1.5px solid #FFB600', borderRadius: '8px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>
                 Keep as is
               </button>
-              <button
-                onClick={syncToGamePlan}
-                disabled={syncingPlan}
+              <button onClick={syncToGamePlan} disabled={syncingPlan}
                 style={{ height: '34px', padding: '0 16px', background: '#FFB600', color: '#fff', border: 'none', borderRadius: '8px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '12px', cursor: 'pointer', opacity: syncingPlan ? 0.7 : 1 }}>
                 {syncingPlan ? 'Updating…' : 'Update Game Plan ↗'}
               </button>

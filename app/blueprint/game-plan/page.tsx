@@ -33,6 +33,9 @@ type Plan = {
   mrr_value: number
   mrr_overridden: boolean
   seasonality: number[]
+  use_seasonality: boolean
+  plan_start: string       // YYYY-MM e.g. "2026-04"
+  plan_horizon: 'eoy' | '12mo'
   channels: { paid: Channel[]; community: Channel[] }
   month_data: Record<string, MonthData>
   reviews_goal: number
@@ -54,8 +57,10 @@ const DEFAULT_CHANNELS = {
 }
 
 function makePlan(vision: any): Plan {
+  const now = new Date()
+  const planStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
   return {
-    name: `${new Date().getFullYear()} Main Plan`,
+    name: `${now.getFullYear()} Main Plan`,
     is_active: false,
     annual_goal: vision?.one_yr_rev ?? 0,
     avg_ticket: vision?.avg_ticket ?? 0,
@@ -64,11 +69,39 @@ function makePlan(vision: any): Plan {
     mrr_value: vision?.avg_ticket ?? 0,
     mrr_overridden: false,
     seasonality: [...DEFAULT_SEASONALITY],
+    use_seasonality: false,
+    plan_start: planStart,
+    plan_horizon: 'eoy',
     channels: JSON.parse(JSON.stringify(DEFAULT_CHANNELS)),
     month_data: {},
     reviews_goal: 100,
     reviews_ytd: 0,
   }
+}
+
+// Returns ordered list of months covered by this plan
+function getPlanMonths(planStart: string, horizon: 'eoy' | '12mo') {
+  const now = new Date()
+  const fallback = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const start = planStart || fallback
+  const [sy, sm] = start.split('-').map(Number)
+  const startIdx = sm - 1  // 0-11
+
+  const entries: { year: number; monthIdx: number }[] = []
+  if (horizon === 'eoy') {
+    for (let m = startIdx; m <= 11; m++) entries.push({ year: sy, monthIdx: m })
+  } else {
+    for (let i = 0; i < 12; i++) {
+      const total = startIdx + i
+      entries.push({ year: sy + Math.floor(total / 12), monthIdx: total % 12 })
+    }
+  }
+  return entries.map(({ year, monthIdx }) => ({
+    year, monthIdx,
+    key: `${year}-${String(monthIdx + 1).padStart(2, '0')}`,
+    label: MONTHS[monthIdx],
+    shortLabel: year !== sy ? `${MONTHS_SHORT[monthIdx]} '${String(year).slice(2)}` : MONTHS_SHORT[monthIdx],
+  }))
 }
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -108,10 +141,14 @@ export default function GamePlanPage() {
   const [planIds, setPlanIds] = useState<string[]>([])
   const [selectedIdx, setSelectedIdx] = useState(0)
   const [plan, setPlan] = useState<Plan | null>(null)
-  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
+  const [currentMonthKey, setCurrentMonthKey] = useState<string>(() => {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  })
   const [showSeasonality, setShowSeasonality] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved')
   const [editingChannels, setEditingChannels] = useState<Set<string>>(new Set())
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [loading, setLoading] = useState(true)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -170,15 +207,14 @@ export default function GamePlanPage() {
 
   function getSpend(channelId: string): number {
     if (!plan) return 0
-    return plan.month_data[String(currentMonth)]?.[channelId] ?? 0
+    return plan.month_data[currentMonthKey]?.[channelId] ?? 0
   }
 
   function setSpend(channelId: string, value: number) {
     if (!plan) return
-    const key = String(currentMonth)
     const next: Plan = {
       ...plan,
-      month_data: { ...plan.month_data, [key]: { ...(plan.month_data[key] ?? {}), [channelId]: value } },
+      month_data: { ...plan.month_data, [currentMonthKey]: { ...(plan.month_data[currentMonthKey] ?? {}), [channelId]: value } },
     }
     setPlan(next)
     scheduleAutoSave(next)
@@ -186,10 +222,25 @@ export default function GamePlanPage() {
 
   function applyToAllMonths() {
     if (!plan) return
-    const src = plan.month_data[String(currentMonth)] ?? {}
-    const newMonthData: Record<string, MonthData> = {}
-    for (let i = 0; i < 12; i++) newMonthData[String(i)] = { ...src }
+    const src = plan.month_data[currentMonthKey] ?? {}
+    const months = getPlanMonths(plan.plan_start, plan.plan_horizon)
+    const newMonthData: Record<string, MonthData> = { ...plan.month_data }
+    months.forEach(m => { newMonthData[m.key] = { ...src } })
     updatePlan({ month_data: newMonthData })
+  }
+
+  async function deletePlan() {
+    if (!userId || plans.length <= 1) return
+    const id = planIds[selectedIdx]
+    if (id) await supabase.from('gameplans').delete().eq('id', id)
+    const newPlans = plans.filter((_, i) => i !== selectedIdx)
+    const newIds = planIds.filter((_, i) => i !== selectedIdx)
+    const newIdx = Math.max(0, selectedIdx - 1)
+    setPlans(newPlans)
+    setPlanIds(newIds)
+    setSelectedIdx(newIdx)
+    setPlan(newPlans[newIdx])
+    setConfirmDelete(false)
   }
 
   async function saveNow() {
@@ -231,6 +282,11 @@ export default function GamePlanPage() {
   function switchPlan(idx: number) {
     setSelectedIdx(idx)
     setPlan(plans[idx])
+    const p = plans[idx]
+    const months = getPlanMonths(p.plan_start, p.plan_horizon)
+    const now = new Date()
+    const nowKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+    setCurrentMonthKey(months.find(m => m.key === nowKey) ? nowKey : months[0]?.key ?? nowKey)
   }
 
   function addChannel(type: 'paid' | 'community') {
@@ -264,22 +320,39 @@ export default function GamePlanPage() {
   }
 
   // ── Calculations ──────────────────────────────────────────
-  const seasonSum = plan ? plan.seasonality.reduce((a, b) => a + b, 0) || 1 : 1
-  const monthlyTarget = plan ? plan.annual_goal * (plan.seasonality[currentMonth] / seasonSum) : 0
+  const planMonths = plan ? getPlanMonths(plan.plan_start || (() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}` })(), plan.plan_horizon || 'eoy') : []
+  const currentMonthEntry = planMonths.find(m => m.key === currentMonthKey) ?? planMonths[0]
+
+  const seasonSum = plan?.use_seasonality ? planMonths.reduce((s, m) => s + (plan.seasonality[m.monthIdx] ?? 1), 0) || 1 : planMonths.length || 1
+  const monthlyTarget = plan ? (
+    plan.use_seasonality
+      ? plan.annual_goal * ((plan.seasonality[currentMonthEntry?.monthIdx ?? 0] ?? 1) / seasonSum)
+      : plan.annual_goal / (planMonths.length || 1)
+  ) : 0
+
   const mrrDisplay = plan ? (plan.mrr_overridden ? plan.mrr_value : plan.avg_ticket) : 0
 
   const allPaidOut = plan ? plan.channels.paid.map(ch => calcPaid(ch, getSpend(ch.id), plan.avg_ticket, plan.recurring_pct, mrrDisplay)) : []
   const allCommOut = plan ? plan.channels.community.map(ch => calcCommunity(ch, getSpend(ch.id), plan.avg_ticket, plan.recurring_pct, mrrDisplay)) : []
 
-  const totalMarketing = [...allPaidOut, ...allCommOut].reduce((s, o) => s + o.total, 0)
+  const totalOneTime = [...allPaidOut, ...allCommOut].reduce((s, o) => s + o.oneTimeRev, 0)
+  const totalNewMrr = [...allPaidOut, ...allCommOut].reduce((s, o) => s + o.newMrr, 0)
+  const totalMarketing = totalOneTime + totalNewMrr
 
-  // Cumulative MRR: sum up newMrr from all months before currentMonth
-  const priorNewMrr = plan ? Array.from({ length: currentMonth }, (_, m) => {
-    const p = plan.channels.paid.reduce((s, ch) => s + calcPaid(ch, plan.month_data[String(m)]?.[ch.id] ?? 0, plan.avg_ticket, plan.recurring_pct, mrrDisplay).newMrr, 0)
-    const c = plan.channels.community.reduce((s, ch) => s + calcCommunity(ch, plan.month_data[String(m)]?.[ch.id] ?? 0, plan.avg_ticket, plan.recurring_pct, mrrDisplay).newMrr, 0)
-    return p + c
-  }).reduce((s, v) => s + v, 0) : 0
-  const stableRecurring = (plan?.base_mrr ?? 0) + priorNewMrr
+  // MRR rollover = one-time revenue × recurring% (how much of new revenue becomes monthly recurring)
+  const currentMonthRollover = plan ? totalOneTime * (plan.recurring_pct / 100) : 0
+
+  // Cumulative MRR from prior months using same rollover formula
+  const priorRollover = plan ? planMonths
+    .filter(m => m.key < currentMonthKey)
+    .reduce((total, m) => {
+      const ot = [
+        ...plan.channels.paid.map(ch => calcPaid(ch, plan.month_data[m.key]?.[ch.id] ?? 0, plan.avg_ticket, plan.recurring_pct, mrrDisplay).oneTimeRev),
+        ...plan.channels.community.map(ch => calcCommunity(ch, plan.month_data[m.key]?.[ch.id] ?? 0, plan.avg_ticket, plan.recurring_pct, mrrDisplay).oneTimeRev),
+      ].reduce((s, v) => s + v, 0)
+      return total + ot * (plan.recurring_pct / 100)
+    }, 0) : 0
+  const stableRecurring = (plan?.base_mrr ?? 0) + priorRollover
 
   const totalCovered = stableRecurring + totalMarketing
   const gap = monthlyTarget - totalCovered
@@ -288,16 +361,21 @@ export default function GamePlanPage() {
   const mktPct = monthlyTarget > 0 ? Math.min(100 - basePct, (totalMarketing / monthlyTarget) * 100) : 0
   const overPct = totalCovered > monthlyTarget ? Math.min(30, ((totalCovered - monthlyTarget) / monthlyTarget) * 100) : 0
 
-  const monthHasData = (m: number) => plan ? Object.values(plan.month_data[String(m)] ?? {}).some(v => v > 0) : false
+  const monthHasData = (key: string) => plan ? Object.values(plan.month_data[key] ?? {}).some(v => v > 0) : false
 
   // Running total
   const totalSpend = plan ? plan.channels.paid.reduce((s, ch) => s + getSpend(ch.id), 0) : 0
   const totalLeads = allPaidOut.reduce((s, o) => s + o.leads, 0)
   const totalCustomers = [...allPaidOut, ...allCommOut].reduce((s, o) => s + o.customers, 0)
-  const totalOneTime = [...allPaidOut, ...allCommOut].reduce((s, o) => s + o.oneTimeRev, 0)
-  const totalNewMrr = [...allPaidOut, ...allCommOut].reduce((s, o) => s + o.newMrr, 0)
   const totalRev = totalOneTime + totalNewMrr
   const overTarget = totalRev > monthlyTarget
+
+  // Detect which default channels have been removed
+  const missingPaidDefaults = plan ? DEFAULT_CHANNELS.paid.filter(dc => !plan.channels.paid.find(c => c.id === dc.id)) : []
+  const missingCommDefaults = plan ? DEFAULT_CHANNELS.community.filter(dc => !plan.channels.community.find(c => c.id === dc.id)) : []
+
+  // Today's key for greying out past months
+  const todayKey = (() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}` })()
 
   if (loading) {
     return (
@@ -372,6 +450,19 @@ export default function GamePlanPage() {
             <button onClick={saveNow} style={{ height: '38px', padding: '0 22px', background: '#0C85C2', color: '#fff', border: 'none', borderRadius: '10px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>
               Save Game Plan
             </button>
+            {plans.length > 1 && !confirmDelete && (
+              <button onClick={() => setConfirmDelete(true)}
+                style={{ height: '38px', padding: '0 14px', background: 'transparent', color: '#e05252', border: '1.5px solid #e05252', borderRadius: '10px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>
+                Delete
+              </button>
+            )}
+            {confirmDelete && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff2f2', border: '1.5px solid #e05252', borderRadius: '10px', padding: '0 12px', height: '38px' }}>
+                <span style={{ fontSize: '12px', color: '#e05252', fontWeight: 600, whiteSpace: 'nowrap' }}>Delete this plan?</span>
+                <button onClick={deletePlan} style={{ height: '26px', padding: '0 10px', background: '#e05252', color: '#fff', border: 'none', borderRadius: '6px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Yes</button>
+                <button onClick={() => setConfirmDelete(false)} style={{ height: '26px', padding: '0 10px', background: 'transparent', color: '#888', border: '1px solid #ddd', borderRadius: '6px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>Cancel</button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -387,6 +478,33 @@ export default function GamePlanPage() {
         {/* ── Section 1: Foundations ── */}
         <div style={{ background: '#fff', borderRadius: '16px', border: '0.5px solid #A7DBE7', padding: '22px 24px', marginBottom: '18px' }}>
           <SectionHead num={1} title="Plan foundations" hint="Set your annual revenue goal and the assumptions that drive every calculation below." />
+
+          {/* Plan horizon */}
+          <div style={{ background: '#E6F1F4', borderRadius: '12px', padding: '14px 18px', marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <div>
+              <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#2C3E50', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '2px' }}>Plan period</div>
+              <div style={{ fontSize: '11px', color: '#888' }}>
+                {planMonths.length > 0 ? `${planMonths[0].label} ${planMonths[0].year} → ${planMonths[planMonths.length-1].label} ${planMonths[planMonths.length-1].year} (${planMonths.length} months)` : ''}
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {(['eoy', '12mo'] as const).map(h => {
+                const now = new Date()
+                const label = h === 'eoy' ? `End of ${now.getFullYear()}` : 'Next 12 months'
+                return (
+                  <button key={h} onClick={() => updatePlan({ plan_horizon: h })}
+                    style={{ height: '34px', padding: '0 16px', borderRadius: '8px', border: `1.5px solid ${plan.plan_horizon === h ? '#0C85C2' : '#A7DBE7'}`, background: plan.plan_horizon === h ? '#0C85C2' : '#fff', color: plan.plan_horizon === h ? '#fff' : '#888', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+            <div style={{ fontSize: '11px', color: '#aaa', flex: 1, textAlign: 'right' }}>
+              Plan start: <strong style={{ color: '#2C3E50' }}>
+                {plan.plan_start ? `${MONTHS[parseInt(plan.plan_start.split('-')[1]) - 1]} ${plan.plan_start.split('-')[0]}` : '—'}
+              </strong>
+            </div>
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
             {([
               { label: 'Annual revenue goal', hint: 'From Vision — override anytime', prefix: '$', key: 'annual_goal' },
@@ -441,38 +559,46 @@ export default function GamePlanPage() {
               <div style={{ fontSize: '12px', color: '#aaa', marginTop: '2px' }}>Useful once you know your busy and slow months. Skip it for now if you're just getting started.</div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <button onClick={() => updatePlan({ seasonality: [...DEFAULT_SEASONALITY] })}
-                style={{ fontSize: '11.5px', color: '#aaa', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Open Sans', sans-serif" }}>
-                Reset to default
-              </button>
-              <button onClick={() => setShowSeasonality(s => !s)}
-                style={{ fontSize: '12.5px', fontWeight: 700, color: '#0C85C2', background: '#e6f4fb', border: 'none', borderRadius: '8px', padding: '6px 14px', cursor: 'pointer', fontFamily: "'Open Sans', sans-serif" }}>
-                {showSeasonality ? 'Hide ▲' : 'Adjust ▼'}
+              {plan.use_seasonality && (
+                <button onClick={() => updatePlan({ seasonality: [...DEFAULT_SEASONALITY] })}
+                  style={{ fontSize: '11.5px', color: '#aaa', background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Open Sans', sans-serif" }}>
+                  Reset to default
+                </button>
+              )}
+              <button onClick={() => {
+                const turning = !plan.use_seasonality
+                updatePlan({ use_seasonality: turning })
+                setShowSeasonality(turning)
+              }}
+                style={{ fontSize: '12.5px', fontWeight: 700, color: plan.use_seasonality ? '#0C85C2' : '#888', background: plan.use_seasonality ? '#e6f4fb' : '#E6F1F4', border: 'none', borderRadius: '8px', padding: '6px 14px', cursor: 'pointer', fontFamily: "'Open Sans', sans-serif" }}>
+                {plan.use_seasonality ? 'Seasonality on ▲' : 'Enable seasonality ▼'}
               </button>
             </div>
           </div>
 
-          {/* Mini bar preview — always visible */}
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '28px', marginTop: '12px', cursor: 'pointer' }} onClick={() => setShowSeasonality(s => !s)}>
-            {plan.seasonality.map((v, i) => {
-              const maxV = Math.max(...plan.seasonality)
-              const h = maxV > 0 ? Math.round((v / maxV) * 100) : 0
-              return <div key={i} title={MONTHS_SHORT[i]} style={{ flex: 1, height: `${h}%`, background: i === currentMonth ? '#0C85C2' : '#A7DBE7', borderRadius: '2px 2px 0 0', transition: 'height 0.2s' }} />
+          {/* Mini bar preview */}
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '28px', marginTop: '12px' }}>
+            {planMonths.map((m) => {
+              const val = plan.use_seasonality ? (plan.seasonality[m.monthIdx] ?? 1) : 1
+              const maxV = plan.use_seasonality ? Math.max(...planMonths.map(pm => plan.seasonality[pm.monthIdx] ?? 1)) : 1
+              const h = maxV > 0 ? Math.round((val / maxV) * 100) : 100
+              return <div key={m.key} title={m.shortLabel} style={{ flex: 1, height: `${h}%`, background: m.key === currentMonthKey ? '#0C85C2' : '#A7DBE7', borderRadius: '2px 2px 0 0', transition: 'height 0.2s' }} />
             })}
           </div>
 
-          {showSeasonality && (
+          {plan.use_seasonality && showSeasonality && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '12px', marginTop: '16px' }}>
-              {MONTHS_SHORT.map((m, i) => {
-                const pct = Math.round((plan.seasonality[i] / seasonSum) * 100)
+              {planMonths.map((m) => {
+                const val = plan.seasonality[m.monthIdx] ?? 1
+                const pct = Math.round((val / seasonSum) * 100)
                 return (
-                  <div key={i} style={{ textAlign: 'center' }}>
-                    <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '12px', color: i === currentMonth ? '#0C85C2' : '#2C3E50', marginBottom: '2px' }}>{m}</div>
+                  <div key={m.key} style={{ textAlign: 'center' }}>
+                    <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '12px', color: m.key === currentMonthKey ? '#0C85C2' : '#2C3E50', marginBottom: '2px' }}>{m.shortLabel}</div>
                     <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '15px', color: '#0C85C2', marginBottom: '4px' }}>{pct}%</div>
-                    <input type="range" min={1} max={20} step={1} value={plan.seasonality[i]}
-                      onChange={e => { const s = [...plan.seasonality]; s[i] = parseInt(e.target.value); updatePlan({ seasonality: s }) }}
-                      style={{ width: '100%', accentColor: i === currentMonth ? '#0C85C2' : '#5AB3C9', cursor: 'pointer' }} />
-                    <div style={{ fontSize: '10px', color: '#aaa', marginTop: '2px' }}>{fmt$(plan.annual_goal * (plan.seasonality[i] / seasonSum))}</div>
+                    <input type="range" min={1} max={20} step={1} value={val}
+                      onChange={e => { const s = [...plan.seasonality]; s[m.monthIdx] = parseInt(e.target.value); updatePlan({ seasonality: s }) }}
+                      style={{ width: '100%', accentColor: m.key === currentMonthKey ? '#0C85C2' : '#5AB3C9', cursor: 'pointer' }} />
+                    <div style={{ fontSize: '10px', color: '#aaa', marginTop: '2px' }}>{fmt$(plan.annual_goal * (val / seasonSum))}</div>
                   </div>
                 )
               })}
@@ -485,10 +611,10 @@ export default function GamePlanPage() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
             <div>
               <div style={fieldLabel}>Select month to plan</div>
-              <div style={{ fontSize: '12px', color: '#aaa' }}>Each month can have its own mix. Highlighted months have spend entered.</div>
+              <div style={{ fontSize: '12px', color: '#aaa' }}>Each month can have its own mix. Highlighted months have spend entered. Past months are locked.</div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '12px', color: '#888' }}>Viewing: <strong style={{ color: '#0C85C2' }}>{MONTHS[currentMonth]}</strong></span>
+              <span style={{ fontSize: '12px', color: '#888' }}>Viewing: <strong style={{ color: '#0C85C2' }}>{currentMonthEntry?.label} {currentMonthEntry?.year}</strong></span>
               <button onClick={applyToAllMonths}
                 style={{ height: '32px', padding: '0 14px', background: '#0C85C2', color: '#fff', border: 'none', borderRadius: '8px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 Copy to all months
@@ -496,16 +622,26 @@ export default function GamePlanPage() {
             </div>
           </div>
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-            {MONTHS_SHORT.map((m, i) => (
-              <button key={i} onClick={() => setCurrentMonth(i)} style={{
-                height: '34px', padding: '0 14px',
-                border: `1.5px solid ${i === currentMonth ? '#0C85C2' : monthHasData(i) ? '#5AB3C9' : '#A7DBE7'}`,
-                borderRadius: '8px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '12px', cursor: 'pointer',
-                background: i === currentMonth ? '#0C85C2' : '#fff',
-                color: i === currentMonth ? '#fff' : monthHasData(i) ? '#5AB3C9' : '#888',
-                transition: 'all 0.15s',
-              }}>{m}</button>
-            ))}
+            {planMonths.map(m => {
+              const isPast = m.key < todayKey
+              const isActive = m.key === currentMonthKey
+              const hasData = monthHasData(m.key)
+              return (
+                <button key={m.key}
+                  onClick={() => !isPast && setCurrentMonthKey(m.key)}
+                  disabled={isPast}
+                  style={{
+                    height: '34px', padding: '0 14px',
+                    border: `1.5px solid ${isActive ? '#0C85C2' : hasData ? '#5AB3C9' : isPast ? '#E6F1F4' : '#A7DBE7'}`,
+                    borderRadius: '8px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '12px',
+                    cursor: isPast ? 'default' : 'pointer',
+                    background: isActive ? '#0C85C2' : isPast ? '#f7f7f7' : '#fff',
+                    color: isActive ? '#fff' : isPast ? '#ccc' : hasData ? '#5AB3C9' : '#888',
+                    opacity: isPast ? 0.6 : 1,
+                    transition: 'all 0.15s',
+                  }}>{m.shortLabel}</button>
+              )
+            })}
           </div>
         </div>
 
@@ -513,7 +649,7 @@ export default function GamePlanPage() {
         <div style={{ background: '#2C3E50', borderRadius: '16px', padding: '20px 24px', marginBottom: '18px' }}>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '14px', gap: '16px', flexWrap: 'wrap' }}>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#5AB3C9', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '4px' }}>{MONTHS[currentMonth]}</div>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#5AB3C9', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '4px' }}>{currentMonthEntry?.label} {currentMonthEntry?.year}</div>
               <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '28px', color: '#fff', lineHeight: 1 }}>{fmt$(monthlyTarget)}</div>
               <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>monthly revenue target</div>
             </div>
@@ -546,7 +682,7 @@ export default function GamePlanPage() {
 
         {/* ── Section 2: Marketing Levers ── */}
         <div style={{ background: '#fff', borderRadius: '16px', border: '0.5px solid #A7DBE7', padding: '22px 24px', marginBottom: '18px' }}>
-          <SectionHead num={2} title="Marketing levers" hint={`Set your spend and activity for ${MONTHS[currentMonth]}. The gap bar above updates in real time.`} />
+          <SectionHead num={2} title="Marketing levers" hint={`Set your spend and activity for ${currentMonthEntry?.label} ${currentMonthEntry?.year}. The gap bar above updates in real time.`} />
 
           {/* Paid channels */}
           <GroupLabel color="#0C85C2">Paid leads</GroupLabel>
@@ -590,6 +726,16 @@ export default function GamePlanPage() {
             )
           })}
           <AddChannelBtn type="paid" onClick={() => addChannel('paid')} />
+          {missingPaidDefaults.length > 0 && (
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
+              {missingPaidDefaults.map(dc => (
+                <button key={dc.id} onClick={() => { const next = { ...plan, channels: { ...plan.channels, paid: [...plan.channels.paid, { ...dc }] } }; setPlan(next); scheduleAutoSave(next) }}
+                  style={{ height: '30px', padding: '0 12px', border: '1.5px dashed #5AB3C9', borderRadius: '8px', background: '#f0faff', color: '#0C85C2', fontSize: '11.5px', fontWeight: 700, cursor: 'pointer', fontFamily: "'Open Sans', sans-serif" }}>
+                  ↺ Restore {dc.name}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Community channels */}
           <GroupLabel color="#3B8C2A" style={{ marginTop: '20px' }}>Community marketing</GroupLabel>
@@ -632,6 +778,16 @@ export default function GamePlanPage() {
             )
           })}
           <AddChannelBtn type="community" onClick={() => addChannel('community')} />
+          {missingCommDefaults.length > 0 && (
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
+              {missingCommDefaults.map(dc => (
+                <button key={dc.id} onClick={() => { const next = { ...plan, channels: { ...plan.channels, community: [...plan.channels.community, { ...dc }] } }; setPlan(next); scheduleAutoSave(next) }}
+                  style={{ height: '30px', padding: '0 12px', border: '1.5px dashed #7CCA5B', borderRadius: '8px', background: '#f4fff0', color: '#3B8C2A', fontSize: '11.5px', fontWeight: 700, cursor: 'pointer', fontFamily: "'Open Sans', sans-serif" }}>
+                  ↺ Restore {dc.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* ── Section 3: Google Reviews ── */}
@@ -710,7 +866,7 @@ export default function GamePlanPage() {
         <div style={{ background: '#fff', borderRadius: '16px', border: '2px solid #0C85C2', padding: '20px 24px', marginBottom: '32px' }}>
           <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '14px', color: '#2C3E50', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#0C85C2" strokeWidth="1.5"><path d="M2 12l3-5 3 3 3-4 3 2"/></svg>
-            {MONTHS[currentMonth]} — monthly summary
+            {currentMonthEntry?.label} {currentMonthEntry?.year} — monthly summary
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px', marginBottom: '12px' }}>
             {[
@@ -727,13 +883,23 @@ export default function GamePlanPage() {
             ))}
           </div>
           {/* MRR carry-forward summary */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f0faff', borderRadius: '10px', padding: '10px 14px', marginBottom: '12px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#5AB3C9', textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>↺ MRR</span>
-            <span style={{ fontSize: '12.5px', color: '#2C3E50' }}>
-              <strong>{fmt$(stableRecurring)}</strong> recurring entering {MONTHS[currentMonth]}
-              {totalNewMrr > 0 && <> + <strong style={{ color: '#5AB3C9' }}>{fmt$(totalNewMrr)}</strong> new this month = <strong style={{ color: '#0C85C2' }}>{fmt$(stableRecurring + totalNewMrr)}</strong> MRR entering {MONTHS[currentMonth < 11 ? currentMonth + 1 : 0]}</>}
-            </span>
-          </div>
+          {(() => {
+            const nextMonthEntry = planMonths[planMonths.findIndex(m => m.key === currentMonthKey) + 1]
+            const mrrNextMonth = stableRecurring + currentMonthRollover
+            return (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f0faff', borderRadius: '10px', padding: '10px 14px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#5AB3C9', textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>↺ MRR</span>
+                <span style={{ fontSize: '12.5px', color: '#2C3E50' }}>
+                  <strong>{fmt$(stableRecurring)}</strong> recurring entering {currentMonthEntry?.label}
+                  {totalOneTime > 0 && <>
+                    {' + '}<strong style={{ color: '#5AB3C9' }}>{fmt$(totalOneTime)}</strong> new revenue × {plan.recurring_pct}% recurring
+                    {' = '}<strong style={{ color: '#0C85C2' }}>{fmt$(currentMonthRollover)}</strong> new MRR
+                    {nextMonthEntry && <> → <strong style={{ color: '#0C85C2' }}>{fmt$(mrrNextMonth)}</strong> entering {nextMonthEntry.label} {nextMonthEntry.year}</>}
+                  </>}
+                </span>
+              </div>
+            )
+          })()}
           <div style={{ height: '14px', background: '#E6F1F4', borderRadius: '20px', overflow: 'hidden' }}>
             <div style={{ width: `${Math.min(100, monthlyTarget > 0 ? (totalRev / monthlyTarget) * 100 : 0)}%`, height: '100%', background: overTarget ? '#7CCA5B' : '#0C85C2', borderRadius: '20px', transition: 'width 0.35s' }} />
           </div>
@@ -743,12 +909,12 @@ export default function GamePlanPage() {
           {overTarget ? (
             <div style={{ background: '#edfae5', border: '1px solid #7CCA5B', borderRadius: '10px', padding: '10px 14px', fontSize: '12.5px', color: '#2C6B1A', display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3.5 3.5L12 3" stroke="#3B8C2A" strokeWidth="2"/></svg>
-              You're projected to exceed your {MONTHS[currentMonth]} target by {fmt$(totalRev - monthlyTarget)}. Keep it up.
+              You're projected to exceed your {currentMonthEntry?.label} target by {fmt$(totalRev - monthlyTarget)}. Keep it up.
             </div>
           ) : totalRev > 0 ? (
             <div style={{ background: '#fff8e1', border: '1px solid #FFB600', borderRadius: '10px', padding: '10px 14px', fontSize: '12.5px', color: '#7A5F00', display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="#FFB600"><path d="M7 2l.5 6h-1L7 2zm0 7.5a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5z"/></svg>
-              You're {fmt$(gap)} short of your {MONTHS[currentMonth]} target. Add more spend or channels to close the gap.
+              You're {fmt$(gap)} short of your {currentMonthEntry?.label} target. Add more spend or channels to close the gap.
             </div>
           ) : null}
         </div>
