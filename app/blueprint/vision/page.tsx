@@ -352,13 +352,14 @@ export default function VisionPage() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.3fr) minmax(0,1.3fr)', gap: '20px', marginBottom: '20px', alignItems: 'end' }}>
             <div>
-              <label style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>First-year personal income goal</label>
+              <label style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>This year's personal income goal</label>
               <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.07)', border: '1.5px solid rgba(255,255,255,0.12)', borderRadius: '10px', overflow: 'hidden', height: '44px' }}>
                 <div style={{ padding: '0 12px', height: '100%', display: 'flex', alignItems: 'center', fontSize: '14px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', borderRight: '1.5px solid rgba(255,255,255,0.1)', flexShrink: 0 }}>$</div>
                 <input type="number" value={form.income_goal || ''} placeholder="120,000"
                   onChange={e => update({ income_goal: parseFloat(e.target.value) || 0 })}
                   style={{ border: 'none', background: 'transparent', height: '100%', padding: '0 14px', fontSize: '15px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, color: '#fff', outline: 'none', width: '100%' }} />
               </div>
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginTop: '6px' }}>Used for next 12-month planning — revisit this each year.</div>
             </div>
             <div>
               <label style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
