@@ -794,7 +794,7 @@ export default function GamePlanPage() {
         {(() => {
           const reviewsGoal = plan.reviews_goal ?? 100
           const reviewsYtd = plan.reviews_ytd ?? 0
-          const monthlyReviewTarget = Math.round(reviewsGoal * (plan.seasonality[currentMonth] / seasonSum))
+          const monthlyReviewTarget = Math.round(reviewsGoal * ((plan.seasonality[currentMonthEntry?.monthIdx ?? 0] ?? 1) / seasonSum))
           const pctDone = reviewsGoal > 0 ? Math.min(100, (reviewsYtd / reviewsGoal) * 100) : 0
           const remaining = Math.max(0, reviewsGoal - reviewsYtd)
           const monthsLeft = 12 - new Date().getMonth()
@@ -840,7 +840,7 @@ export default function GamePlanPage() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
                 <div style={{ background: '#E6F1F4', borderRadius: '12px', padding: '12px 16px', textAlign: 'center' }}>
                   <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '20px', color: '#FFB600', lineHeight: 1.1 }}>{monthlyReviewTarget}</div>
-                  <div style={{ fontSize: '11px', color: '#888', marginTop: '4px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.3px' }}>{MONTHS[currentMonth]} target</div>
+                  <div style={{ fontSize: '11px', color: '#888', marginTop: '4px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.3px' }}>{currentMonthEntry?.label} target</div>
                 </div>
                 <div style={{ background: '#E6F1F4', borderRadius: '12px', padding: '12px 16px', textAlign: 'center' }}>
                   <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '20px', color: '#0C85C2', lineHeight: 1.1 }}>{remaining}</div>
