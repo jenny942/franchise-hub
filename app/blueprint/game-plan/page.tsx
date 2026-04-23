@@ -272,10 +272,19 @@ export default function GamePlanPage() {
   const allCommOut = plan ? plan.channels.community.map(ch => calcCommunity(ch, getSpend(ch.id), plan.avg_ticket, plan.recurring_pct, mrrDisplay)) : []
 
   const totalMarketing = [...allPaidOut, ...allCommOut].reduce((s, o) => s + o.total, 0)
-  const totalCovered = (plan?.base_mrr ?? 0) + totalMarketing
+
+  // Cumulative MRR: sum up newMrr from all months before currentMonth
+  const priorNewMrr = plan ? Array.from({ length: currentMonth }, (_, m) => {
+    const p = plan.channels.paid.reduce((s, ch) => s + calcPaid(ch, plan.month_data[String(m)]?.[ch.id] ?? 0, plan.avg_ticket, plan.recurring_pct, mrrDisplay).newMrr, 0)
+    const c = plan.channels.community.reduce((s, ch) => s + calcCommunity(ch, plan.month_data[String(m)]?.[ch.id] ?? 0, plan.avg_ticket, plan.recurring_pct, mrrDisplay).newMrr, 0)
+    return p + c
+  }).reduce((s, v) => s + v, 0) : 0
+  const stableRecurring = (plan?.base_mrr ?? 0) + priorNewMrr
+
+  const totalCovered = stableRecurring + totalMarketing
   const gap = monthlyTarget - totalCovered
 
-  const basePct = monthlyTarget > 0 ? Math.min(100, ((plan?.base_mrr ?? 0) / monthlyTarget) * 100) : 0
+  const basePct = monthlyTarget > 0 ? Math.min(100, (stableRecurring / monthlyTarget) * 100) : 0
   const mktPct = monthlyTarget > 0 ? Math.min(100 - basePct, (totalMarketing / monthlyTarget) * 100) : 0
   const overPct = totalCovered > monthlyTarget ? Math.min(30, ((totalCovered - monthlyTarget) / monthlyTarget) * 100) : 0
 
@@ -425,8 +434,11 @@ export default function GamePlanPage() {
         <div style={{ background: '#fff', borderRadius: '16px', border: '0.5px solid #A7DBE7', padding: '18px 24px', marginBottom: '18px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '14px', color: '#2C3E50' }}>Monthly seasonality</div>
-              <div style={{ fontSize: '12px', color: '#aaa', marginTop: '2px' }}>Adjust how your annual goal distributes across months.</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '14px', color: '#2C3E50' }}>Monthly seasonality</div>
+                <span style={{ fontSize: '10px', fontWeight: 700, color: '#5AB3C9', background: '#e6f4fb', padding: '2px 8px', borderRadius: '20px', letterSpacing: '0.5px' }}>Optional</span>
+              </div>
+              <div style={{ fontSize: '12px', color: '#aaa', marginTop: '2px' }}>Useful once you know your busy and slow months. Skip it for now if you're just getting started.</div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <button onClick={() => updatePlan({ seasonality: [...DEFAULT_SEASONALITY] })}
@@ -524,7 +536,7 @@ export default function GamePlanPage() {
             <div style={{ width: `${overPct}%`, height: '100%', background: '#5AB3C9', transition: 'width 0.35s' }} />
           </div>
           <div style={{ display: 'flex', gap: '16px', marginTop: '10px', flexWrap: 'wrap' }}>
-            {[['#7CCA5B','Base / recurring revenue'],['#0C85C2',"This month's marketing"],['#5AB3C9','Exceeded target']].map(([c, l]) => (
+            {[['#7CCA5B','Cumulative recurring MRR'],['#0C85C2',"This month's marketing"],['#5AB3C9','Exceeded target']].map(([c, l]) => (
               <div key={l} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', color: 'rgba(255,255,255,0.5)' }}>
                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: c, flexShrink: 0 }} />{l}
               </div>
@@ -700,7 +712,7 @@ export default function GamePlanPage() {
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#0C85C2" strokeWidth="1.5"><path d="M2 12l3-5 3 3 3-4 3 2"/></svg>
             {MONTHS[currentMonth]} — monthly summary
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px', marginBottom: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px', marginBottom: '12px' }}>
             {[
               { val: fmt$(totalSpend),    label: 'Total spend',     color: '#0C85C2' },
               { val: fmtN(totalLeads),    label: 'Est. leads',      color: '#2C3E50' },
@@ -713,6 +725,14 @@ export default function GamePlanPage() {
                 <div style={{ fontSize: '11px', color: '#888', marginTop: '4px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.3px' }}>{s.label}</div>
               </div>
             ))}
+          </div>
+          {/* MRR carry-forward summary */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f0faff', borderRadius: '10px', padding: '10px 14px', marginBottom: '12px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: '#5AB3C9', textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>↺ MRR</span>
+            <span style={{ fontSize: '12.5px', color: '#2C3E50' }}>
+              <strong>{fmt$(stableRecurring)}</strong> recurring entering {MONTHS[currentMonth]}
+              {totalNewMrr > 0 && <> + <strong style={{ color: '#5AB3C9' }}>{fmt$(totalNewMrr)}</strong> new this month = <strong style={{ color: '#0C85C2' }}>{fmt$(stableRecurring + totalNewMrr)}</strong> MRR entering {MONTHS[currentMonth < 11 ? currentMonth + 1 : 0]}</>}
+            </span>
           </div>
           <div style={{ height: '14px', background: '#E6F1F4', borderRadius: '20px', overflow: 'hidden' }}>
             <div style={{ width: `${Math.min(100, monthlyTarget > 0 ? (totalRev / monthlyTarget) * 100 : 0)}%`, height: '100%', background: overTarget ? '#7CCA5B' : '#0C85C2', borderRadius: '20px', transition: 'width 0.35s' }} />

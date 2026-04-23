@@ -350,22 +350,14 @@ export default function VisionPage() {
           <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginBottom: '16px', lineHeight: 1.6, fontStyle: 'italic' }}>
             Note: these revenue goals are based purely on your income target — they don't yet factor in your existing baseline or recurring revenue. We'll get to that!
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.3fr) minmax(0,0.9fr) minmax(0,1.3fr)', gap: '20px', marginBottom: '20px', alignItems: 'end' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.3fr) minmax(0,1.3fr)', gap: '20px', marginBottom: '20px', alignItems: 'end' }}>
             <div>
-              <label style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Personal income goal (annual)</label>
+              <label style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>First-year personal income goal</label>
               <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.07)', border: '1.5px solid rgba(255,255,255,0.12)', borderRadius: '10px', overflow: 'hidden', height: '44px' }}>
                 <div style={{ padding: '0 12px', height: '100%', display: 'flex', alignItems: 'center', fontSize: '14px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', borderRight: '1.5px solid rgba(255,255,255,0.1)', flexShrink: 0 }}>$</div>
                 <input type="number" value={form.income_goal || ''} placeholder="120,000"
                   onChange={e => update({ income_goal: parseFloat(e.target.value) || 0 })}
                   style={{ border: 'none', background: 'transparent', height: '100%', padding: '0 14px', fontSize: '15px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, color: '#fff', outline: 'none', width: '100%' }} />
-              </div>
-            </div>
-            <div>
-              <label style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Target date</label>
-              <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.07)', border: '1.5px solid rgba(255,255,255,0.12)', borderRadius: '10px', overflow: 'hidden', height: '44px' }}>
-                <input type="date" value={form.income_target_date}
-                  onChange={e => update({ income_target_date: e.target.value })}
-                  style={{ border: 'none', background: 'transparent', height: '100%', padding: '0 14px', fontSize: '13px', fontFamily: "'Open Sans', sans-serif", color: '#fff', outline: 'none', width: '100%', colorScheme: 'dark' }} />
               </div>
             </div>
             <div>
