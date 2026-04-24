@@ -100,8 +100,10 @@ export default function BlueprintSummaryPage() {
   const monthTargets = seasonality.map((s: number) => annualGoal * (s / seasonSum))
   const maxTarget = Math.max(...monthTargets, 1)
 
-  // Marketing for selected month
-  const monthData = plan?.month_data?.[String(currentMonth)] ?? {}
+  // Marketing for selected month — use YYYY-MM key format
+  const now = new Date()
+  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const monthData = plan?.month_data?.[currentMonthKey] ?? plan?.month_data?.[String(currentMonth)] ?? {}
   const paidChannels: any[] = plan?.channels?.paid ?? []
   const communityChannels: any[] = plan?.channels?.community ?? []
 
@@ -283,7 +285,7 @@ export default function BlueprintSummaryPage() {
               </div>
             ))}
           </div>
-          {seasonality.length > 0 && (
+          {plan?.use_seasonality && seasonality.length > 0 && (
             <div style={{ borderTop: '1px solid #E6F1F4', paddingTop: '14px' }}>
               <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Monthly distribution</div>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '52px' }}>

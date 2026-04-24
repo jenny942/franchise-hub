@@ -450,6 +450,10 @@ export default function GamePlanPage() {
             <button onClick={saveNow} style={{ height: '38px', padding: '0 22px', background: '#0C85C2', color: '#fff', border: 'none', borderRadius: '10px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>
               Save Game Plan
             </button>
+            <button onClick={() => { saveNow(); router.push('/blueprint/summary') }}
+              style={{ height: '38px', padding: '0 18px', background: '#2C3E50', color: '#fff', border: 'none', borderRadius: '10px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              View Blueprint →
+            </button>
             {plans.length > 1 && !confirmDelete && (
               <button onClick={() => setConfirmDelete(true)}
                 style={{ height: '38px', padding: '0 14px', background: 'transparent', color: '#e05252', border: '1.5px solid #e05252', borderRadius: '10px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '12px', cursor: 'pointer' }}>

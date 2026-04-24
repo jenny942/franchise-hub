@@ -301,6 +301,9 @@ export default function VisionPage() {
             <button onClick={() => { saveNow(); router.push('/blueprint/game-plan') }} style={{ height: '38px', padding: '0 22px', background: '#7CCA5B', color: '#fff', border: 'none', borderRadius: '10px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>
               Build Game Plan ↗
             </button>
+            <button onClick={() => { saveNow(); router.push('/blueprint/summary') }} style={{ height: '38px', padding: '0 18px', background: '#2C3E50', color: '#fff', border: 'none', borderRadius: '10px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>
+              View Blueprint →
+            </button>
           </div>
         </div>
 
