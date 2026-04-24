@@ -144,20 +144,33 @@ function ZorDashboard() {
 function ZeeDashboard() {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [bizProfileId, setBizProfileId] = useState<string | null>(null)
+  const [forecastInput, setForecastInput] = useState('')
+  const [editingForecast, setEditingForecast] = useState(false)
+  const [session, setSession] = useState<any>(null)
   const router = useRouter()
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
+      setSession(session)
       fetch('/api/dashboard/zee', {
         headers: { Authorization: `Bearer ${session.access_token}` }
-      }).then(r => r.json()).then(d => { setData(d); setLoading(false) })
+      }).then(r => r.json()).then(d => { setData(d); setBizProfileId(d.biz_profile_id ?? null); setLoading(false) })
     })
   }, [])
 
+  async function saveForecast() {
+    setEditingForecast(false)
+    const val = parseFloat(forecastInput) || 0
+    if (!bizProfileId) return
+    await supabase.from('business_profiles').update({ forecasted_sales: val }).eq('id', bizProfileId)
+    setData((prev: any) => prev ? { ...prev, kpis: { ...prev.kpis, forecasted_sales: val } } : prev)
+  }
+
   if (loading) return <LoadingState />
 
-  const { kpis, trend, leaderboard, goals, profile, period, hasGamePlan } = data
+  const { kpis, trend, targets, leaderboard, goals, profile, period, hasGamePlan } = data
 
   const trendChart = {
     labels: trend.map((t: any) => monthLabel(t.month)),
@@ -167,6 +180,12 @@ function ZeeDashboard() {
         borderColor: '#0C85C2', backgroundColor: 'rgba(90,179,201,0.08)',
         borderWidth: 2.5, pointRadius: 3, pointBackgroundColor: '#0C85C2', fill: true, tension: 0.4,
       },
+      ...(targets?.some((t: any) => t.amount !== null) ? [{
+        label: 'Game Plan Target', data: (targets ?? []).map((t: any) => t.amount),
+        borderColor: '#FFB600', backgroundColor: 'transparent',
+        borderWidth: 2, borderDash: [5, 5], pointRadius: 2, pointBackgroundColor: '#FFB600',
+        fill: false, tension: 0.4, spanGaps: true,
+      }] : []),
     ]
   }
 
@@ -227,21 +246,74 @@ function ZeeDashboard() {
 
       {/* KPI cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', marginBottom: '20px' }}>
-        {[
-          { label: 'Monthly Revenue', value: fmt(kpis.revenue), change: fmtPct(kpis.revenue_mom) + ' vs last month', up: kpis.revenue_mom >= 0 },
-          { label: 'Jobs Completed', value: kpis.jobs_completed, change: kpis.jobs_mom !== null ? (kpis.jobs_mom >= 0 ? '+' : '') + kpis.jobs_mom + ' vs last month' : 'this month', up: kpis.jobs_mom === null || kpis.jobs_mom >= 0 },
-          { label: 'Avg Job Value', value: fmt(kpis.avg_job_value), change: 'per booking', up: true },
-          { label: 'Network Rank', value: '#' + kpis.network_rank, change: kpis.revenue_to_next_rank > 0 ? fmt(kpis.revenue_to_next_rank) + ' to next rank' : 'Top of the network!', up: true, green: kpis.network_rank <= 3 },
-        ].map(kpi => (
-          <div key={kpi.label} style={{ background: '#fff', borderRadius: '14px', padding: '16px 18px', border: '0.5px solid #A7DBE7' }}>
-            <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#888', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '8px' }}>{kpi.label}</div>
-            <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '26px', color: (kpi as any).green ? '#3B8C2A' : '#2C3E50' }}>{kpi.value}</div>
-            <div style={{ fontSize: '12px', marginTop: '5px', color: kpi.up ? '#7CCA5B' : '#e05252', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <svg width="12" height="12" viewBox="0 0 12 12" fill={kpi.up ? '#7CCA5B' : '#e05252'}>{kpi.up ? <path d="M6 2l4 5H2z"/> : <path d="M6 10L2 5h8z"/>}</svg>
-              {kpi.change}
-            </div>
+
+        {/* Forecasted Sales — manually editable */}
+        <div style={{ background: '#fff', borderRadius: '14px', padding: '16px 18px', border: '0.5px solid #A7DBE7' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#888', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Forecasted Sales</div>
+            <span
+              title="Find this in your CRM under Reports → Revenue Forecast or your pipeline summary. Update it manually each month."
+              style={{ fontSize: '13px', color: '#A7DBE7', cursor: 'help', userSelect: 'none', lineHeight: 1 }}
+            >ⓘ</span>
           </div>
-        ))}
+          {editingForecast ? (
+            <input
+              autoFocus type="number" value={forecastInput}
+              onChange={e => setForecastInput(e.target.value)}
+              onBlur={saveForecast}
+              onKeyDown={e => { if (e.key === 'Enter') saveForecast(); if (e.key === 'Escape') setEditingForecast(false) }}
+              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '22px', color: '#2C3E50', border: '1.5px solid #0C85C2', borderRadius: '8px', padding: '2px 8px', outline: 'none', width: '100%', boxSizing: 'border-box' as const }}
+            />
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '26px', color: '#2C3E50' }}>{fmt(kpis.forecasted_sales)}</div>
+              <button
+                onClick={() => { setForecastInput(String(kpis.forecasted_sales || 0)); setEditingForecast(true) }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A7DBE7', padding: 0, display: 'flex', alignItems: 'center', flexShrink: 0 }}
+              >
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="#A7DBE7" strokeWidth="1.5"><path d="M9 2l2 2-7 7H2V9l7-7z"/><path d="M7.5 3.5l2 2"/></svg>
+              </button>
+            </div>
+          )}
+          <div style={{ fontSize: '12px', marginTop: '5px', color: '#aaa' }}>this month · click to update</div>
+        </div>
+
+        {/* Recurring Sales (MRR) */}
+        <div style={{ background: '#fff', borderRadius: '14px', padding: '16px 18px', border: '0.5px solid #A7DBE7' }}>
+          <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#888', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '8px' }}>Recurring Sales</div>
+          <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '26px', color: '#2C3E50' }}>{fmt(kpis.mrr)}</div>
+          <div style={{ fontSize: '12px', marginTop: '5px', color: '#7CCA5B', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="#7CCA5B"><path d="M6 2l4 5H2z"/></svg>
+            {hasGamePlan
+              ? (kpis.mrr_target > kpis.mrr ? fmt(kpis.mrr_target - kpis.mrr) + ' projected growth' : 'on plan')
+              : 'set in Game Plan'}
+          </div>
+        </div>
+
+        {/* Avg Ticket Price */}
+        <div style={{ background: '#fff', borderRadius: '14px', padding: '16px 18px', border: '0.5px solid #A7DBE7' }}>
+          <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#888', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '8px' }}>Avg Ticket Price</div>
+          <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '26px', color: '#2C3E50' }}>{fmt(kpis.avg_job_value)}</div>
+          <div style={{ fontSize: '12px', marginTop: '5px', color: '#7CCA5B', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="#7CCA5B"><path d="M6 2l4 5H2z"/></svg>
+            per booking
+          </div>
+        </div>
+
+        {/* Network Standing */}
+        <div style={{ background: '#fff', borderRadius: '14px', padding: '16px 18px', border: '0.5px solid #A7DBE7' }}>
+          <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#888', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '8px' }}>Network Standing</div>
+          <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '26px', color: kpis.network_rank <= 3 ? '#3B8C2A' : '#2C3E50' }}>
+            #{kpis.network_rank}
+          </div>
+          <div style={{ fontSize: '12px', marginTop: '5px', color: '#aaa', lineHeight: 1.5 }}>
+            {period?.current ? monthLabel(period.current) : ''} · Updated mid-month
+            {kpis.revenue_to_next_rank > 0 && (
+              <div style={{ color: '#7CCA5B', marginTop: '1px' }}>{fmt(kpis.revenue_to_next_rank)} to next rank</div>
+            )}
+          </div>
+        </div>
+
       </div>
 
       {/* Mid grid: chart + goals */}
@@ -250,7 +322,19 @@ function ZeeDashboard() {
           <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '14px', color: '#2C3E50', marginBottom: '4px' }}>
             Revenue — <span style={{ color: '#0C85C2' }}>{profile?.location}</span>
           </div>
-          <div style={{ fontSize: '12px', color: '#aaa', marginBottom: '16px' }}>Last 12 months</div>
+          <div style={{ fontSize: '12px', color: '#aaa', marginBottom: '8px' }}>Last 12 months</div>
+          {targets?.some((t: any) => t.amount !== null) && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#888' }}>
+                <div style={{ width: '18px', height: '2px', background: '#0C85C2', borderRadius: '2px' }} />
+                Actual
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#888' }}>
+                <div style={{ width: '18px', height: '2px', background: '#FFB600', borderRadius: '2px', borderTop: '2px dashed #FFB600', boxSizing: 'border-box' as const }} />
+                Game Plan
+              </div>
+            </div>
+          )}
           <div style={{ height: '200px' }}><Line data={trendChart} options={chartOpts as any} /></div>
         </div>
 
@@ -267,7 +351,7 @@ function ZeeDashboard() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
                   <div style={{ fontSize: '13px', color: '#2C3E50', flex: 1 }}>{g.label}</div>
                   <div style={{ fontSize: '11px', color: '#aaa' }}>
-                    {g.hasTarget ? `${g.label === 'Revenue' || g.label === 'New clients' ? fmt(g.current) : g.current} / ${g.label === 'Revenue' ? fmt(g.target) : g.target}` : '—'}
+                    {g.hasTarget ? `${['Revenue', 'MRR'].includes(g.label) ? fmt(g.current) : g.current} / ${['Revenue', 'MRR'].includes(g.label) ? fmt(g.target) : g.target}` : '—'}
                   </div>
                   <div style={{ fontSize: '12px', fontWeight: 700, color: over ? '#3B8C2A' : '#0C85C2', width: '36px', textAlign: 'right' }}>
                     {g.hasTarget ? `${pct}%` : '—'}
