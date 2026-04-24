@@ -74,7 +74,7 @@ export async function GET(request: Request) {
     const now = new Date(year, month - 1, 1)
     const currentKey = `${year}-${String(month).padStart(2, '0')}`
 
-    // Current + previous month won opportunities
+    // Jobs from opportunities (for jobs completed / avg ticket)
     const [{ data: currentOpps }, { data: prevOpps }] = await Promise.all([
       supabaseAdmin.from('opportunities').select('status, value, frequency_type')
         .eq('location_id', locationId).gte('date', currentPeriod).lte('date', currentPeriodEnd),
@@ -84,39 +84,43 @@ export async function GET(request: Request) {
 
     const wonOpps = (currentOpps ?? []).filter(o => o.status === 'won')
     const prevWon = (prevOpps ?? []).filter(o => o.status === 'won')
-
-    const currentRevenue = wonOpps.reduce((s, o) => s + (o.value || 0), 0)
-    const prevRevenue = prevWon.reduce((s, o) => s + (o.value || 0), 0)
-    const revMoM = prevRevenue > 0 ? ((currentRevenue - prevRevenue) / prevRevenue) * 100 : 0
     const jobsCompleted = wonOpps.length
-    const avgJobValue = jobsCompleted > 0 ? currentRevenue / jobsCompleted : 0
     const jobsMoM = prevWon.length > 0 ? jobsCompleted - prevWon.length : null
 
-    // Network rank
-    const { data: allWonOpps } = await supabaseAdmin
-      .from('opportunities').select('location_id, value').eq('status', 'won')
-      .gte('date', currentPeriod).lte('date', currentPeriodEnd)
+    // Revenue from revenue table — sum Short Term + Long Term per month
+    const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1).toISOString().split('T')[0]
+    const [{ data: currentRevData }, { data: prevRevData }, { data: allRevData }, { data: trendRevData }] = await Promise.all([
+      supabaseAdmin.from('revenue').select('amount')
+        .eq('location_id', locationId).gte('period_start', currentPeriod).lte('period_start', currentPeriodEnd),
+      supabaseAdmin.from('revenue').select('amount')
+        .eq('location_id', locationId).gte('period_start', prevPeriodStr).lte('period_start', prevPeriodEnd),
+      supabaseAdmin.from('revenue').select('location_id, amount')
+        .gte('period_start', currentPeriod).lte('period_start', currentPeriodEnd),
+      supabaseAdmin.from('revenue').select('period_start, amount')
+        .eq('location_id', locationId).gte('period_start', twelveMonthsAgo)
+        .order('period_start', { ascending: true }),
+    ])
 
+    const currentRevenue = (currentRevData ?? []).reduce((s, r) => s + (r.amount || 0), 0)
+    const prevRevenue = (prevRevData ?? []).reduce((s, r) => s + (r.amount || 0), 0)
+    const revMoM = prevRevenue > 0 ? ((currentRevenue - prevRevenue) / prevRevenue) * 100 : 0
+    const avgJobValue = jobsCompleted > 0 ? currentRevenue / jobsCompleted : 0
+
+    // Network rank from revenue table
     const networkTotals: Record<string, number> = {}
-    for (const r of allWonOpps ?? []) {
-      networkTotals[r.location_id] = (networkTotals[r.location_id] ?? 0) + (r.value || 0)
+    for (const r of allRevData ?? []) {
+      networkTotals[r.location_id] = (networkTotals[r.location_id] ?? 0) + (r.amount || 0)
     }
     const sorted = Object.entries(networkTotals).sort(([, a], [, b]) => b - a)
     const rank = sorted.findIndex(([id]) => id === locationId) + 1
     const prevRankEntry = sorted[rank - 2]
     const revenueToNextRank = prevRankEntry ? prevRankEntry[1] - currentRevenue : 0
 
-    // Revenue trend — last 12 months
-    const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1).toISOString().split('T')[0]
-    const { data: trendData } = await supabaseAdmin
-      .from('opportunities').select('date, value')
-      .eq('location_id', locationId).eq('status', 'won')
-      .gte('date', twelveMonthsAgo).order('date', { ascending: true })
-
+    // Revenue trend — last 12 months from revenue table
     const trendMap: Record<string, number> = {}
-    for (const r of trendData ?? []) {
-      const key = r.date.substring(0, 7)
-      trendMap[key] = (trendMap[key] ?? 0) + (r.value || 0)
+    for (const r of trendRevData ?? []) {
+      const key = r.period_start.substring(0, 7)
+      trendMap[key] = (trendMap[key] ?? 0) + (r.amount || 0)
     }
     const trend = Object.entries(trendMap).sort(([a], [b]) => a.localeCompare(b)).slice(-12)
       .map(([month, amount]) => ({ month, amount }))
