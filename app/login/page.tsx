@@ -17,14 +17,32 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
       setError(error.message)
       setLoading(false)
-    } else {
-      router.push('/dashboard')
+      return
     }
+
+    const uid = authData.user?.id
+    if (!uid) { router.push('/dashboard'); return }
+
+    // Check role and onboarding status to route correctly
+    const [{ data: profile }, { data: bizProfile }, { data: vision }] = await Promise.all([
+      supabase.from('profiles').select('role, full_name, mailing_street, mailing_city, mailing_state, mailing_zip').eq('id', uid).single(),
+      supabase.from('business_profiles').select('territory').eq('profile_id', uid).single(),
+      supabase.from('vision').select('id').eq('user_id', uid).single(),
+    ])
+
+    if (profile?.role === 'corporate') { router.push('/dashboard'); return }
+
+    const personalDone = profile?.full_name && profile?.mailing_street && profile?.mailing_city && profile?.mailing_state && profile?.mailing_zip
+    const businessDone = bizProfile?.territory
+
+    if (!personalDone || !businessDone) { router.push('/onboarding'); return }
+    if (!vision) { router.push('/blueprint/vision'); return }
+    router.push('/dashboard')
   }
 
   return (

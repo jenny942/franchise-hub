@@ -35,12 +35,12 @@ const nav = [
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
-  const [userProfile, setUserProfile] = useState<{ full_name?: string; mailing_city?: string; mailing_state?: string; avatar_url?: string } | null>(null)
+  const [userProfile, setUserProfile] = useState<{ full_name?: string; mailing_city?: string; mailing_state?: string; avatar_url?: string; role?: string } | null>(null)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) return
-      supabase.from('profiles').select('full_name, mailing_city, mailing_state, avatar_url').eq('id', data.user.id).single()
+      supabase.from('profiles').select('full_name, mailing_city, mailing_state, avatar_url, role').eq('id', data.user.id).single()
         .then(({ data: p }) => { if (p) setUserProfile(p) })
     })
   }, [])
@@ -77,12 +77,34 @@ export default function Sidebar() {
         <img src="/MAID THIS - LOGO white.png" alt="MaidThis" style={{ width: '140px', height: 'auto' }} />
       </div>
 
-      <div style={{ fontSize: '10px', fontWeight: 700, color: '#5AB3C9', letterSpacing: '1.5px', textTransform: 'uppercase', padding: '20px 16px 8px' }}>
-        Main Menu
-      </div>
+      {userProfile?.role !== 'corporate' && (
+        <div style={{ fontSize: '10px', fontWeight: 700, color: '#5AB3C9', letterSpacing: '1.5px', textTransform: 'uppercase', padding: '20px 16px 8px' }}>
+          Main Menu
+        </div>
+      )}
 
       {/* Nav items */}
       <div style={{ flex: 1 }}>
+        {/* Admin-only section for Zor users */}
+        {userProfile?.role === 'corporate' && (
+          <>
+            <div style={{ fontSize: '10px', fontWeight: 700, color: '#FFB600', letterSpacing: '1.5px', textTransform: 'uppercase', padding: '16px 16px 6px' }}>
+              Admin
+            </div>
+            {[{ label: 'Franchisees', href: '/admin/franchisees', icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M5 8A3 3 0 1 0 5 2a3 3 0 0 0 0 6zm6 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm-9 4c0-1.5 1.8-2.5 4-2.5 2.2 0 4 1 4 2.5v.5H2v-.5zm6.5-.3c.5-.4 1.3-.7 2.5-.7 1.8 0 3 .8 3 2v.5h-4.5A3.6 3.6 0 0 0 11.5 11.7z"/></svg> }].map(item => {
+              const isActive = pathname.startsWith(item.href)
+              return (
+                <div key={item.href} onClick={() => router.push(item.href)} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 16px', fontSize: '13.5px', cursor: 'pointer', color: isActive ? '#FFB600' : 'rgba(255,255,255,0.65)', background: isActive ? 'rgba(255,182,0,0.12)' : 'transparent', fontWeight: isActive ? 600 : 400 }}>
+                  <span style={{ opacity: isActive ? 1 : 0.7 }}>{item.icon}</span>
+                  {item.label}
+                </div>
+              )
+            })}
+            <div style={{ fontSize: '10px', fontWeight: 700, color: '#5AB3C9', letterSpacing: '1.5px', textTransform: 'uppercase', padding: '16px 16px 6px' }}>
+              Main Menu
+            </div>
+          </>
+        )}
         {nav.map(item => {
           const isActive = pathname === item.href || (item.children ? item.children.some(c => pathname === c.href) : false)
           const isExpanded = expanded[item.href]

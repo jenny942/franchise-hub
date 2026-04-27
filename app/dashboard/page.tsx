@@ -495,10 +495,26 @@ export default function DashboardPage() {
   const router = useRouter()
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) { router.push('/login'); return }
-      supabase.from('profiles').select('role').eq('id', data.user.id).single()
-        .then(({ data: p }) => setRole(p?.role ?? 'franchisee'))
+      const uid = data.user.id
+
+      const { data: profile } = await supabase
+        .from('profiles').select('role, full_name, mailing_street, mailing_city, mailing_state, mailing_zip').eq('id', uid).single()
+
+      if (profile?.role === 'corporate') { setRole('corporate'); return }
+
+      // Franchisee onboarding guard
+      const personalDone = profile?.full_name && profile?.mailing_street && profile?.mailing_city && profile?.mailing_state && profile?.mailing_zip
+      const { data: bizProfile } = await supabase.from('business_profiles').select('territory').eq('profile_id', uid).single()
+      const businessDone = bizProfile?.territory
+
+      if (!personalDone || !businessDone) { router.push('/onboarding'); return }
+
+      const { data: vision } = await supabase.from('vision').select('id').eq('user_id', uid).single()
+      if (!vision) { router.push('/blueprint/vision'); return }
+
+      setRole(profile?.role ?? 'franchisee')
     })
   }, [])
 
