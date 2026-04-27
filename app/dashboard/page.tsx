@@ -23,6 +23,11 @@ function monthLabel(iso: string) {
   const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
   return names[parseInt(month) - 1] + ' ' + year.slice(2)
 }
+function fmtDate(iso: string) {
+  const d = new Date(iso)
+  const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  return names[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear()
+}
 function greeting() {
   const h = new Date().getHours()
   if (h < 12) return 'Good morning'
@@ -147,6 +152,10 @@ function ZeeDashboard() {
   const [bizProfileId, setBizProfileId] = useState<string | null>(null)
   const [forecastInput, setForecastInput] = useState('')
   const [editingForecast, setEditingForecast] = useState(false)
+  const [recurringInput, setRecurringInput] = useState('')
+  const [editingRecurring, setEditingRecurring] = useState(false)
+  const [avgTicketInput, setAvgTicketInput] = useState('')
+  const [editingAvgTicket, setEditingAvgTicket] = useState(false)
   const [session, setSession] = useState<any>(null)
   const router = useRouter()
 
@@ -168,9 +177,25 @@ function ZeeDashboard() {
     setData((prev: any) => prev ? { ...prev, kpis: { ...prev.kpis, forecasted_sales: val } } : prev)
   }
 
+  async function saveRecurring() {
+    setEditingRecurring(false)
+    const val = parseFloat(recurringInput) || 0
+    if (!bizProfileId) return
+    await supabase.from('business_profiles').update({ recurring_sales: val }).eq('id', bizProfileId)
+    setData((prev: any) => prev ? { ...prev, kpis: { ...prev.kpis, recurring_sales: val } } : prev)
+  }
+
+  async function saveAvgTicket() {
+    setEditingAvgTicket(false)
+    const val = parseFloat(avgTicketInput) || 0
+    if (!bizProfileId) return
+    await supabase.from('business_profiles').update({ avg_ticket_price: val }).eq('id', bizProfileId)
+    setData((prev: any) => prev ? { ...prev, kpis: { ...prev.kpis, avg_ticket_price: val } } : prev)
+  }
+
   if (loading) return <LoadingState />
 
-  const { kpis, trend, targets, leaderboard, goals, profile, period, hasGamePlan } = data
+  const { kpis, trend, targets, leaderboard, leaderboard_month, leaderboard_last_updated, goals, profile, period, hasGamePlan } = data
 
   const trendChart = {
     labels: trend.map((t: any) => monthLabel(t.month)),
@@ -275,29 +300,57 @@ function ZeeDashboard() {
               </button>
             </div>
           )}
-          <div style={{ fontSize: '12px', marginTop: '5px', color: '#aaa' }}>this month · click to update</div>
+          <div style={{ fontSize: '12px', marginTop: '5px', color: '#aaa' }}>forecasted sales for the current month</div>
         </div>
 
-        {/* Recurring Sales (MRR) */}
+        {/* Recurring Sales — manually editable */}
         <div style={{ background: '#fff', borderRadius: '14px', padding: '16px 18px', border: '0.5px solid #A7DBE7' }}>
           <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#888', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '8px' }}>Recurring Sales</div>
-          <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '26px', color: '#2C3E50' }}>{fmt(kpis.mrr)}</div>
-          <div style={{ fontSize: '12px', marginTop: '5px', color: '#7CCA5B', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="#7CCA5B"><path d="M6 2l4 5H2z"/></svg>
-            {hasGamePlan
-              ? (kpis.mrr_target > kpis.mrr ? fmt(kpis.mrr_target - kpis.mrr) + ' projected growth' : 'on plan')
-              : 'set in Game Plan'}
-          </div>
+          {editingRecurring ? (
+            <input
+              autoFocus type="number" value={recurringInput}
+              onChange={e => setRecurringInput(e.target.value)}
+              onBlur={saveRecurring}
+              onKeyDown={e => { if (e.key === 'Enter') saveRecurring(); if (e.key === 'Escape') setEditingRecurring(false) }}
+              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '22px', color: '#2C3E50', border: '1.5px solid #0C85C2', borderRadius: '8px', padding: '2px 8px', outline: 'none', width: '100%', boxSizing: 'border-box' as const }}
+            />
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '26px', color: '#2C3E50' }}>{fmt(kpis.recurring_sales)}</div>
+              <button
+                onClick={() => { setRecurringInput(String(kpis.recurring_sales || 0)); setEditingRecurring(true) }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', flexShrink: 0 }}
+              >
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="#A7DBE7" strokeWidth="1.5"><path d="M9 2l2 2-7 7H2V9l7-7z"/><path d="M7.5 3.5l2 2"/></svg>
+              </button>
+            </div>
+          )}
+          <div style={{ fontSize: '12px', marginTop: '5px', color: '#aaa' }}>monthly recurring revenue</div>
         </div>
 
-        {/* Avg Ticket Price */}
+        {/* Avg Ticket Price — manually editable */}
         <div style={{ background: '#fff', borderRadius: '14px', padding: '16px 18px', border: '0.5px solid #A7DBE7' }}>
           <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#888', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '8px' }}>Avg Ticket Price</div>
-          <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '26px', color: '#2C3E50' }}>{fmt(kpis.avg_job_value)}</div>
-          <div style={{ fontSize: '12px', marginTop: '5px', color: '#7CCA5B', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="#7CCA5B"><path d="M6 2l4 5H2z"/></svg>
-            per booking
-          </div>
+          {editingAvgTicket ? (
+            <input
+              autoFocus type="number" value={avgTicketInput}
+              onChange={e => setAvgTicketInput(e.target.value)}
+              onBlur={saveAvgTicket}
+              onKeyDown={e => { if (e.key === 'Enter') saveAvgTicket(); if (e.key === 'Escape') setEditingAvgTicket(false) }}
+              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '22px', color: '#2C3E50', border: '1.5px solid #0C85C2', borderRadius: '8px', padding: '2px 8px', outline: 'none', width: '100%', boxSizing: 'border-box' as const }}
+            />
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '26px', color: '#2C3E50' }}>{fmt(kpis.avg_ticket_price)}</div>
+              <button
+                onClick={() => { setAvgTicketInput(String(kpis.avg_ticket_price || 0)); setEditingAvgTicket(true) }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', flexShrink: 0 }}
+              >
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="#A7DBE7" strokeWidth="1.5"><path d="M9 2l2 2-7 7H2V9l7-7z"/><path d="M7.5 3.5l2 2"/></svg>
+              </button>
+            </div>
+          )}
+          <div style={{ fontSize: '12px', marginTop: '5px', color: '#aaa' }}>per booking · click to update</div>
         </div>
 
         {/* Network Standing */}
@@ -307,7 +360,7 @@ function ZeeDashboard() {
             #{kpis.network_rank}
           </div>
           <div style={{ fontSize: '12px', marginTop: '5px', color: '#aaa', lineHeight: 1.5 }}>
-            {period?.current ? monthLabel(period.current) : ''} · Updated mid-month
+            {leaderboard_month ? monthLabel(leaderboard_month) : ''} · Updated mid-month
             {kpis.revenue_to_next_rank > 0 && (
               <div style={{ color: '#7CCA5B', marginTop: '1px' }}>{fmt(kpis.revenue_to_next_rank)} to next rank</div>
             )}
@@ -386,9 +439,24 @@ function ZeeDashboard() {
         </div>
 
         <div style={{ background: '#fff', borderRadius: '14px', padding: '18px 20px', border: '0.5px solid #A7DBE7' }}>
-          <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '14px', color: '#2C3E50', marginBottom: '4px' }}>Network leaderboard</div>
-          <div style={{ fontSize: '12px', color: '#aaa', marginBottom: '16px' }}>Top franchisees by revenue this month</div>
-          {leaderboard.map((item: any, i: number) => (
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '2px' }}>
+            <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '14px', color: '#2C3E50' }}>Network leaderboard</div>
+            {leaderboard_month && (
+              <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#0C85C2', background: '#e6f4fb', borderRadius: '20px', padding: '2px 10px' }}>
+                {monthLabel(leaderboard_month)}
+              </div>
+            )}
+          </div>
+          <div style={{ fontSize: '12px', color: '#aaa', marginBottom: '16px' }}>
+            {leaderboard_last_updated
+              ? `Updated ${fmtDate(leaderboard_last_updated)}`
+              : 'Refreshes when revenue data syncs (~mid-month)'}
+          </div>
+          {leaderboard.length === 0 ? (
+            <div style={{ fontSize: '13px', color: '#aaa', textAlign: 'center', padding: '20px 0' }}>
+              No data yet for {leaderboard_month ? monthLabel(leaderboard_month) : 'last month'}
+            </div>
+          ) : leaderboard.map((item: any, i: number) => (
             <div key={i} style={{
               display: 'flex', alignItems: 'center', gap: '10px',
               padding: '8px 10px', marginBottom: '2px',
@@ -403,7 +471,7 @@ function ZeeDashboard() {
           ))}
           {kpis.revenue_to_next_rank > 0 && (
             <div style={{ marginTop: '12px', fontSize: '12px', color: '#aaa' }}>
-              {fmt(kpis.revenue_to_next_rank)} away from the next rank. Just saying.
+              {fmt(kpis.revenue_to_next_rank)} away from the next rank.
             </div>
           )}
         </div>
