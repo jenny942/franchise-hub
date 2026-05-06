@@ -160,8 +160,20 @@ function ZeeDashboard() {
   const router = useRouter()
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
+
+      const { data: profile } = await supabase.from('profiles').select('role, profile_complete, full_name, mailing_city, mailing_state').eq('id', session.user.id).single()
+      if (profile?.role !== 'corporate') {
+        const fieldsComplete = profile?.full_name && profile?.mailing_city && profile?.mailing_state
+        if (!profile?.profile_complete && fieldsComplete) {
+          // Auto-heal: fields are there but flag wasn't set
+          await supabase.from('profiles').update({ profile_complete: true }).eq('id', session.user.id)
+        } else if (!profile?.profile_complete && !fieldsComplete) {
+          router.push('/onboarding'); return
+        }
+      }
+
       setSession(session)
       fetch('/api/dashboard/zee', {
         headers: { Authorization: `Bearer ${session.access_token}` }

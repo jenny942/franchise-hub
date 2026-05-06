@@ -19,8 +19,12 @@ const nav = [
     ]
   },
   {
-    label: 'Resources', href: '/resources',
-    icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0 3v4l3 2-1 1.5L6 9V4h2z"/></svg>
+    label: 'Tracker', href: '/tracker',
+    icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M2 10l3-4 3 3 4-6M2 13h10"/></svg>
+  },
+  {
+    label: 'Reports', href: '/reports',
+    icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="8" width="3" height="6" rx="1"/><rect x="6" y="5" width="3" height="9" rx="1"/><rect x="11" y="2" width="3" height="12" rx="1"/></svg>
   },
   {
     label: 'Settings', href: '/settings',
@@ -91,7 +95,10 @@ export default function Sidebar() {
             <div style={{ fontSize: '10px', fontWeight: 700, color: '#FFB600', letterSpacing: '1.5px', textTransform: 'uppercase', padding: '16px 16px 6px' }}>
               Admin
             </div>
-            {[{ label: 'Franchisees', href: '/admin/franchisees', icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M5 8A3 3 0 1 0 5 2a3 3 0 0 0 0 6zm6 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm-9 4c0-1.5 1.8-2.5 4-2.5 2.2 0 4 1 4 2.5v.5H2v-.5zm6.5-.3c.5-.4 1.3-.7 2.5-.7 1.8 0 3 .8 3 2v.5h-4.5A3.6 3.6 0 0 0 11.5 11.7z"/></svg> }].map(item => {
+            {[
+              { label: 'Users', href: '/admin/users', icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M5 8A3 3 0 1 0 5 2a3 3 0 0 0 0 6zm6 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm-9 4c0-1.5 1.8-2.5 4-2.5 2.2 0 4 1 4 2.5v.5H2v-.5zm6.5-.3c.5-.4 1.3-.7 2.5-.7 1.8 0 3 .8 3 2v.5h-4.5A3.6 3.6 0 0 0 11.5 11.7z"/></svg> },
+              { label: 'Reports', href: '/admin/reports', icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="8" width="3" height="6" rx="1"/><rect x="6" y="5" width="3" height="9" rx="1"/><rect x="11" y="2" width="3" height="12" rx="1"/></svg> },
+            ].map(item => {
               const isActive = pathname.startsWith(item.href)
               return (
                 <div key={item.href} onClick={() => router.push(item.href)} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 16px', fontSize: '13.5px', cursor: 'pointer', color: isActive ? '#FFB600' : 'rgba(255,255,255,0.65)', background: isActive ? 'rgba(255,182,0,0.12)' : 'transparent', fontWeight: isActive ? 600 : 400 }}>
@@ -142,7 +149,9 @@ export default function Sidebar() {
               </div>
 
               {/* Sub-items */}
-              {item.children && isExpanded && item.children.map(child => {
+              {item.children && isExpanded && item.children.filter(child =>
+                !(userProfile?.role === 'corporate' && child.href === '/settings/business')
+              ).map(child => {
                 const childActive = pathname === child.href
                 return (
                   <div

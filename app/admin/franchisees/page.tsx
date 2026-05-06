@@ -43,12 +43,12 @@ export default function AdminFranchiseesPage() {
       const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single()
       if (profile?.role !== 'corporate') { router.push('/dashboard'); return }
 
-      // Load franchisees
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, full_name, email, location_id, status, created_at')
-        .eq('role', 'franchisee')
-        .order('created_at', { ascending: false })
+      // Load franchisees via service-role API (bypasses RLS)
+      const res = await fetch('/api/admin/users', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const json = await res.json()
+      const profiles = (json.profiles ?? []).filter((p: any) => p.role === 'franchisee')
 
       const { data: locs } = await supabase.from('locations').select('id, name_ghl')
       setLocations(locs ?? [])
@@ -56,12 +56,12 @@ export default function AdminFranchiseesPage() {
       const locMap: Record<string, string> = {}
       for (const l of locs ?? []) locMap[l.id] = l.name_ghl
 
-      setFranchisees((profiles ?? []).map(p => ({
+      setFranchisees(profiles.map((p: any) => ({
         id:            p.id,
         full_name:     p.full_name || '—',
         email:         p.email || '—',
         location_name: p.location_id ? (locMap[p.location_id] ?? p.location_id) : '—',
-        status:        p.status || 'active',
+        status:        'active',
         created_at:    p.created_at || '',
       })))
       setLoading(false)

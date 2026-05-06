@@ -169,7 +169,21 @@ async function syncSpend(locationMap: Record<string, string>) {
 }
 
 // ── MAIN SYNC HANDLER ────────────────────────────────────────
-export async function POST() {
+export async function POST(req: Request) {
+  // Verify the caller is an authenticated corporate user
+  const authHeader = req.headers.get('authorization')
+  if (!authHeader) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const token = authHeader.replace('Bearer ', '')
+  const { data: { user } } = await supabaseAdmin.auth.getUser(token)
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { data: profile } = await supabaseAdmin
+    .from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'corporate') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   try {
     // Step 1: sync locations first so we can map names → IDs
     const locationCount = await syncLocations()

@@ -8,6 +8,29 @@ import { supabase } from '@/lib/supabase'
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
+function getPlanMonths(planStart: string, horizon: 'eoy' | '12mo') {
+  const now = new Date()
+  const fallback = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const start = planStart || fallback
+  const [sy, sm] = start.split('-').map(Number)
+  const startIdx = sm - 1
+  const entries: { year: number; monthIdx: number }[] = []
+  if (horizon === 'eoy') {
+    for (let m = startIdx; m <= 11; m++) entries.push({ year: sy, monthIdx: m })
+  } else {
+    for (let i = 0; i < 12; i++) {
+      const total = startIdx + i
+      entries.push({ year: sy + Math.floor(total / 12), monthIdx: total % 12 })
+    }
+  }
+  return entries.map(({ year, monthIdx }) => ({
+    year, monthIdx,
+    key: `${year}-${String(monthIdx + 1).padStart(2, '0')}`,
+    label: MONTHS[monthIdx],
+    shortLabel: year !== sy ? `${MONTHS_SHORT[monthIdx]} '${String(year).slice(2)}` : MONTHS_SHORT[monthIdx],
+  }))
+}
+
 function fmt$(n: number) {
   if (!n) return '$0'
   if (n >= 1000000) return '$' + (n / 1000000).toFixed(1) + 'M'
@@ -37,7 +60,10 @@ export default function BlueprintSummaryPage() {
   const [coachNote, setCoachNote] = useState('')
   const [coachSaved, setCoachSaved] = useState(false)
   const [showVisionDetails, setShowVisionDetails] = useState(false)
-  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
+  const [selectedMonthKey, setSelectedMonthKey] = useState<string>(() => {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  })
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -100,10 +126,10 @@ export default function BlueprintSummaryPage() {
   const monthTargets = seasonality.map((s: number) => annualGoal * (s / seasonSum))
   const maxTarget = Math.max(...monthTargets, 1)
 
-  // Marketing for selected month — use YYYY-MM key format
-  const now = new Date()
-  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-  const monthData = plan?.month_data?.[currentMonthKey] ?? plan?.month_data?.[String(currentMonth)] ?? {}
+  // Marketing for selected month
+  const planMonthsForDropdown = plan ? getPlanMonths(plan.plan_start, plan.plan_horizon ?? 'eoy') : []
+  const selectedMonthEntry = planMonthsForDropdown.find(m => m.key === selectedMonthKey) ?? planMonthsForDropdown[0]
+  const monthData = plan?.month_data?.[selectedMonthKey] ?? {}
   const paidChannels: any[] = plan?.channels?.paid ?? []
   const communityChannels: any[] = plan?.channels?.community ?? []
 
@@ -344,13 +370,13 @@ export default function BlueprintSummaryPage() {
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#0C85C2" strokeWidth="1.5"><path d="M1 7h12M7 1l5 6-5 6"/></svg>
               </div>
               <span style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '13.5px', color: '#2C3E50' }}>
-                Marketing plan — {MONTHS[currentMonth]} snapshot
+                Marketing plan — {selectedMonthEntry?.label ?? ''} snapshot
               </span>
               <span style={{ fontSize: '11px', color: '#aaa' }}>Game Plan · paid + community</span>
               <div style={{ marginLeft: 'auto' }}>
-                <select value={currentMonth} onChange={e => setCurrentMonth(parseInt(e.target.value))}
+                <select value={selectedMonthKey} onChange={e => setSelectedMonthKey(e.target.value)}
                   style={{ height: '28px', border: '1px solid #A7DBE7', borderRadius: '6px', fontSize: '12px', padding: '0 8px', fontFamily: "'Open Sans', sans-serif", color: '#2C3E50', outline: 'none', background: '#fff', cursor: 'pointer' }}>
-                  {MONTHS.map((m, i) => <option key={m} value={i}>{m}</option>)}
+                  {planMonthsForDropdown.map(m => <option key={m.key} value={m.key}>{m.shortLabel}</option>)}
                 </select>
               </div>
             </div>

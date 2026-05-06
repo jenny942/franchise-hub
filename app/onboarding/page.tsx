@@ -127,6 +127,10 @@ export default function OnboardingPage() {
       if (data) setBizId(data.id)
       err = error
     }
+    if (!err) {
+      // Mark profile as complete so the guard lets them through
+      await supabase.from('profiles').update({ profile_complete: true }).eq('id', userId!)
+    }
     setSaving(false)
     if (err) { setError(err.message); return false }
     return true
@@ -141,6 +145,10 @@ export default function OnboardingPage() {
       const ok = await saveStep2()
       if (ok) setStep(2)
     } else {
+      // Mark complete before leaving onboarding
+      if (userId) {
+        await supabase.from('profiles').update({ profile_complete: true }).eq('id', userId)
+      }
       router.push('/blueprint/vision')
     }
   }

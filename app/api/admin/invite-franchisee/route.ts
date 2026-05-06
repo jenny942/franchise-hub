@@ -17,17 +17,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const { email, full_name, location_id } = await request.json()
+    const { email, full_name, location_id, role } = await request.json()
     if (!email || !full_name) {
       return NextResponse.json({ error: 'Email and name are required' }, { status: 400 })
     }
 
+    const userRole = role === 'corporate' ? 'corporate' : 'franchisee'
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://franchise-hub.vercel.app'
 
     // Create the user + send invite email
     const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
       redirectTo: `${siteUrl}/auth/confirm`,
-      data: { full_name, role: 'franchisee', location_id: location_id || null },
+      data: { full_name, role: userRole, location_id: location_id || null },
     })
 
     if (inviteError) {
@@ -41,8 +42,8 @@ export async function POST(request: Request) {
       id:          newUserId,
       email:       email,
       full_name:   full_name,
-      role:        'franchisee',
-      location_id: location_id || null,
+      role:        userRole,
+      location_id: userRole === 'franchisee' ? (location_id || null) : null,
     }, { onConflict: 'id' })
 
     return NextResponse.json({ success: true, user_id: newUserId })

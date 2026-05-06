@@ -322,6 +322,7 @@ export default function GamePlanPage() {
   // ── Calculations ──────────────────────────────────────────
   const planMonths = plan ? getPlanMonths(plan.plan_start || (() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}` })(), plan.plan_horizon || 'eoy') : []
   const currentMonthEntry = planMonths.find(m => m.key === currentMonthKey) ?? planMonths[0]
+  const isFirstPlanMonth = planMonths.length > 0 && currentMonthKey === planMonths[0].key
 
   const seasonSum = plan?.use_seasonality ? planMonths.reduce((s, m) => s + (plan.seasonality[m.monthIdx] ?? 1), 0) || 1 : planMonths.length || 1
   const monthlyTarget = plan ? (
@@ -337,7 +338,8 @@ export default function GamePlanPage() {
 
   const totalOneTime = [...allPaidOut, ...allCommOut].reduce((s, o) => s + o.oneTimeRev, 0)
   const totalNewMrr = [...allPaidOut, ...allCommOut].reduce((s, o) => s + o.newMrr, 0)
-  const totalMarketing = totalOneTime + totalNewMrr
+  // First month: new MRR from marketing doesn't count as this month's revenue — it flows into future months via priorRollover
+  const totalMarketing = totalOneTime + (isFirstPlanMonth ? 0 : totalNewMrr)
 
   // MRR rollover = one-time revenue × recurring% (how much of new revenue becomes monthly recurring)
   const currentMonthRollover = plan ? totalOneTime * (plan.recurring_pct / 100) : 0
@@ -367,7 +369,7 @@ export default function GamePlanPage() {
   const totalSpend = plan ? plan.channels.paid.reduce((s, ch) => s + getSpend(ch.id), 0) : 0
   const totalLeads = allPaidOut.reduce((s, o) => s + o.leads, 0)
   const totalCustomers = [...allPaidOut, ...allCommOut].reduce((s, o) => s + o.customers, 0)
-  const totalRev = totalOneTime + totalNewMrr
+  const totalRev = totalMarketing
   const overTarget = totalRev > monthlyTarget
 
   // Detect which default channels have been removed
@@ -659,6 +661,10 @@ export default function GamePlanPage() {
             </div>
             <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
               <div style={{ textAlign: 'right' }}>
+                <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '18px', color: '#7CCA5B', lineHeight: 1 }}>{fmt$(stableRecurring)}</div>
+                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>recurring MRR</div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
                 <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '18px', color: '#7CCA5B', lineHeight: 1 }}>{fmt$(totalCovered)}</div>
                 <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>covered</div>
               </div>
@@ -841,11 +847,7 @@ export default function GamePlanPage() {
               </div>
 
               {/* Stats row */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-                <div style={{ background: '#E6F1F4', borderRadius: '12px', padding: '12px 16px', textAlign: 'center' }}>
-                  <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '20px', color: '#FFB600', lineHeight: 1.1 }}>{monthlyReviewTarget}</div>
-                  <div style={{ fontSize: '11px', color: '#888', marginTop: '4px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.3px' }}>{currentMonthEntry?.label} target</div>
-                </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
                 <div style={{ background: '#E6F1F4', borderRadius: '12px', padding: '12px 16px', textAlign: 'center' }}>
                   <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '20px', color: '#0C85C2', lineHeight: 1.1 }}>{remaining}</div>
                   <div style={{ fontSize: '11px', color: '#888', marginTop: '4px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.3px' }}>Still to earn</div>
@@ -921,6 +923,14 @@ export default function GamePlanPage() {
               You're {fmt$(gap)} short of your {currentMonthEntry?.label} target. Add more spend or channels to close the gap.
             </div>
           ) : null}
+        </div>
+
+        {/* CTA */}
+        <div style={{ textAlign: 'center', paddingBottom: '12px' }}>
+          <button onClick={() => { saveNow(); router.push('/blueprint/summary') }}
+            style={{ height: '48px', padding: '0 36px', background: '#2C3E50', color: '#fff', border: 'none', borderRadius: '12px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>
+            View Blueprint Summary →
+          </button>
         </div>
 
       </div>

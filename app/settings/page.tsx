@@ -110,6 +110,25 @@ export default function SettingsPage() {
             </div>
             <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#3B8C2A' }}>Edit personal info ↗</div>
           </div>
+
+          <div
+            onClick={() => router.push('/settings/password')}
+            style={{ background: '#fff', border: '0.5px solid #A7DBE7', borderRadius: '16px', padding: '24px', cursor: 'pointer' }}
+          >
+            <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#fff8e1', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#B87800" strokeWidth="1.6"><rect x="5" y="10" width="12" height="9" rx="2"/><path d="M8 10V7a3 3 0 0 1 6 0v3"/><circle cx="11" cy="15" r="1.2" fill="#B87800"/></svg>
+            </div>
+            <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '15px', color: '#2C3E50', marginBottom: '4px' }}>Password</div>
+            <div style={{ fontSize: '12.5px', color: '#888', lineHeight: 1.5, marginBottom: '14px' }}>
+              Update your account password. You'll need to enter your current password to make changes.
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
+              {['Change password'].map(f => (
+                <span key={f} style={{ fontSize: '11px', background: '#fff8e1', color: '#B87800', fontWeight: 600, padding: '3px 9px', borderRadius: '20px' }}>{f}</span>
+              ))}
+            </div>
+            <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#B87800' }}>Update password ↗</div>
+          </div>
         </div>
       </div>
     </div>
