@@ -240,8 +240,8 @@ export default function TrackerPage() {
   const [mode, setMode] = useState<'monthly' | 'weekly'>('monthly')
   const [actuals, setActuals] = useState<Record<string,number>>({})
   const [notes, setNotes] = useState<Record<string,string>>({})
-  const [customPaidChannels, setCustomPaidChannels] = useState<{id: string; name: string}[]>([])
-  const [customCommChannels, setCustomCommChannels] = useState<{id: string; name: string}[]>([])
+  const [customPaidChannels, setCustomPaidChannels] = useState<{id: string; name: string; type: 'paid'}[]>([])
+  const [customCommChannels, setCustomCommChannels] = useState<{id: string; name: string; type: 'community'}[]>([])
   const [customCommunityRows, setCustomCommunityRows] = useState<{id: string; name: string}[]>([])
   const [trackerActualId, setTrackerActualId] = useState<string|null>(null)
   const [saveStatus, setSaveStatus] = useState<'saved'|'saving'|'unsaved'>('saved')
@@ -306,8 +306,8 @@ export default function TrackerPage() {
         }
         setActuals(nums)
         setNotes(nts)
-        try { setCustomPaidChannels(JSON.parse(nts['customPaidChannels'] || '[]')) } catch { setCustomPaidChannels([]) }
-        try { setCustomCommChannels(JSON.parse(nts['customCommChannels'] || '[]')) } catch { setCustomCommChannels([]) }
+        try { setCustomPaidChannels((JSON.parse(nts['customPaidChannels'] || '[]') as any[]).map(c => ({ ...c, type: 'paid' as const }))) } catch { setCustomPaidChannels([]) }
+        try { setCustomCommChannels((JSON.parse(nts['customCommChannels'] || '[]') as any[]).map(c => ({ ...c, type: 'community' as const }))) } catch { setCustomCommChannels([]) }
         try { setCustomCommunityRows(JSON.parse(nts['customCommunityRows'] || '[]')) } catch { setCustomCommunityRows([]) }
       } else {
         setTrackerActualId(null)
@@ -839,7 +839,7 @@ export default function TrackerPage() {
                   {[...paidChannels, ...commChannels, ...customPaidChannels, ...customCommChannels].map((ch, chIdx) => {
                     const isPaid   = ch.type === 'paid'
                     const isCustom = [...customPaidChannels, ...customCommChannels].some(c => c.id === ch.id)
-                    const planLeads = isPaid ? chPlanLeads(ch) : ('conv' in ch ? chCommLeads(ch as Channel) : 0)
+                    const planLeads = isPaid ? ('cpl' in ch ? chPlanLeads(ch as Channel) : 0) : ('conv' in ch ? chCommLeads(ch as Channel) : 0)
                     const dotColor = isPaid ? '#0C85C2' : '#7CCA5B'
                     const rowBg    = isPaid ? undefined : '#fafcfe'
 
@@ -979,7 +979,7 @@ export default function TrackerPage() {
                     const isPaid = ch.type === 'paid'
                     const isCustom = [...customPaidChannels, ...customCommChannels].some(c => c.id === ch.id)
                     const planSpend  = isPaid ? chPlanSpend(ch.id) : null
-                    const planLeads  = isPaid ? chPlanLeads(ch) : ('conv' in ch ? chCommLeads(ch as Channel) : 0)
+                    const planLeads  = isPaid ? ('cpl' in ch ? chPlanLeads(ch as Channel) : 0) : ('conv' in ch ? chCommLeads(ch as Channel) : 0)
                     const actSpend   = isPaid ? getA(`spend_${ch.id}`) : null
                     const actLeads   = getA(`leads_${ch.id}`)
                     const booked     = getA(`booked_${ch.id}`)         // actual cleanings from this channel
@@ -1069,7 +1069,7 @@ export default function TrackerPage() {
               onClick={() => {
                 const name = window.prompt('Enter marketing channel name:')
                 if (name) {
-                  const newCh = { id: `custom_${Date.now()}`, name }
+                  const newCh = { id: `custom_${Date.now()}`, name, type: 'paid' as const }
                   setCustomPaidChannels(prev => {
                     const next = [...prev, newCh]
                     handleNoteChange('customPaidChannels', JSON.stringify(next))

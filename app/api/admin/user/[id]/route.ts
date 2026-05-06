@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authHeader = request.headers.get('authorization')
     const token = authHeader?.replace('Bearer ', '')
@@ -13,7 +13,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const { data: requestor } = await supabaseAdmin.from('profiles').select('role').eq('id', user.id).single()
     if (requestor?.role !== 'corporate') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-    const targetId = params.id
+    const { id: targetId } = await params
 
     // Fetch all profile data
     const [
