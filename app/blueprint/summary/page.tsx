@@ -65,17 +65,33 @@ export default function BlueprintSummaryPage() {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
   })
 
+  // Zor view state
+  const [isZorView, setIsZorView] = useState(false)
+  const [franchisees, setFranchisees] = useState<{ id: string; name: string }[]>([])
+  const [selectedFzeeId, setSelectedFzeeId] = useState('')
+
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
       const uid = session.user.id
-      const [{ data: v }, { data: ps }, { data: pr }] = await Promise.all([
+
+      const { data: pr } = await supabase.from('profiles').select('*').eq('id', uid).single()
+      setProfile(pr)
+
+      if (pr?.role === 'corporate') {
+        setIsZorView(true)
+        const res = await fetch('/api/admin/users', { headers: { Authorization: `Bearer ${session.access_token}` } })
+        const json = await res.json()
+        setFranchisees((json.profiles ?? []).filter((p: any) => p.role === 'franchisee').map((p: any) => ({ id: p.id, name: p.full_name || p.email })))
+        setLoading(false)
+        return
+      }
+
+      const [{ data: v }, { data: ps }] = await Promise.all([
         supabase.from('vision').select('*').eq('user_id', uid).single(),
         supabase.from('gameplans').select('*').eq('user_id', uid).order('created_at', { ascending: false }),
-        supabase.from('profiles').select('*').eq('id', uid).single(),
       ])
       setVision(v)
-      setProfile(pr)
       if (ps && ps.length > 0) {
         const active = ps.find((p: any) => p.is_active) ?? ps[0]
         const parsed = {
@@ -89,6 +105,30 @@ export default function BlueprintSummaryPage() {
       setLoading(false)
     })
   }, [])
+
+  // Load selected franchisee's data (Zor view)
+  useEffect(() => {
+    if (!isZorView || !selectedFzeeId) return
+    setLoading(true)
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return
+      const res = await fetch(`/api/admin/user/${selectedFzeeId}`, { headers: { Authorization: `Bearer ${session.access_token}` } })
+      const json = await res.json()
+      setVision(json.vision ?? null)
+      setProfile(json.profile ?? null)
+      if (json.gameplan) {
+        setPlan({
+          ...json.gameplan,
+          seasonality: typeof json.gameplan.seasonality === 'string' ? JSON.parse(json.gameplan.seasonality) : json.gameplan.seasonality ?? [],
+          channels: typeof json.gameplan.channels === 'string' ? JSON.parse(json.gameplan.channels) : json.gameplan.channels ?? { paid: [], community: [] },
+          month_data: typeof json.gameplan.month_data === 'string' ? JSON.parse(json.gameplan.month_data) : json.gameplan.month_data ?? {},
+        })
+      } else {
+        setPlan(null)
+      }
+      setLoading(false)
+    })
+  }, [isZorView, selectedFzeeId])
 
   function saveCoachNote() {
     setCoachSaved(true)
@@ -188,6 +228,31 @@ export default function BlueprintSummaryPage() {
           <span style={{ color: '#ccc' }}>›</span>
           <span>Summary</span>
         </div>
+
+        {/* Zor: franchisee picker */}
+        {isZorView && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#fff', border: '1.5px solid #A7DBE7', borderRadius: '12px', padding: '10px 16px', marginBottom: '16px' }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="#5AB3C9" strokeWidth="1.5"/><path d="M2 13c0-3 2.686-5 6-5s6 2 6 5" stroke="#5AB3C9" strokeWidth="1.5" strokeLinecap="round"/></svg>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: '#5AB3C9', textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>Viewing as:</span>
+            <select
+              value={selectedFzeeId}
+              onChange={e => setSelectedFzeeId(e.target.value)}
+              style={{ flex: 1, height: '36px', border: '1.5px solid #A7DBE7', borderRadius: '8px', padding: '0 10px', fontSize: '13px', fontFamily: "'Open Sans', sans-serif", color: '#2C3E50', background: '#fff', cursor: 'pointer', outline: 'none' }}
+            >
+              <option value="">Select a franchisee…</option>
+              {franchisees.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+            </select>
+            {selectedFzeeId && (
+              <span style={{ fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', background: '#fff8e1', color: '#B87800', whiteSpace: 'nowrap' }}>Read-only</span>
+            )}
+          </div>
+        )}
+
+        {isZorView && !selectedFzeeId ? (
+          <div style={{ textAlign: 'center', color: '#aaa', fontSize: '13px', marginTop: '80px' }}>Select a franchisee above to view their Blueprint Summary.</div>
+        ) : (
+        <div style={{ pointerEvents: isZorView ? 'none' : undefined, opacity: isZorView ? 0.9 : 1 }}>
+
         <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '24px', color: '#2C3E50' }}>Blueprint Summary</div>
         <div style={{ fontSize: '13.5px', color: '#888', marginTop: '4px', marginBottom: '20px' }}>
           A single view of your full plan — Vision, Game Plan, and goals in one place.
@@ -537,6 +602,8 @@ export default function BlueprintSummaryPage() {
           <span style={{ marginLeft: 'auto', fontSize: '11px', fontWeight: 700, padding: '4px 12px', borderRadius: '20px', background: '#E6F1F4', color: '#888', flexShrink: 0 }}>In development</span>
         </div>
 
+        </div>
+        )}
       </div>
     </div>
   )

@@ -210,7 +210,7 @@ export default function VisionPage() {
         setPlanDrift(Object.keys(drift).length > 0 ? drift : null)
       }
     }
-  }, [oneYrCalc, threeYrCalc, activePlanId])
+  }, [oneYrCalc, threeYrCalc, activePlanId, isZorView])
 
   async function syncToGamePlan() {
     if (!activePlanId || !planDrift) return
@@ -323,6 +323,9 @@ export default function VisionPage() {
         <div style={{ fontSize: '13.5px', color: '#888', marginTop: '4px', marginBottom: '20px' }}>
           Your foundation. Do this once a year — it's the work that makes every other decision easier.
         </div>
+
+        {/* Read-only wrapper for Zor */}
+        <div style={{ pointerEvents: isZorView ? 'none' : undefined, opacity: isZorView ? 0.9 : 1 }}>
 
         {/* Step progress */}
         <div style={{ background: '#fff', borderRadius: '14px', border: '0.5px solid #A7DBE7', padding: '14px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
@@ -761,6 +764,7 @@ export default function VisionPage() {
           </div>
         </div>
 
+        </div> {/* end read-only wrapper */}
       </div>
     </div>
   )

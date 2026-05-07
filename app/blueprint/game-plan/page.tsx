@@ -225,7 +225,7 @@ export default function GamePlanPage() {
       setSaveStatus('saved')
       return data?.id as string | undefined
     }
-  }, [])
+  }, [isZorView])
 
   const scheduleAutoSave = useCallback((updated: Plan) => {
     setSaveStatus('unsaved')
@@ -478,6 +478,14 @@ export default function GamePlanPage() {
         <div style={{ fontSize: '13.5px', color: '#888', marginTop: '4px', marginBottom: '20px' }}>
           Pull the levers. See what your marketing spend generates — and whether it closes the gap to your revenue target.
         </div>
+
+        {/* Zor: no franchisee selected */}
+        {isZorView && !selectedFzeeId && (
+          <div style={{ textAlign: 'center', color: '#aaa', fontSize: '13px', marginTop: '80px' }}>Select a franchisee above to view their Game Plan.</div>
+        )}
+
+        {/* Read-only wrapper for Zor */}
+        {(!isZorView || selectedFzeeId) && <div style={{ pointerEvents: isZorView ? 'none' : undefined, opacity: isZorView ? 0.9 : 1 }}>
 
         {/* ── Plan bar ── */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', borderRadius: '14px', border: '0.5px solid #A7DBE7', padding: '12px 20px', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
@@ -982,13 +990,16 @@ export default function GamePlanPage() {
         </div>
 
         {/* CTA */}
-        <div style={{ textAlign: 'center', paddingBottom: '12px' }}>
-          <button onClick={() => { saveNow(); router.push('/blueprint/summary') }}
-            style={{ height: '48px', padding: '0 36px', background: '#2C3E50', color: '#fff', border: 'none', borderRadius: '12px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>
-            View Blueprint Summary →
-          </button>
-        </div>
+        {!isZorView && (
+          <div style={{ textAlign: 'center', paddingBottom: '12px' }}>
+            <button onClick={() => { saveNow(); router.push('/blueprint/summary') }}
+              style={{ height: '48px', padding: '0 36px', background: '#2C3E50', color: '#fff', border: 'none', borderRadius: '12px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>
+              View Blueprint Summary →
+            </button>
+          </div>
+        )}
 
+        </div>}
       </div>
     </div>
   )
