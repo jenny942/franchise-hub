@@ -95,6 +95,11 @@ export default function VisionPage() {
   const [createdAt, setCreatedAt] = useState<string | null>(null)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Zor view state
+  const [isZorView, setIsZorView] = useState(false)
+  const [franchisees, setFranchisees] = useState<{ id: string; name: string }[]>([])
+  const [selectedFzeeId, setSelectedFzeeId] = useState('')
+
   // Computed values
   const oneYrCalc = form.profit_margin > 0 ? form.income_goal / (form.profit_margin / 100) : 0
   const threeYrCalc = oneYrCalc * form.growth_multiplier
@@ -117,6 +122,17 @@ export default function VisionPage() {
       if (!session) { router.push('/login'); return }
       const uid = session.user.id
       setUserId(uid)
+
+      const { data: profile } = await supabase.from('profiles').select('role').eq('id', uid).single()
+      if (profile?.role === 'corporate') {
+        setIsZorView(true)
+        const res = await fetch('/api/admin/users', { headers: { Authorization: `Bearer ${session.access_token}` } })
+        const json = await res.json()
+        setFranchisees((json.profiles ?? []).filter((p: any) => p.role === 'franchisee').map((p: any) => ({ id: p.id, name: p.full_name || p.email })))
+        setLoading(false)
+        return
+      }
+
       const [{ data: v }, { data: ps }] = await Promise.all([
         supabase.from('vision').select('*').eq('user_id', uid).single(),
         supabase.from('gameplans').select('id, annual_goal, avg_ticket, base_mrr, is_active').eq('user_id', uid).order('created_at', { ascending: false }),
@@ -138,8 +154,33 @@ export default function VisionPage() {
     })
   }, [])
 
+  // Load selected franchisee's vision (Zor view)
+  useEffect(() => {
+    if (!isZorView || !selectedFzeeId) return
+    setLoading(true)
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return
+      const res = await fetch(`/api/admin/user/${selectedFzeeId}`, { headers: { Authorization: `Bearer ${session.access_token}` } })
+      const json = await res.json()
+      if (json.vision) {
+        setForm({
+          ...DEFAULTS,
+          ...json.vision,
+          core_values: Array.isArray(json.vision.core_values) ? json.vision.core_values : (json.vision.core_values ? JSON.parse(json.vision.core_values) : []),
+          rocks: Array.isArray(json.vision.rocks) ? json.vision.rocks : (json.vision.rocks ? JSON.parse(json.vision.rocks) : []),
+        })
+        if (json.vision.created_at) setCreatedAt(json.vision.created_at)
+      } else {
+        setForm(DEFAULTS)
+        setCreatedAt(null)
+      }
+      setLoading(false)
+    })
+  }, [isZorView, selectedFzeeId])
+
   // Auto-save with debounce
   const save = useCallback(async (data: VisionForm, uid: string) => {
+    if (isZorView) return
     setSaveStatus('saving')
     const finalOneYr = data.one_yr_overridden ? data.one_yr_rev : Math.round(oneYrCalc)
     const payload = {
@@ -252,6 +293,25 @@ export default function VisionPage() {
           <span style={{ color: '#ccc' }}>›</span>
           <span>The Vision</span>
         </div>
+
+        {/* Zor: franchisee picker */}
+        {isZorView && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#fff', border: '1.5px solid #A7DBE7', borderRadius: '12px', padding: '10px 16px', marginBottom: '16px' }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="#5AB3C9" strokeWidth="1.5"/><path d="M2 13c0-3 2.686-5 6-5s6 2 6 5" stroke="#5AB3C9" strokeWidth="1.5" strokeLinecap="round"/></svg>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: '#5AB3C9', textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>Viewing as:</span>
+            <select
+              value={selectedFzeeId}
+              onChange={e => setSelectedFzeeId(e.target.value)}
+              style={{ flex: 1, height: '36px', border: '1.5px solid #A7DBE7', borderRadius: '8px', padding: '0 10px', fontSize: '13px', fontFamily: "'Open Sans', sans-serif", color: '#2C3E50', background: '#fff', cursor: 'pointer', outline: 'none' }}
+            >
+              <option value="">Select a franchisee…</option>
+              {franchisees.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+            </select>
+            {selectedFzeeId && (
+              <span style={{ fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', background: '#fff8e1', color: '#B87800', whiteSpace: 'nowrap' }}>Read-only</span>
+            )}
+          </div>
+        )}
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px' }}>
           <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '24px', color: '#2C3E50' }}>The Vision</div>
           {createdAt && (
