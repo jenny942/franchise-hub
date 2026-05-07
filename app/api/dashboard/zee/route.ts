@@ -86,59 +86,61 @@ export async function GET(request: Request) {
     const jobsCompleted = wonOpps.length
     const jobsMoM  = prevWon.length > 0 ? jobsCompleted - prevWon.length : null
 
-    // Revenue: pull from tracker_actuals (manual entries), fall back to revenue table (GHL sync)
-    const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1)
-    const twelveMonthsAgoKey = `${twelveMonthsAgo.getFullYear()}-${String(twelveMonthsAgo.getMonth() + 1).padStart(2, '0')}`
+    // Find the latest month that has any revenue data across all locations
+    const { data: latestRevRow } = await supabaseAdmin
+      .from('revenue').select('period_start')
+      .order('period_start', { ascending: false }).limit(1).single()
 
-    // This user's tracker actuals for current + prev month
-    const [{ data: currentActual }, { data: prevActual }, { data: allPrevActuals }, { data: trendActuals }] = await Promise.all([
-      supabaseAdmin.from('tracker_actuals').select('data').eq('user_id', user.id).eq('month_key', currentKey).single(),
-      supabaseAdmin.from('tracker_actuals').select('data').eq('user_id', user.id).eq('month_key', `${prevYear}-${String(prevMonth).padStart(2, '0')}`).single(),
-      // All users' tracker actuals for prev month — for leaderboard
-      supabaseAdmin.from('tracker_actuals').select('user_id, data').eq('month_key', `${prevYear}-${String(prevMonth).padStart(2, '0')}`),
-      // This user's last 12 months — for trend chart
-      supabaseAdmin.from('tracker_actuals').select('month_key, data').eq('user_id', user.id).gte('month_key', twelveMonthsAgoKey).order('month_key', { ascending: true }),
+    // Use the latest revenue month as the leaderboard month (falls back to prev calendar month)
+    const lbDateStr = latestRevRow?.period_start ?? prevPeriodStr
+    const lbYear  = parseInt(lbDateStr.substring(0, 4))
+    const lbMonth = parseInt(lbDateStr.substring(5, 7))
+    const lbPeriodStart = `${lbYear}-${String(lbMonth).padStart(2, '0')}-01`
+    const lbPeriodEnd   = `${lbYear}-${String(lbMonth).padStart(2, '0')}-${new Date(lbYear, lbMonth, 0).getDate()}`
+
+    // Revenue from revenue table (GHL-synced)
+    const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1).toISOString().split('T')[0]
+    const [{ data: currentRevData }, { data: prevRevData }, { data: allPrevRevData }, { data: trendRevData }] = await Promise.all([
+      supabaseAdmin.from('revenue').select('amount')
+        .eq('location_id', locationId).gte('period_start', currentPeriod).lte('period_start', currentPeriodEnd),
+      supabaseAdmin.from('revenue').select('amount')
+        .eq('location_id', locationId).gte('period_start', prevPeriodStr).lte('period_start', prevPeriodEnd),
+      // Leaderboard uses the latest available revenue month across all locations
+      supabaseAdmin.from('revenue').select('location_id, amount, synced_at')
+        .gte('period_start', lbPeriodStart).lte('period_start', lbPeriodEnd),
+      supabaseAdmin.from('revenue').select('period_start, amount')
+        .eq('location_id', locationId).gte('period_start', twelveMonthsAgo)
+        .order('period_start', { ascending: true }),
     ])
 
-    const currentRevenue = (currentActual?.data as any)?.revenue ?? 0
-    const prevRevenue    = (prevActual?.data as any)?.revenue ?? 0
+    const currentRevenue = (currentRevData ?? []).reduce((s, r) => s + (r.amount || 0), 0)
+    const prevRevenue    = (prevRevData ?? []).reduce((s, r) => s + (r.amount || 0), 0)
     const revMoM         = prevRevenue > 0 ? ((currentRevenue - prevRevenue) / prevRevenue) * 100 : 0
     const avgJobValue    = jobsCompleted > 0 ? currentRevenue / jobsCompleted : 0
 
-    // Build leaderboard from all users' tracker actuals for prev month
-    // We need user_id → location name mapping via profiles
-    const { data: allProfiles } = await supabaseAdmin
-      .from('profiles')
-      .select('id, full_name, location_id, locations(id, name_ghl)')
-      .eq('role', 'franchisee')
+    // Network rank + leaderboard from prev month revenue
+    const networkPrevTotals: Record<string, number> = {}
+    let leaderboardLastUpdated: string | null = null
 
-    const profileMap: Record<string, { name: string; locationId: string | null }> = {}
-    for (const p of allProfiles ?? []) {
-      profileMap[p.id] = {
-        name: (p.locations as any)?.name_ghl ?? p.full_name ?? p.id,
-        locationId: p.location_id ?? null,
+    for (const r of allPrevRevData ?? []) {
+      networkPrevTotals[r.location_id] = (networkPrevTotals[r.location_id] ?? 0) + (r.amount || 0)
+      if (!leaderboardLastUpdated || r.synced_at > leaderboardLastUpdated) {
+        leaderboardLastUpdated = r.synced_at
       }
     }
 
-    const networkPrevTotals: Record<string, number> = {}
-    for (const row of allPrevActuals ?? []) {
-      const rev = (row.data as any)?.revenue ?? 0
-      if (rev > 0) networkPrevTotals[row.user_id] = rev
-    }
-
     const prevSorted = Object.entries(networkPrevTotals).sort(([, a], [, b]) => b - a)
-    const prevRank   = prevSorted.findIndex(([id]) => id === user.id) + 1
+    const prevRank   = prevSorted.findIndex(([id]) => id === locationId) + 1
     const prevRankAbove = prevSorted[prevRank - 2]
     const revenueToNextRank = prevRankAbove
-      ? prevRankAbove[1] - (networkPrevTotals[user.id] ?? 0)
+      ? prevRankAbove[1] - (networkPrevTotals[locationId] ?? 0)
       : 0
-    const leaderboardLastUpdated: string | null = null
 
-    // Revenue trend chart — last 12 months from tracker_actuals
+    // Revenue trend chart — last 12 months
     const trendMap: Record<string, number> = {}
-    for (const row of trendActuals ?? []) {
-      const rev = (row.data as any)?.revenue ?? 0
-      if (rev > 0) trendMap[row.month_key] = rev
+    for (const r of trendRevData ?? []) {
+      const key = r.period_start.substring(0, 7)
+      trendMap[key] = (trendMap[key] ?? 0) + (r.amount || 0)
     }
     const trend = Object.entries(trendMap).sort(([a], [b]) => a.localeCompare(b)).slice(-12)
       .map(([month, amount]) => ({ month, amount }))
@@ -188,18 +190,19 @@ export async function GET(request: Request) {
       return { month: t.month, amount: getMonthlyTarget(pm.monthIdx, gamePlan, planMonths) }
     })
 
-    // Leaderboard — top 10 by prev month tracker revenue
-    const leaderboard = prevSorted.slice(0, 10).map(([uid, revenue], i) => ({
-      rank: i + 1,
-      name: profileMap[uid]?.name ?? uid,
-      revenue,
-      you: uid === user.id,
+    // Leaderboard — top 10 by prev month revenue
+    const { data: locations } = await supabaseAdmin.from('locations').select('id, name_ghl')
+    const locMap: Record<string, string> = {}
+    for (const l of locations ?? []) locMap[l.id] = l.name_ghl
+
+    const leaderboard = prevSorted.slice(0, 10).map(([id, revenue], i) => ({
+      rank: i + 1, name: locMap[id] ?? id, revenue, you: id === locationId,
     }))
     if (!leaderboard.find(l => l.you) && prevRank > 0) {
       leaderboard.push({
         rank: prevRank,
-        name: profileMap[user.id]?.name ?? (profile.locations as any)?.name_ghl ?? '',
-        revenue: networkPrevTotals[user.id] ?? 0,
+        name: (profile.locations as any)?.name_ghl ?? '',
+        revenue: networkPrevTotals[locationId] ?? 0,
         you: true,
       })
     }
@@ -223,7 +226,7 @@ export async function GET(request: Request) {
         mrr:                baseMrr,
         mrr_target:         projectedMrr,
       },
-      leaderboard_month:        prevPeriodStr,
+      leaderboard_month:        lbPeriodStart,
       leaderboard_last_updated: leaderboardLastUpdated,
       trend,
       targets,
