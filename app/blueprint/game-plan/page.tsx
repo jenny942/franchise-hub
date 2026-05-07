@@ -427,7 +427,7 @@ export default function GamePlanPage() {
     )
   }
 
-  if (!plan) return null
+  if (!plan && !isZorView) return null
 
   // ── Shared styles ─────────────────────────────────────────
   const prefixWrap = (override?: boolean): React.CSSProperties => ({
@@ -485,7 +485,7 @@ export default function GamePlanPage() {
         )}
 
         {/* Read-only wrapper for Zor */}
-        {(!isZorView || selectedFzeeId) && <div style={{ pointerEvents: isZorView ? 'none' : undefined, opacity: isZorView ? 0.9 : 1 }}>
+        {(!isZorView || selectedFzeeId) && plan && <div style={{ pointerEvents: isZorView ? 'none' : undefined, opacity: isZorView ? 0.9 : 1 }}>
 
         {/* ── Plan bar ── */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', borderRadius: '14px', border: '0.5px solid #A7DBE7', padding: '12px 20px', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
