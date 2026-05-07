@@ -28,11 +28,13 @@ export default function AdminFranchiseesPage() {
   const [session, setSession]           = useState<any>(null)
 
   // Invite form state
-  const [inviteEmail, setInviteEmail]   = useState('')
-  const [inviteName, setInviteName]     = useState('')
+  const [inviteEmail, setInviteEmail]       = useState('')
+  const [inviteName, setInviteName]         = useState('')
+  const [inviteRole, setInviteRole]         = useState<'franchisee' | 'corporate'>('franchisee')
   const [inviteLocation, setInviteLocation] = useState('')
-  const [inviting, setInviting]         = useState(false)
-  const [inviteMsg, setInviteMsg]       = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [newLocName, setNewLocName]         = useState('')
+  const [inviting, setInviting]             = useState(false)
+  const [inviteMsg, setInviteMsg]           = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -71,12 +73,28 @@ export default function AdminFranchiseesPage() {
   async function handleInvite(e: React.FormEvent) {
     e.preventDefault()
     if (!inviteEmail || !inviteName) { setInviteMsg({ type: 'error', text: 'Name and email are required.' }); return }
+    if (inviteRole === 'franchisee' && inviteLocation === 'new' && !newLocName.trim()) {
+      setInviteMsg({ type: 'error', text: 'Enter a name for the new location.' }); return
+    }
     setInviting(true); setInviteMsg(null)
+
+    // Create new location if needed
+    let locationId = inviteLocation === 'new' ? null : (inviteLocation || null)
+    if (inviteRole === 'franchisee' && inviteLocation === 'new' && newLocName.trim()) {
+      const { data: newLoc, error: locErr } = await supabase
+        .from('locations').insert({ name_ghl: newLocName.trim() }).select('id').single()
+      if (locErr || !newLoc) {
+        setInviting(false)
+        setInviteMsg({ type: 'error', text: locErr?.message ?? 'Failed to create location.' }); return
+      }
+      locationId = newLoc.id
+      setLocations(prev => [...prev, { id: newLoc.id, name_ghl: newLocName.trim() }])
+    }
 
     const res = await fetch('/api/admin/invite-franchisee', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
-      body: JSON.stringify({ email: inviteEmail, full_name: inviteName, location_id: inviteLocation || null }),
+      body: JSON.stringify({ email: inviteEmail, full_name: inviteName, role: inviteRole, location_id: locationId }),
     })
     const json = await res.json()
     setInviting(false)
@@ -85,8 +103,7 @@ export default function AdminFranchiseesPage() {
       setInviteMsg({ type: 'error', text: json.error })
     } else {
       setInviteMsg({ type: 'success', text: `Invite sent to ${inviteEmail}. They'll receive an email to set up their account.` })
-      setInviteEmail(''); setInviteName(''); setInviteLocation('')
-      // Refresh list
+      setInviteEmail(''); setInviteName(''); setInviteLocation(''); setNewLocName(''); setInviteRole('franchisee')
       setTimeout(() => {
         setShowModal(false); setInviteMsg(null)
         router.refresh()
@@ -157,7 +174,7 @@ export default function AdminFranchiseesPage() {
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(44,62,80,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             onClick={e => { if (e.target === e.currentTarget) setShowModal(false) }}>
             <div style={{ background: '#fff', borderRadius: '20px', padding: '32px', width: '100%', maxWidth: '460px', boxShadow: '0 8px 40px rgba(0,0,0,0.18)' }}>
-              <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '18px', color: '#2C3E50', marginBottom: '4px' }}>Invite a Franchisee</div>
+              <div style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 800, fontSize: '18px', color: '#2C3E50', marginBottom: '4px' }}>Invite a User</div>
               <div style={{ fontSize: '13px', color: '#888', marginBottom: '22px' }}>They'll get an email to set up their account and complete onboarding.</div>
 
               {inviteMsg && (
@@ -167,6 +184,19 @@ export default function AdminFranchiseesPage() {
               )}
 
               <form onSubmit={handleInvite}>
+                {/* Role toggle */}
+                <div style={{ marginBottom: '18px' }}>
+                  <label style={labelStyle}>User type</label>
+                  <div style={{ display: 'flex', border: '1.5px solid #A7DBE7', borderRadius: '10px', overflow: 'hidden' }}>
+                    {(['franchisee', 'corporate'] as const).map(r => (
+                      <button key={r} type="button" onClick={() => { setInviteRole(r); setInviteLocation(''); setNewLocName('') }}
+                        style={{ flex: 1, height: '42px', border: 'none', cursor: 'pointer', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '13px', background: inviteRole === r ? '#0C85C2' : '#fff', color: inviteRole === r ? '#fff' : '#888', transition: 'background 0.15s' }}>
+                        {r === 'franchisee' ? 'Franchisee (Zee)' : 'Franchisor (Zor)'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div style={{ marginBottom: '14px' }}>
                   <label style={labelStyle}>Full name</label>
                   <input style={inputStyle} type="text" placeholder="Jane Smith" value={inviteName} onChange={e => setInviteName(e.target.value)} required />
@@ -175,13 +205,28 @@ export default function AdminFranchiseesPage() {
                   <label style={labelStyle}>Email address</label>
                   <input style={inputStyle} type="email" placeholder="jane@maidthis.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} required />
                 </div>
-                <div style={{ marginBottom: '22px' }}>
-                  <label style={labelStyle}>Location assignment <span style={{ color: '#aaa', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(optional)</span></label>
-                  <select style={{ ...inputStyle, cursor: 'pointer' }} value={inviteLocation} onChange={e => setInviteLocation(e.target.value)}>
-                    <option value="">Select a location…</option>
-                    {locations.map(l => <option key={l.id} value={l.id}>{l.name_ghl}</option>)}
-                  </select>
-                </div>
+
+                {/* Location — only shown for Zee */}
+                {inviteRole === 'franchisee' && (
+                  <div style={{ marginBottom: '22px' }}>
+                    <label style={labelStyle}>Location <span style={{ color: '#aaa', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(optional)</span></label>
+                    <select style={{ ...inputStyle, cursor: 'pointer' }} value={inviteLocation} onChange={e => { setInviteLocation(e.target.value); setNewLocName('') }}>
+                      <option value="">Select a location…</option>
+                      {locations.map(l => <option key={l.id} value={l.id}>{l.name_ghl}</option>)}
+                      <option value="new">+ Create new location…</option>
+                    </select>
+                    {inviteLocation === 'new' && (
+                      <input
+                        style={{ ...inputStyle, marginTop: '8px' }}
+                        type="text"
+                        placeholder="e.g. MaidThis Tulsa"
+                        value={newLocName}
+                        onChange={e => setNewLocName(e.target.value)}
+                        autoFocus
+                      />
+                    )}
+                  </div>
+                )}
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, height: '44px', background: '#E6F1F4', color: '#2C3E50', border: 'none', borderRadius: '10px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>
                     Cancel
