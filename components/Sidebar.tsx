@@ -77,8 +77,26 @@ export default function Sidebar() {
       fontFamily: "'Open Sans', sans-serif",
     }}>
       {/* Logo */}
-      <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <img src="/MAID THIS - LOGO white.png" alt="MaidThis" style={{ width: '140px', height: 'auto' }} />
+      <div style={{ padding: '16px 12px 12px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 280" style={{ width: '100%', height: 'auto', display: 'block' }}>
+          <g stroke="#5AB3C9" strokeWidth="4" fill="none">
+            <path d="M 28 56 L 28 28 L 52 28"/>
+            <path d="M 668 28 L 692 28 L 692 56"/>
+            <path d="M 28 228 L 28 252 L 52 252"/>
+            <path d="M 668 252 L 692 252 L 692 228"/>
+          </g>
+          <text x="64" y="56" fill="#5AB3C9" fontFamily="'JetBrains Mono', ui-monospace, monospace" fontWeight="600" fontSize="18" letterSpacing="6">SYS · MAIDTHIS / OPS-HQ</text>
+          <circle cx="656" cy="48" r="6" fill="#FFB600"/>
+          <text x="632" y="56" textAnchor="end" fill="#E6F1F4" fontFamily="'JetBrains Mono', ui-monospace, monospace" fontWeight="500" fontSize="18" letterSpacing="4" opacity="0.7">ONLINE</text>
+          <text x="64" y="152" fill="#E6F1F4" fontFamily="'Space Grotesk', 'Montserrat', sans-serif" fontWeight="700" fontSize="68" letterSpacing="-2">MISSION</text>
+          <text x="64" y="216" fill="#E6F1F4" fontFamily="'Space Grotesk', 'Montserrat', sans-serif" fontWeight="300" fontSize="68" letterSpacing="-2">CONTROL<tspan fill="#FFB600" fontWeight="700">_</tspan></text>
+          <g stroke="#E6F1F4" strokeWidth="2" opacity="0.4">
+            <line x1="660" y1="120" x2="676" y2="120"/>
+            <line x1="660" y1="144" x2="668" y2="144"/>
+            <line x1="660" y1="168" x2="676" y2="168"/>
+            <line x1="660" y1="192" x2="668" y2="192"/>
+          </g>
+        </svg>
       </div>
 
       {userProfile?.role !== 'corporate' && (
@@ -171,6 +189,12 @@ export default function Sidebar() {
             </div>
           )
         })}
+      </div>
+
+      {/* Powered by */}
+      <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '6px' }}>Powered by</div>
+        <img src="/MAID THIS - LOGO white.png" alt="MaidThis" style={{ width: '90px', height: 'auto', opacity: 0.6 }} />
       </div>
 
       {/* User footer */}
